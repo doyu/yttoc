@@ -2,8 +2,8 @@ project:
   output-dir: _docs
 
 website:
-  title: "settings"
-  site-url: "https://doyu.github.io/settings"
-  description: "web scrapting utility"
+  title: "yttoc"
+  site-url: "https://doyu.github.io/yttoc"
+  description: "YouTube Transcript to structured Table of Contents"
   repo-branch: main
-  repo-url: "https://github.com/doyu/settings"
+  repo-url: "https://github.com/doyu/yttoc"

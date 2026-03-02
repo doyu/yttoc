@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-nbdev-based Python package (`settings`) — a meal tracking web app with AI-driven nutritional analysis (FastHTML + HTMX + OpenAI). Currently in pre-alpha (v0.0.1), scaffold only.
+nbdev-based Python package (`yttoc`) — YouTube Xscript to structured Table of Contents. LLM-driven pipeline that converts video xscripts into searchable, hierarchical knowledge assets. Currently in pre-alpha (v0.0.1).
+
+## Terminology
+
+This project uses **xscript** (not "transcript") to refer to YouTube video transcripts throughout code, docs, and module names.
 
 ## Development Commands
 
@@ -23,7 +27,7 @@ nbdev_test                                    # Run tests
 | Path | Role |
 |------|------|
 | `nbs/` | Source of truth — Jupyter notebooks (edit here) |
-| `settings/` | Auto-generated Python package from `nbs/` via nbdev |
+| `yttoc/` | Auto-generated Python package from `nbs/` via nbdev |
 | `scripts/normalize_notebooks.py` | Strips trailing whitespace in notebook cells |
 | `settings.ini` | nbdev master config (version, paths, metadata) |
 | `.github/workflows/test.yaml` | CI: `answerdotai/workflows/nbdev-ci` on push/PR |
@@ -31,11 +35,12 @@ nbdev_test                                    # Run tests
 
 ### nbdev Conventions
 
-- `nbs/00_core.ipynb` → `settings/core.py` (via `#| default_exp core`)
+- `nbs/00_core.ipynb` → `yttoc/core.py` (via `#| default_exp core`)
 - `#| export` marks cells for module export
 - `#| hide` excludes cells from docs
 - `nbs/index.ipynb` generates `README.md`
-- New features go in new numbered notebooks (e.g., `01_feature.ipynb`)
+- New features go in new numbered notebooks (e.g., `01_xscript.ipynb`)
+- See `docs/implementation-plan.md` for phased roadmap and planned module map
 
 ### Workflow
 
@@ -43,5 +48,5 @@ nbdev_test                                    # Run tests
 2. `scripts/normalize_notebooks.py nbs/*.ipynb`
 3. `nbdev_prepare`
 4. `nbdev_test`
-5. Stage both `nbs/` and generated `settings/` files
+5. Stage both `nbs/` and generated `yttoc/` files
 6. PR to main (1 PR = 1 feature, ≈ under 200 lines)
