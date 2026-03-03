@@ -1,11 +1,30 @@
 [build-system]
-requires = ["setuptools>=64.0"]
+requires = ["setuptools>=64"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name="yttoc"
-requires-python=">=3.9"
-dynamic = [ "keywords", "description", "version", "dependencies", "optional-dependencies", "readme", "license", "authors", "classifiers", "entry-points", "scripts", "urls"]
+name = "yttoc"
+dynamic = ["version"]
+description = "YouTube Transcript to structured Table of Contents"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "Apache-2.0"}
+authors = [{name = "Hiroshi Doyu", email = "hiroshi.doyu@gmail.com"}]
+keywords = ['nbdev', 'jupyter', 'notebook', 'python', 'youtube', 'transcript', 'toc']
+classifiers = ["Natural Language :: English", "Intended Audience :: Developers", "Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Programming Language :: Python :: 3 :: Only"]
+dependencies = []
 
-[tool.uv]
-cache-keys = [{ file = "pyproject.toml" }, { file = "settings.ini" }, { file = "setup.py" }]
+[project.urls]
+Repository = "https://github.com/doyu/yttoc"
+Documentation = "https://doyu.github.io/yttoc"
+
+[project.entry-points.nbdev]
+yttoc = "yttoc._modidx:d"
+
+[tool.setuptools.dynamic]
+version = {attr = "yttoc.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["yttoc"]
+
+[tool.nbdev]
