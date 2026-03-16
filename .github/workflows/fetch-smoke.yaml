@@ -1,0 +1,22 @@
+name: Fetch Smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install nbdev
+          python -m pip install -e .
+      - name: Run fetch smoke test
+        run: nbdev_test --path nbs/01_fetch.ipynb --flags network --do_print
