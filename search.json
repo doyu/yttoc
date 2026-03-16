@@ -1,0 +1,112 @@
+[
+  {
+    "objectID": "fetch.html",
+    "href": "fetch.html",
+    "title": "fetch",
+    "section": "",
+    "text": "yt-dlp xscript download (subtitles / auto-generated captions)\nMetadata extraction (title, duration, channel, upload date)\nStorage format and directory layout for 11 Solveit videos\n\n\nimport yt_dlp\nprint(yt_dlp.version.__version__)\n\n\nfrom pathlib import Path\n\nlinks_path = Path('solveit2.txt')\nurls = [link.strip() for link in links_path.read_text(encoding='utf-8').splitlines() if link.strip()]\n\nlen(urls), urls[5]\n\n\nurl = urls[5]\nydl_opts = {'skip_download': True, 'quiet': False}\nwith yt_dlp.YoutubeDL(ydl_opts) as ydl:\n    info = ydl.extract_info(url, download=False)\n\n\n# Check the fields we care about\nfor k in ['id', 'title', 'channel', 'duration', 'upload_date', 'webpage_url', 'description']:\n    print(f'{k}: {info.get(k)}')\n\n\n# Check subtitle tracks available\nprint('subtitles (manual):', list(info.get('subtitles', {}).keys()))\nprint('automatic_captions:', list(info.get('automatic_captions', {}).keys())[:10])\n\n\n# Is English auto-caption available?\nauto = info.get('automatic_captions', {})\nprint('en' in auto)\n# What formats are available for English?\nif 'en' in auto:\n    for entry in auto['en']:\n        print(f\"  ext={entry['ext']}\")\n\n\n# Check all 11 videos: manual subtitles vs auto captions\nfor u in urls:\n    vid = u.split('/')[-1].split('=')[-1]\n    opts = {'skip_download': True, 'quiet': True}\n    with yt_dlp.YoutubeDL(opts) as ydl:\n        i = ydl.extract_info(u, download=False)\n    subs = [k for k in i.get('subtitles', {}) if k != 'live_chat']\n    has_auto_en = 'en' in i.get('automatic_captions', {})\n    print(f'{vid}: manual={subs or \"none\"}, auto_en={has_auto_en}')",
+    "crumbs": [
+      "fetch"
+    ]
+  },
+  {
+    "objectID": "fetch.html#what-to-explore",
+    "href": "fetch.html#what-to-explore",
+    "title": "fetch",
+    "section": "",
+    "text": "yt-dlp xscript download (subtitles / auto-generated captions)\nMetadata extraction (title, duration, channel, upload date)\nStorage format and directory layout for 11 Solveit videos\n\n\nimport yt_dlp\nprint(yt_dlp.version.__version__)\n\n\nfrom pathlib import Path\n\nlinks_path = Path('solveit2.txt')\nurls = [link.strip() for link in links_path.read_text(encoding='utf-8').splitlines() if link.strip()]\n\nlen(urls), urls[5]\n\n\nurl = urls[5]\nydl_opts = {'skip_download': True, 'quiet': False}\nwith yt_dlp.YoutubeDL(ydl_opts) as ydl:\n    info = ydl.extract_info(url, download=False)\n\n\n# Check the fields we care about\nfor k in ['id', 'title', 'channel', 'duration', 'upload_date', 'webpage_url', 'description']:\n    print(f'{k}: {info.get(k)}')\n\n\n# Check subtitle tracks available\nprint('subtitles (manual):', list(info.get('subtitles', {}).keys()))\nprint('automatic_captions:', list(info.get('automatic_captions', {}).keys())[:10])\n\n\n# Is English auto-caption available?\nauto = info.get('automatic_captions', {})\nprint('en' in auto)\n# What formats are available for English?\nif 'en' in auto:\n    for entry in auto['en']:\n        print(f\"  ext={entry['ext']}\")\n\n\n# Check all 11 videos: manual subtitles vs auto captions\nfor u in urls:\n    vid = u.split('/')[-1].split('=')[-1]\n    opts = {'skip_download': True, 'quiet': True}\n    with yt_dlp.YoutubeDL(opts) as ydl:\n        i = ydl.extract_info(u, download=False)\n    subs = [k for k in i.get('subtitles', {}) if k != 'live_chat']\n    has_auto_en = 'en' in i.get('automatic_captions', {})\n    print(f'{vid}: manual={subs or \"none\"}, auto_en={has_auto_en}')",
+    "crumbs": [
+      "fetch"
+    ]
+  },
+  {
+    "objectID": "fetch.html#compare-caption-formats-vtt-vs-srt-vs-json3",
+    "href": "fetch.html#compare-caption-formats-vtt-vs-srt-vs-json3",
+    "title": "fetch",
+    "section": "Compare caption formats: vtt vs srt vs json3",
+    "text": "Compare caption formats: vtt vs srt vs json3\n\nimport tempfile, os\n\n# Download English auto-captions in 3 formats for comparison\ntmp = tempfile.mkdtemp()\nfor fmt in ['vtt', 'srt', 'json3']:\n    opts = {\n        'skip_download': True, 'quiet': True,\n        'writeautomaticsub': True, 'subtitleslangs': ['en'],\n        'subtitlesformat': fmt,\n        'outtmpl': os.path.join(tmp, f'sample.%(ext)s'),\n    }\n    with yt_dlp.YoutubeDL(opts) as ydl:\n        ydl.download([url])\n\n# Show what was downloaded\nfor f in sorted(os.listdir(tmp)):\n    sz = os.path.getsize(os.path.join(tmp, f))\n    print(f'{f} ({sz:,} bytes)')\n\n\n# Show first 20 lines of each format\nimport glob\nfor f in sorted(glob.glob(os.path.join(tmp, '*'))):\n    print(f'=== {os.path.basename(f)} ===')\n    with open(f) as fh:\n        for i, line in enumerate(fh):\n            if i &gt;= 20: break\n            print(line, end='')\n    print('\\n')",
+    "crumbs": [
+      "fetch"
+    ]
+  },
+  {
+    "objectID": "fetch.html#observations",
+    "href": "fetch.html#observations",
+    "title": "fetch",
+    "section": "Observations",
+    "text": "Observations\nCaption availability (11 videos): - 2/11 have manual English subtitles (7T83srD0Mu4, uSkO1BDfcNM) - 11/11 have auto-generated English captions - live_chat appears as a subtitle track on live archives — not actual captions\nFormat comparison:\n\n\n\n\n\n\n\n\nFormat\nSize\nNotes\n\n\n\n\njson3\n2.1MB\nComplex header, hard to parse\n\n\nvtt\n1.0MB\nWord-level timing tags (&lt;c&gt;), HTML escapes\n\n\nsrt\n213KB\nSimplest — sequential number + timestamp + text. Best for downstream parsing\n\n\n\nMetadata: id, title, channel, duration, upload_date, webpage_url all available, including live archives.\nLive vs normal: No special handling needed — live archives behave identically.\nyt-dlp warnings: JS runtime (deno) and impersonation warnings appear but do not affect metadata or caption downloads. These only impact video format extraction which we don’t use. May require attention if yt-dlp changes behavior in future versions.",
+    "crumbs": [
+      "fetch"
+    ]
+  },
+  {
+    "objectID": "fetch.html#storage-design",
+    "href": "fetch.html#storage-design",
+    "title": "fetch",
+    "section": "Storage design",
+    "text": "Storage design\nInput: Checked-in URL lists live under nbs/ (for example nbs/solveit2.txt). Notebook examples can use solveit2.txt because nbdev_test runs from nbs/; library callers should pass an explicit path such as nbs/solveit2.txt. Series name comes from filename, series index from line order.\ndownloads/\n  {video_id}/\n    metadata.json\n    captions.en.srt        # manual if available, otherwise auto-generated\nmetadata.json fields:\n{\n  \"id\": \"Ap4DmaB0gLY\",\n  \"title\": \"Sysadmin, devops, and web scraping - Solveit lesson 6\",\n  \"channel\": \"Jeremy Howard\",\n  \"duration\": 8192,\n  \"upload_date\": \"20251117\",\n  \"webpage_url\": \"https://www.youtube.com/watch?v=Ap4DmaB0gLY\",\n  \"caption_type\": \"auto\",\n  \"series\": \"solveit2\",\n  \"series_index\": 5\n}\nCaption selection logic: prefer manual English (en, then en-*) → fall back to auto English (en, then en-*) → error if neither exists.\nOne srt file per video. No need to store multiple formats or languages for now.",
+    "crumbs": [
+      "fetch"
+    ]
+  },
+  {
+    "objectID": "fetch.html#modularize",
+    "href": "fetch.html#modularize",
+    "title": "fetch",
+    "section": "Modularize",
+    "text": "Modularize\n\nsource\n\nload_urls\n\ndef load_urls(\n    path:str | pathlib.Path, # Path to URL list file (e.g. 'nbs/solveit2.txt')\n)-&gt;tuple: # (urls, series_name)\n\nLoad URLs and derive series name from filename.\n\n# Test: load_urls\ntest_urls, test_series = load_urls('solveit2.txt')\nassert len(test_urls) == 11\nassert test_series == 'solveit2'\nassert test_urls[0].startswith('https://')\nprint('ok')\n\n\n# Test: helpers\nassert _pick_lang({'en': []}) == 'en'\nassert _pick_lang({'live_chat': [], 'en-US': []}) == 'en-US'\nassert _pick_lang({'ja': []}) is None\n\nfrom tempfile import TemporaryDirectory\nwith TemporaryDirectory() as d:\n    base = Path(d)\n    assert _find_downloaded_srt(base) is None\n    sample = base / 'captions.en-US.srt'\n    sample.write_text('1', encoding='utf-8')\n    assert _find_downloaded_srt(base) == sample\nprint('ok')\n\nok\n\n\n\nsource\n\n\nget_video_info\n\ndef get_video_info(\n    url:str, # YouTube video URL\n)-&gt;dict: # yt-dlp info dict\n\nExtract video metadata and caption info without downloading.\n\n# Test: get_video_info smoke test (requires network)\ninfo = get_video_info('https://www.youtube.com/live/Ap4DmaB0gLY')\nfor k in ['id', 'title', 'channel', 'duration', 'upload_date', 'webpage_url']:\n    assert k in info, f'missing {k}'\nassert info['id'] == 'Ap4DmaB0gLY'\nprint('ok')\n\n\nsource\n\n\nfetch_video\n\ndef fetch_video(\n    url:str, # YouTube video URL\n    info:dict, # Result of get_video_info\n    series:str, # Series name (e.g. 'solveit2')\n    series_index:int, # 0-based index in series\n    root:str | pathlib.Path='downloads', # Root download directory\n)-&gt;Path: # Path to video directory\n\nSave metadata and English srt captions for one video.\n\n# Test: fetch_video (requires network)\nimport shutil\ntest_root = 'downloads/_test'\nshutil.rmtree(test_root, ignore_errors=True)\n\nout = fetch_video(urls[5], info, 'solveit2', 5, root=test_root)\nassert (out / 'metadata.json').exists()\nassert (out / 'captions.en.srt').exists()\n\nmeta = json.loads((out / 'metadata.json').read_text(encoding='utf-8'))\nassert meta['id'] == 'Ap4DmaB0gLY'\nassert meta['series'] == 'solveit2'\nassert meta['series_index'] == 5\n\nshutil.rmtree(test_root)\nprint('ok')\n\n\nsource\n\n\nfetch_many\n\ndef fetch_many(\n    path:str | pathlib.Path, # Path to URL list file\n    root:str | pathlib.Path='downloads', # Root download directory\n)-&gt;list: # List of output Paths\n\nFetch metadata and captions for all videos in a URL list file.\n\n# Test: fetch_many (first 2 videos only, requires network)\nimport shutil, tempfile\ntest_file = Path(tempfile.mktemp(suffix='.txt'))\ntest_root = 'downloads/_test_many'\nshutil.rmtree(test_root, ignore_errors=True)\n\n# Write a 2-URL test file\ntest_file.write_text('\\n'.join(urls[:2]), encoding='utf-8')\nresults = fetch_many(str(test_file), root=test_root)\n\nassert len(results) == 2\nfor r in results:\n    assert (r / 'metadata.json').exists()\n    assert (r / 'captions.en.srt').exists()\n\nshutil.rmtree(test_root)\ntest_file.unlink()\nprint('ok')\n\n\n# Download all 11 solveit2 videos (requires network)\nresults = fetch_many('solveit2.txt')\nprint(f'\\nDone: {len(results)} videos')\n\n\n!tree downloads/",
+    "crumbs": [
+      "fetch"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "yttoc",
+    "section": "",
+    "text": "This file will become your README and also the index of your documentation.",
+    "crumbs": [
+      "yttoc"
+    ]
+  },
+  {
+    "objectID": "index.html#developer-guide",
+    "href": "index.html#developer-guide",
+    "title": "yttoc",
+    "section": "Developer Guide",
+    "text": "Developer Guide\nIf you are new to using nbdev here are some useful pointers to get you started.\n\nInstall yttoc in Development mode\n# make sure yttoc package is installed in development mode\n$ pip install -e .\n\n# make changes under nbs/ directory\n# ...\n\n# compile to have changes apply to yttoc\n$ nbdev_prepare",
+    "crumbs": [
+      "yttoc"
+    ]
+  },
+  {
+    "objectID": "index.html#usage",
+    "href": "index.html#usage",
+    "title": "yttoc",
+    "section": "Usage",
+    "text": "Usage\n\nInstallation\nInstall latest from the GitHub repository:\n$ pip install git+https://github.com/doyu/yttoc.git\n\n\nDocumentation\nDocumentation can be found hosted on this GitHub repository’s pages.",
+    "crumbs": [
+      "yttoc"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "yttoc",
+    "section": "How to use",
+    "text": "How to use\nFill me in please! Don’t forget code examples:\n\n1+1\n\n2",
+    "crumbs": [
+      "yttoc"
+    ]
+  },
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "core",
+    "section": "",
+    "text": "source\n\nfoo\n\ndef foo(\n    \n):",
+    "crumbs": [
+      "core"
+    ]
+  }
+]
