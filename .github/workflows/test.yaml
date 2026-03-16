@@ -1,7 +1,25 @@
 name: CI
-on:  [workflow_dispatch, pull_request, push]
+on: [workflow_dispatch, pull_request, push]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    steps: [uses: answerdotai/workflows/nbdev-ci@master]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install nbdev
+          python -m pip install -e .
+      - name: Check notebooks are clean
+        run: |
+          nbdev-clean --check
+      - name: Check export sync
+        run: |
+          nbdev-export
+          git diff --exit-code || { echo "::error::Notebooks and library are not in sync. Run nbdev-export."; exit 1; }
+      - name: Test
+        run: nbdev-test
