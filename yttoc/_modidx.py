@@ -11,4 +11,5 @@ d = { 'settings': { 'branch': 'main',
                              'yttoc.fetch.fetch_many': ('fetch.html#fetch_many', 'yttoc/fetch.py'),
                              'yttoc.fetch.fetch_video': ('fetch.html#fetch_video', 'yttoc/fetch.py'),
                              'yttoc.fetch.get_video_info': ('fetch.html#get_video_info', 'yttoc/fetch.py'),
-                             'yttoc.fetch.load_urls': ('fetch.html#load_urls', 'yttoc/fetch.py')}}}
+                             'yttoc.fetch.load_urls': ('fetch.html#load_urls', 'yttoc/fetch.py'),
+                             'yttoc.fetch.yttoc_fetch': ('fetch.html#yttoc_fetch', 'yttoc/fetch.py')}}}
