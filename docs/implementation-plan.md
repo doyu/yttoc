@@ -187,13 +187,14 @@ Phase 4に進むのは以下の条件を満たした時：
 
 ## nbdev モジュール対応表
 
-| Notebook | Module | Phase |
-|----------|--------|-------|
-| `nbs/00_core.ipynb` | `yttoc/core.py` | 共通ユーティリティ |
-| `nbs/01_xscript.ipynb` | `yttoc/xscript.py` | 1 |
-| `nbs/02_summarize.ipynb` | `yttoc/summarize.py` | 2 |
-| `nbs/03_drift.ipynb` | `yttoc/drift.py` | 3a |
-| `nbs/04_formatter.ipynb` | `yttoc/formatter.py` | 3b |
+| Notebook | Module | Phase | パイプライン |
+|----------|--------|-------|------------|
+| `nbs/00_core.ipynb` | `yttoc/core.py` | — | 共通ユーティリティ |
+| `nbs/01_fetch.ipynb` | `yttoc/fetch.py` | 3c→先行 | YouTube取得 |
+| `nbs/02_xscript.ipynb` | `yttoc/xscript.py` | 1 | SRTパース＆チャンク分割 |
+| `nbs/03_summarize.ipynb` | `yttoc/summarize.py` | 2 | LLM要約（Haiku+Sonnet） |
+| `nbs/04_drift.ipynb` | `yttoc/drift.py` | 3a | トピック境界検知 |
+| `nbs/05_formatter.ipynb` | `yttoc/formatter.py` | 3b | Obsidian Markdown出力 |
 
 ---
 
