@@ -313,6 +313,7 @@ yttoc-raw "$vid" 3
 - `duration`
 - `upload_date`
 - `webpage_url`
+- `description` — 動画説明文。手動 ToC やゲスト情報を含むことが多く、ToC/summary 生成時の背景情報として使う
 - `caption_type`
 - `last_used_at`
 
