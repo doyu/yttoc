@@ -9,8 +9,10 @@ d = { 'settings': { 'branch': 'main',
             'yttoc.fetch': { 'yttoc.fetch._build_meta': ('fetch.html#_build_meta', 'yttoc/fetch.py'),
                              'yttoc.fetch._download_srt': ('fetch.html#_download_srt', 'yttoc/fetch.py'),
                              'yttoc.fetch._find_downloaded_srt': ('fetch.html#_find_downloaded_srt', 'yttoc/fetch.py'),
+                             'yttoc.fetch._fmt_duration': ('fetch.html#_fmt_duration', 'yttoc/fetch.py'),
                              'yttoc.fetch._pick_lang': ('fetch.html#_pick_lang', 'yttoc/fetch.py'),
                              'yttoc.fetch._update_last_used': ('fetch.html#_update_last_used', 'yttoc/fetch.py'),
                              'yttoc.fetch.fetch_video': ('fetch.html#fetch_video', 'yttoc/fetch.py'),
                              'yttoc.fetch.get_video_info': ('fetch.html#get_video_info', 'yttoc/fetch.py'),
-                             'yttoc.fetch.yttoc_fetch': ('fetch.html#yttoc_fetch', 'yttoc/fetch.py')}}}
+                             'yttoc.fetch.yttoc_fetch': ('fetch.html#yttoc_fetch', 'yttoc/fetch.py'),
+                             'yttoc.fetch.yttoc_list': ('fetch.html#yttoc_list', 'yttoc/fetch.py')}}}
