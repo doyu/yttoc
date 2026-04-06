@@ -9,170 +9,227 @@
 
 ---
 
-## Phase 0：手動ベースライン（Day 1 — 道具はClaude.aiだけ）
+## Phase 0：手動ベースライン（Day 1）
 
 ### やること
-Claude.aiにXscriptを貼って、1プロンプトでToCを生成する。
-これが「品質のベースライン」になる。今後のすべての改善はこれとの比較で評価する。
+ダウンロード済み transcript をそのまま Claude.ai に渡し、1回で英語の ToC と summary を作る。
+これを品質ベースラインにし、以後の自動化はこの出力と比較して評価する。
 
 ### プロンプト（そのまま使える）
 
-```
-あなたはYouTube動画の構造化エディターです。
+```text
+You are a structural editor for YouTube video transcripts.
 
-以下はYouTube動画のXscriptです。
-動画情報：
-- タイトル: {title}
-- チャンネル: {channel}
+Video info:
+- Title: {title}
+- Channel: {channel}
 - URL: {url}
 
-## タスク
-1. Xscriptを読み、話題の転換点を特定してください
-2. 各セクションについて以下を出力してください：
-   - タイムスタンプ（MM:SS）
-   - セクションタイトル（日本語・簡潔に）
-   - 1-2文の要約
-   - 登場した重要キーワード（人名、技術用語、固有名詞）
+Task
+1. Read the transcript and identify topic transitions.
+2. For each section, output:
+   - timestamp (MM:SS)
+   - concise English section title
+   - 1-2 sentence English summary
+   - important keywords (people, technical terms, proper nouns)
 
-## 出力フォーマット（Markdown）
+Output format (Markdown)
 ### Table of Contents
-- MM:SS - セクションタイトル
-  - MM:SS - サブセクション（あれば）
+- MM:SS - Section title
 
-### セクション詳細
-#### MM:SS - セクションタイトル
-**要約:** ...
-**キーワード:** ...
-**Evidence:** "原文の該当箇所の引用（英語のまま）" [MM:SS]
+### Section Details
+#### MM:SS - Section title
+**Summary:** ...
+**Keywords:** ...
+**Evidence:** "quoted transcript text" [MM:SS]
 
-## 制約
-- セクション数は7〜15が目安
-- 要約は必ず日本語
-- Evidenceは原文のまま（翻訳しない）
-- タイムスタンプはXscriptの実際の時間に忠実に
+Constraints
+- Aim for 7-15 sections
+- Write titles and summaries in English
+- Keep Evidence in original wording
+- Be faithful to transcript timestamps
 ```
 
 ### 得られるもの
-- ToC + セクション要約 + キーワード + Evidence付き
-- **これ自体がすでに十分使える**。2時間動画でも10分で「検索可能な地図」が手に入る
+- ToC + section summaries + keywords + evidence
+- これ自体が品質ベースラインになる
 
 ### 限界（＝次のフェーズで解決すること）
-- 長尺動画（90分超）でコンテキストウィンドウに収まらない
-- LLMが中盤のセクションを雑に扱う傾向
-- 毎回手動コピペが面倒
+- 毎回手動コピペが必要
+- 実行ごとに section 番号や境界が揺れる
+- 構造データや summary をローカルに再利用できない
 
 ---
 
-## Phase 1：Xscriptパース＆チャンク分割
+## Phase 1：Transcriptパース＆正規化
 
 ### 動機
-Phase 0の最大の問題「長尺動画が入らない」「中盤が雑になる」を解決する。
+ToC 生成や summary 生成の前に、`captions.en.srt` を安定した内部表現に変換できるようにする。
+notebook / module 名は `xscript` のまま維持するが、役割は transcript のパースと正規化である。
 
 ### nbdev開発手順
 
-1. `nbs/02_xscript.ipynb` で探索
-   - YouTube xscript の実フォーマットを観察（手動コピペ、yt-dlp SRT等）
-   - パース処理のプロトタイプ
-2. 動作確認後、`#| export` でモジュール化 → `yttoc/xscript.py`
+1. `nbs/02_xscript.ipynb` で `captions.en.srt` を観察
+2. SRT を `start`, `end`, `text` の正規化された配列に変換する
+3. 必要な range extraction helper を追加する
+4. 動作確認後、`#| export` でモジュール化 → `yttoc/xscript.py`
 
 ### 対象機能
-- `parse_xscript`: タイムスタンプ付きテキストをパース
-- `chunk_by_time`: 時間ベースでチャンク分割（オーバーラップ付き）
-- `format_chunk`: LLMに渡すフォーマットで文字列化
+- `parse_xscript`: `captions.en.srt` を正規化された transcript segment 列に変換
+- range extraction helper: `start/end` で transcript を切り出す
 
-### Phase 1のワークフロー
+### 初期版の前提
+- 入力は `captions.en.srt` のみ
+- 正規化結果はファイルに保存しない
+- 毎回 `captions.en.srt` から on-demand でパースする
+- `chunk_by_time` は入れない。必要になった時の最適化として後ろに回す
+
+### この段階で使えるCLI
+- `yttoc-fetch <url>`
+- `yttoc-list`
+- `yttoc-raw <video_id>`
+
+### ワークフロー
 ```bash
-# 1. Xscriptをテキストファイルに保存（またはyttoc_fetchで取得済み）
-# 2. yttocでチャンク分割
-yttoc_xscript ~/.cache/yttoc/VIDEO_ID/
-
-# 3. 各チャンクをClaude.aiに手動で貼ってPhase 0のプロンプトで要約
-# 4. 全チャンクの要約を集めて、ToC統合プロンプトを実行
-```
-
-### ToC統合プロンプト（チャンク要約を集めた後に使う）
-
-```
-以下は動画の各チャンク（2分単位）の要約です。
-
-## タスク
-1. 隣接するチャンクで同じ話題が続いている場合は統合してください
-2. 話題の転換点を特定し、階層的なTable of Contentsを作成してください
-3. 各セクションのキーワードを統合してください
-
-## 出力フォーマット
-### Table of Contents
-- MM:SS - メインセクション
-  - MM:SS - サブセクション
-
-### Entities（動画全体の登場キーワード）
-#タグ1, #タグ2, ...
-
-### セクション詳細
-（各セクションの統合要約 + Evidence）
+vid=$(yttoc-fetch https://youtube.com/watch?v=xxx)
+yttoc-raw "$vid"
 ```
 
 ### Phase 0との差分
-- 長尺動画に対応できる
-- 中盤の情報落ちが大幅に減る（各チャンクを均等に処理するため）
-- まだ手動コピペは残るが、品質は段違い
+- transcript をローカルキャッシュから再利用できる
+- `video_id` ベースで対象動画を明示できる
+- 後続の ToC / summary が同じ transcript 正規化処理を共有できる
 
 ---
 
-## Phase 2：API自動化
+## Phase 2a：ToC generation
 
 ### 動機
-Phase 1の手動コピペを自動化する。ここからが「プログラム」になる。
+`toc`, section 指定の `raw`, `sum` が共有する構造データを先に確定させる。
+`toc.json` は表示用ではなく、section 境界の権威データとして扱う。
 
 ### nbdev開発手順
 
-1. `nbs/03_summarize.ipynb` で探索
-   - Anthropic API でチャンク要約のプロトタイプ
-   - Haiku/Sonnet の使い分け検証
-2. 動作確認後、`#| export` でモジュール化 → `yttoc/summarize.py`
+1. `nbs/03_toc.ipynb` で全文 transcript から ToC を作るプロトタイプを試す
+2. LLM には strict structured output を要求し、`title`, `start` の section list を返させる
+3. アプリ側で `path` と `end` を補完し、整合性を検証する
+4. 動作確認後、`#| export` でモジュール化 → `yttoc/toc.py`
 
 ### 対象機能
-- `summarize_chunk`: 1チャンクをAPI経由で要約（Haiku）
-- `merge_summaries`: チャンク要約を統合してToC生成（Sonnet）
-- 並行処理（asyncio + semaphore）
+- 全文 transcript から ToC を生成
+- LLM 出力の section list を検証し、`path` と `end` を補完
+- `toc.json` を書き出す
 
-### 2層アーキテクチャ
-- **Layer A** (Haiku): 各チャンクの個別要約（大量・並行処理）
-- **Layer B** (Sonnet): チャンク要約の統合・構造化（1回）
+### `toc.json` の最小形
+```json
+{
+  "sections": [
+    {"path": "1", "title": "Introduction", "start": 0, "end": 750},
+    {"path": "2", "title": "Setting up the server", "start": 750, "end": 2700}
+  ]
+}
+```
+
+### 構造上の制約
+- section は 1 段構造のみ
+- sections は動画全体を連続的に覆う
+- `path` はアプリ側で採番する
+- `end` は sibling の `start` と動画 duration から補完する
+
+### 正規化と失敗条件
+- 最小限の normalize だけ行う
+  - `start` 昇順に並べる
+  - 重複 `start` を落とす
+  - 最初の section `start` が 0 でなければ 0 に補正する
+- section coverage が壊れていたら失敗する
+- 推測による大幅修復はしない
+
+### この段階で使えるCLI
+- `yttoc-toc <video_id>`
+- `yttoc-raw <video_id> <section>`
 
 ### Phase 1との差分
-- 手動コピペが完全不要
-- Haiku/Sonnetの使い分けでコスト最適化
-- 中間結果（summaries.json）が残るのでデバッグ・再実行が容易
-- 並行処理で2時間動画でも1-2分で完了
+- section 番号と時間範囲が `toc.json` で固定される
+- `raw <video_id> <section>` が安定して使える
+- `sum` が参照する構造データが明確になる
 
 ---
 
-## Phase 3：品質強化
+## Phase 2b：Summaries
 
-### 3a. トピック境界検知の改善
-- `nbs/04_drift.ipynb` で探索 → `yttoc/drift.py`
-- 隣接チャンク間のトピックドリフトスコア（0-10）を算出
-- Haikuで十分な軽量タスク
+### 動機
+構造が固定された後に、section 単位と動画全体の summary を安定して再利用できるようにする。
 
-### 3b. 出力フォーマッタ
-- `nbs/05_formatter.ipynb` で探索 → `yttoc/formatter.py`
-- Obsidian互換Markdown出力（frontmatter + timestamp links）
+### nbdev開発手順
 
-### 3c. Xscript自動取得 → **実装済み**
+1. `nbs/04_summarize.ipynb` で `toc.json` を前提に section summary を作るプロトタイプを試す
+2. 全 section の英語 summary を一括生成する
+3. section summary 群を統合して `full` summary を作る
+4. 動作確認後、`#| export` でモジュール化 → `yttoc/summarize.py`
+
+### 対象機能
+- 全 section の英語 summary を一括生成
+- section summary 群から動画全体の `full` summary を生成
+- `summaries.json` を書き出す
+
+### `summaries.json` の最小形
+```json
+{
+  "full": {
+    "summary": "...",
+    "keywords": ["..."],
+    "evidence": {"text": "...", "at": 2712}
+  },
+  "sections": {
+    "3": {
+      "summary": "...",
+      "keywords": ["..."],
+      "evidence": {"text": "...", "at": 2712}
+    }
+  }
+}
+```
+
+### 初期版の前提
+- summary は英語のみ
+- `sum <video_id>` の初回は全 section summary + `full` をまとめて生成する
+- `sum <video_id> <section>` でも初回は同じく全 section を生成し、その後に指定 section を表示する
+- `toc.json` が無ければ `sum` の内部で先に生成する
+
+### この段階で使えるCLI
+- `yttoc-sum <video_id>`
+- `yttoc-sum <video_id> <section>`
+
+### Phase 2aとの差分
+- section ごとの summary が安定して再利用できる
+- `full` summary を section summary 群の統合として保持できる
+- `summaries.json` が `toc.json` に従属する形でキャッシュされる
+- 1 段 section のみなので、親子の二重要約を避けられる
+
+---
+
+## Phase 3：将来の拡張候補
+
+### 3a. Transcript自動取得 → 実装済み・前提機能化
 - `nbs/01_fetch.ipynb` → `yttoc/fetch.py`
-- yt-dlp連携で YouTube URL → metadata + SRT を自動取得
+- もともとは後半の optional automation として構想した
+- ただし実装を進める中で、日常 CLI の入口機能として先行実装した
+- 現在は `yttoc-fetch <url>` と `yttoc-list` を支える前提機能として扱う
+
+### 3b. 必要になったら追加するもの
+- ToC 境界精度が不足したら、drift のような補助ロジックを追加する
+- CLI 標準出力以外の Markdown / Obsidian 向け整形が必要になったら formatter を追加する
+- どちらも初期版では notebook を作らない
 
 ### Phase 2との差分
-- トピック境界の精度が上がる（ドリフトスコア）
-- Obsidianに直接投入できるフォーマット
-- YouTube URLだけで全自動化（yt-dlp連携）
+- transcript 取得は後半機能ではなく、全フェーズの入口として機能する
+- drift / formatter は初期スコープから外し、必要時にだけ導入する
 
 ---
 
 ## Phase 4：RAGエンジン化（必要になったら）
 
-Phase 3までで「動画を構造化メモにする」目的は十分達成できる。
+Phase 2までで「動画を構造化メモにする」目的は十分達成できる。
 Phase 4に進むのは以下の条件を満たした時：
 
 - 処理した動画が50本を超えた
@@ -180,36 +237,170 @@ Phase 4に進むのは以下の条件を満たした時：
 - 動画横断で知識を検索したい
 
 ### 構成要素
-1. **ベクトルDB**：Chroma or Qdrant（ローカル）に要約 + 原文チャンクを格納
-2. **Parent-Child Retrieval**：要約で検索 → 原文チャンクで回答生成
-3. **QA Interface**：CLIまたはStreamlitで質問応答
+1. ベクトル DB に summary + transcript range を格納する
+2. summary で検索し、対応する原文範囲で回答を組み立てる
+3. CLI または Web UI で質問応答する
 
 ---
 
-## CLI設計
+## CLI設計（target UI）
 
-**方針：** nbdevデファクトに従い、`@call_parse`で関数単位のコマンド。各ノートブック内で完結。
+**方針：** nbdev デファクトに従い、`@call_parse` で関数単位の個別コマンド。`pyproject.toml` の `[project.scripts]` で登録。現在動画の暗黙 state は持たず、毎回 `video_id` を明示する。
 
-### コマンド（パイプライン順に追加）
+### コマンド
 
 ```bash
-yttoc_fetch <url> [--root ~/.cache/yttoc]      # 1動画取得
-yttoc_xscript <video_dir>                     # SRTパース＆チャンク分割
-yttoc_summarize <video_dir>                   # LLM要約
-yttoc_toc <video_dir>                         # ToC生成（全パイプライン）
+yttoc-fetch <url>
+yttoc-list
+yttoc-toc <video_id>
+yttoc-sum <video_id> [section]
+yttoc-raw <video_id> [section]
 ```
 
-複数処理はシェルに任せる（Unix哲学）：
+`section` は `3` 形式。`video_id` は完全一致のみ受け付ける。
+
+### daily flow
+
 ```bash
-cat urls.txt | xargs -I{} yttoc_fetch {}
+vid=$(yttoc-fetch https://youtube.com/watch?v=xxx)
+yttoc-toc "$vid"
+yttoc-sum "$vid"
+yttoc-raw "$vid"
+```
+
+補助フロー：
+
+```bash
+yttoc-list
+yttoc-sum "$vid" 3
+yttoc-raw "$vid" 3
+```
+
+### フェーズごとの利用可能コマンド
+
+- fetch 先行実装段階
+  - `yttoc-fetch <url>`
+  - `yttoc-list`
+- Phase 1 完了後
+  - `yttoc-raw <video_id>`
+- Phase 2a 完了後
+  - `yttoc-toc <video_id>`
+  - `yttoc-raw <video_id> <section>`
+- Phase 2b 完了後
+  - `yttoc-sum <video_id>`
+  - `yttoc-sum <video_id> <section>`
+
+### キャッシュレイアウト
+
+```text
+~/.cache/yttoc/<video_id>/
+  meta.json
+  captions.en.srt
+  toc.json
+  summaries.json
+```
+
+- `transcript.json` は作らない
+- transcript の正規化は毎回 `captions.en.srt` から行う
+- `toc.json` は構造の権威データ
+- `summaries.json` は `toc.json` に従属する派生キャッシュ
+
+### `meta.json` に入れるもの
+
+- `id`
+- `title`
+- `channel`
+- `duration`
+- `upload_date`
+- `webpage_url`
+- `caption_type`
+- `last_used_at`
+
+### 各コマンドの挙動
+
+- `fetch`
+  - 単一動画 URL のみ対応
+  - 英語 manual captions を優先し、無ければ英語 auto captions を使う
+  - 成功時は `video_id` だけを stdout に 1 行で出す
+  - 進捗や cache hit などの人間向けメッセージは stderr に出す
+  - 既にキャッシュ済みなら再取得しない
+  - 成功時に `last_used_at` を更新する
+- `list`
+  - `meta.json` と `captions.en.srt` が揃っている動画だけを表示する
+  - `last_used_at` 降順に並べる
+- `raw`
+  - `raw <video_id>` は全文 transcript を表示する
+  - `raw <video_id> <section>` は `toc.json` 必須。無ければ失敗する
+  - 成功時に `last_used_at` を更新する
+- `toc`
+  - 初回は全文 transcript から `toc.json` を lazy 生成する
+  - 成功時に `last_used_at` を更新する
+- `sum`
+  - `toc.json` が無ければ内部で先に生成する
+  - 初回は全 section summary + `full` をまとめて生成する
+  - 成功時に `last_used_at` を更新する
+
+### refresh の扱い
+
+- `yttoc-toc <video_id> --refresh`
+  - 新しい `toc.json` を生成して validate する
+  - 成功したら atomic に置き換える
+  - その後で `summaries.json` を削除する
+- `yttoc-sum <video_id> --refresh`
+  - 新しい `summaries.json` を生成して validate する
+  - 成功したら atomic に置き換える
+- `yttoc-fetch <url> --refresh`
+  - 初期版では入れない
+
+### 出力フォーマット
+
+**`fetch`**
+```text
+abc123xyz89
+```
+
+**`list`**
+```text
+VIDEO_ID      LAST_USED           DUR      TITLE
+abc123xyz89   2026-04-06 14:22    2:16:32  Sysadmin, devops, and web scraping - Solveit lesson 6
+```
+
+**共通ヘッダー（`toc` / `sum` / `raw`）**
+```text
+# {title}
+Channel: {channel} | Duration: {duration} | {upload_date}
+```
+
+**`toc`**
+```text
+1. Introduction 00:00-12:30 (12m30s) https://youtube.com/watch?v=xxx&t=0
+2. Setting up the server 12:30-45:00 (32m30s) https://youtube.com/watch?v=xxx&t=750
+```
+
+**`sum`**
+```text
+## 3. Web scraping (45:00)
+This section introduces web scraping using Python...
+**Keywords:** BeautifulSoup, requests, CSS selectors
+**Evidence:** "so the first thing we need to do is..." [45:12]
+```
+
+**`raw`**
+```text
+## 3. Web scraping (45:00 - 1:12:30)
+[45:00] so the first thing we need to do is install...
+[45:12] beautifulsoup4 requests and then we can...
 ```
 
 ### 設計判断
 
-- 各コマンドは1入力→1出力。バッチ処理はシェルのパイプラインで。
-- `@call_parse`（fastcore.script）でノートブック内に定義＆エクスポート。グルーコード不要。
-- `pyproject.toml`の`[project.scripts]`で各コマンドを登録。
-- 依存：`fastcore`を実行時依存に追加。
+- `set` / `use` / 現在動画の永続 state は持たない
+- 短縮は shell 側で吸収する。CLI 自体は明示的に保つ
+- `video_id` は exact match のみ
+- `toc.json` が section 境界の権威データ
+- `summaries.json` は `toc.json` 依存の派生キャッシュ
+- 初期版は英語字幕のみ、英語 ToC / summary のみ
+- chunking は deferred optimization とし、必要になるまで入れない
 
 ---
 
@@ -218,29 +409,26 @@ cat urls.txt | xargs -I{} yttoc_fetch {}
 | Notebook | Module | Phase | パイプライン |
 |----------|--------|-------|------------|
 | `nbs/00_core.ipynb` | `yttoc/core.py` | — | 共通ユーティリティ |
-| `nbs/01_fetch.ipynb` | `yttoc/fetch.py` | 3c→先行 | YouTube取得 |
-| `nbs/02_xscript.ipynb` | `yttoc/xscript.py` | 1 | SRTパース＆チャンク分割 |
-| `nbs/03_summarize.ipynb` | `yttoc/summarize.py` | 2 | LLM要約（Haiku+Sonnet） |
-| `nbs/04_drift.ipynb` | `yttoc/drift.py` | 3a | トピック境界検知 |
-| `nbs/05_formatter.ipynb` | `yttoc/formatter.py` | 3b | Obsidian Markdown出力 |
+| `nbs/01_fetch.ipynb` | `yttoc/fetch.py` | 3c→先行 | Transcript取得 |
+| `nbs/02_xscript.ipynb` | `yttoc/xscript.py` | 1 | Transcriptパース＆正規化 |
+| `nbs/03_toc.ipynb` | `yttoc/toc.py` | 2a | ToC generation |
+| `nbs/04_summarize.ipynb` | `yttoc/summarize.py` | 2b | Section/full summaries |
 
 ---
 
-## コスト見積もり（Phase 2基準）
+## コスト見積もり
 
-| 動画長 | チャンク数 | Layer A (Haiku) | Layer B (Sonnet) | 合計目安 |
-|--------|-----------|-----------------|------------------|---------|
-| 30分   | ~15       | ~$0.01          | ~$0.02           | ~$0.03  |
-| 1時間  | ~30       | ~$0.02          | ~$0.03           | ~$0.05  |
-| 2時間  | ~60       | ~$0.04          | ~$0.05           | ~$0.09  |
+初期版は transcript 全文ベースの ToC / summary を優先し、provider・prompt・refresh 戦略の詳細は後で固める。
+そのため、現時点では数値コスト見積もりを固定しない。
+長尺動画やコスト最適化が問題になった時点で、chunking や軽量モデル分割を導入する。
 
 ---
 
 ## 今日やること
 
-1. **Phase 0を1本の動画で試す**（15分で完了）
-2. 出力を眺めて「ここがもっと良くなればいいな」をメモする
-3. そのメモがPhase 1以降の優先順位を決める
+1. `fetch` / `list` / `raw` を土台にした daily CLI を固める
+2. `xscript` モジュールで transcript パース＆正規化を実装する
+3. `toc.json` を生成する最小構造パイプラインを作る
 
-最も重要なのは**Phase 0で「良いToCとは何か」の感覚を掴むこと**。
-ツールを作る前に、自分の目で品質基準を確立する。
+最初に作るべきなのは「毎日触れる最小の道具」。
+chunking や多言語化は、実際に必要になった時だけ追加する。
