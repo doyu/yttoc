@@ -14,6 +14,8 @@ import yt_dlp
 _DEFAULT_ROOT = Path(os.environ.get('XDG_CACHE_HOME', Path.home() / '.cache')) / 'yttoc'
 
 # %% ../nbs/01_fetch.ipynb #0zd7en6efu0n
+_LANG_PRIORITY = ['ja', 'en'] # Try Japanese first, fall back to English
+
 def _pick_lang(tracks: dict,
                base_lang: str = 'en' # Preferred base language
               ) -> str | None: # Best-matching language key
@@ -25,15 +27,11 @@ def _pick_lang(tracks: dict,
             return lang
     return None
 
-def _find_downloaded_srt(out_dir: str | Path # Directory containing downloaded captions
-                        ) -> Path | None: # Single SRT path if present
-    "Locate the downloaded SRT file emitted by yt-dlp."
-    matches = sorted(Path(out_dir).glob('captions*.srt'))
-    if not matches: return None
-    if len(matches) > 1:
-        names = ', '.join(p.name for p in matches)
-        raise ValueError(f'Ambiguous caption files: {names}')
-    return matches[0]
+def _glob_srt(out_dir: str | Path, # Directory to search
+              pattern: str = 'captions.*.srt' # Glob pattern
+             ) -> list[Path]: # Sorted matching paths
+    "Find SRT files matching a glob pattern."
+    return sorted(Path(out_dir).glob(pattern))
 
 def _update_last_used(meta_path: Path # Path to meta.json
                      ) -> None:
@@ -42,10 +40,11 @@ def _update_last_used(meta_path: Path # Path to meta.json
     meta['last_used_at'] = datetime.now(timezone.utc).isoformat()
     meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding='utf-8')
 
-def _build_meta(info: dict # yt-dlp info dict
+def _build_meta(info: dict, # yt-dlp info dict
+                lang: str = 'en', # Language that was fetched
+                caption_type: str = 'auto' # 'manual' or 'auto'
                ) -> dict: # meta.json content
     "Extract fields for meta.json from yt-dlp info."
-    manual_lang = _pick_lang(info.get('subtitles', {}))
     return {
         'id': info['id'],
         'title': info['title'],
@@ -54,36 +53,43 @@ def _build_meta(info: dict # yt-dlp info dict
         'upload_date': info['upload_date'],
         'webpage_url': info['webpage_url'],
         'description': info.get('description', ''),
-        'caption_type': 'manual' if manual_lang else 'auto',
+        'captions': {lang: caption_type},
         'last_used_at': datetime.now(timezone.utc).isoformat(),
     }
 
-def _download_srt(url: str, info: dict, out_dir: Path) -> Path:
-    "Download English SRT captions to out_dir, return final path."
-    manual_lang = _pick_lang(info.get('subtitles', {}))
-    auto_lang = _pick_lang(info.get('automatic_captions', {}))
-    selected_lang = manual_lang or auto_lang
-    if selected_lang is None:
-        raise ValueError(f"No English captions available for {info['id']}")
+def _download_srt(url: str, info: dict, out_dir: Path
+                 ) -> tuple[Path, str, str]: # (srt_path, lang, caption_type)
+    "Download SRT captions (ja preferred, en fallback), return path and metadata."
+    for lang in _LANG_PRIORITY:
+        manual_lang = _pick_lang(info.get('subtitles', {}), lang)
+        auto_lang = _pick_lang(info.get('automatic_captions', {}), lang)
+        selected_lang = manual_lang or auto_lang
+        if selected_lang is None:
+            continue
 
-    sub_opt = 'writesubtitles' if manual_lang else 'writeautomaticsub'
-    opts = {
-        'skip_download': True, 'quiet': True,
-        sub_opt: True,
-        'subtitleslangs': [selected_lang],
-        'subtitlesformat': 'srt',
-        'outtmpl': str(out_dir / 'captions.%(ext)s'),
-    }
-    with yt_dlp.YoutubeDL(opts) as ydl:
-        ydl.download([url])
+        sub_opt = 'writesubtitles' if manual_lang else 'writeautomaticsub'
+        opts = {
+            'skip_download': True, 'quiet': True,
+            sub_opt: True,
+            'subtitleslangs': [selected_lang],
+            'subtitlesformat': 'srt',
+            'outtmpl': str(out_dir / f'captions_{lang}.%(ext)s'),
+        }
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            ydl.download([url])
 
-    srt_path = out_dir / 'captions.en.srt'
-    downloaded = _find_downloaded_srt(out_dir)
-    if downloaded is None:
-        raise FileNotFoundError(f"yt-dlp did not write an srt caption for {info['id']}")
-    if downloaded != srt_path:
-        downloaded.replace(srt_path)
-    return srt_path
+        srt_path = out_dir / f'captions.{lang}.srt'
+        matches = _glob_srt(out_dir, f'captions_{lang}*.srt')
+        if not matches:
+            raise FileNotFoundError(f"yt-dlp did not write an srt caption for {info['id']}")
+        if len(matches) > 1:
+            raise ValueError(f"Ambiguous caption files: {', '.join(p.name for p in matches)}")
+        if matches[0] != srt_path:
+            matches[0].replace(srt_path)
+        caption_type = 'manual' if manual_lang else 'auto'
+        return srt_path, lang, caption_type
+
+    raise ValueError(f"No captions available for {info['id']} (tried {', '.join(_LANG_PRIORITY)})")
 
 # %% ../nbs/01_fetch.ipynb #tccc8rj4sxs
 def get_video_info(url: str # YouTube video URL
@@ -97,19 +103,21 @@ def fetch_video(url: str, # YouTube video URL
                 info: dict, # Result of get_video_info
                 root: str | Path = None, # Root download directory (default: ~/.cache/yttoc)
                ) -> Path: # Path to video directory
-    "Save metadata and English srt captions for one video."
+    "Save metadata and srt captions for one video (ja preferred, en fallback)."
     root = Path(root) if root else _DEFAULT_ROOT
     out_dir = root / info['id']
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    srt_path = out_dir / 'captions.en.srt'
     meta_path = out_dir / 'meta.json'
-    if srt_path.exists() and meta_path.exists():
+    if _glob_srt(out_dir) and meta_path.exists():
         _update_last_used(meta_path)
         return out_dir
 
-    _download_srt(url, info, out_dir)
-    meta_path.write_text(json.dumps(_build_meta(info), indent=2, ensure_ascii=False), encoding='utf-8')
+    _srt_path, lang, caption_type = _download_srt(url, info, out_dir)
+    meta_path.write_text(
+        json.dumps(_build_meta(info, lang=lang, caption_type=caption_type),
+                   indent=2, ensure_ascii=False),
+        encoding='utf-8')
     return out_dir
 
 # %% ../nbs/01_fetch.ipynb #56af6a8c
@@ -119,7 +127,7 @@ from fastcore.script import call_parse
 def yttoc_fetch(url: str, # YouTube video URL
                 root: str = None, # Root download directory (default: ~/.cache/yttoc)
                ):
-    "Fetch metadata and English captions for a single YouTube video."
+    "Fetch metadata and captions for a single YouTube video (ja preferred, en fallback)."
     info = get_video_info(url)
     out = fetch_video(url, info, root)
     print(info['id'])
@@ -143,13 +151,19 @@ def yttoc_list(root: str = None, # Root directory (default: ~/.cache/yttoc)
     videos = []
     for d in root.iterdir():
         if not d.is_dir(): continue
-        meta_path, srt_path = d / 'meta.json', d / 'captions.en.srt'
-        if not (meta_path.exists() and srt_path.exists()): continue
+        meta_path = d / 'meta.json'
+        srt_files = _glob_srt(d)
+        if not (meta_path.exists() and srt_files): continue
         meta = json.loads(meta_path.read_text(encoding='utf-8'))
+        captions = meta.get('captions', {})
+        if not captions:
+            captions = {p.stem.split('.', 1)[1]: '?' for p in srt_files}
+        meta['_langs'] = ','.join(sorted(captions.keys()))
         videos.append(meta)
 
     videos.sort(key=lambda m: m.get('last_used_at', ''), reverse=True)
     for m in videos:
         ts = m.get('last_used_at', '')[:16].replace('T', ' ')
         dur = _fmt_duration(m.get('duration', 0))
-        print(f"{m['id']}  {ts}  {dur:>8}  {m.get('title', '')}")
+        langs = m.get('_langs', '')
+        print(f"{m['id']}  {ts}  {dur:>8}  [{langs}]  {m.get('title', '')}")

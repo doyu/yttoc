@@ -64,24 +64,24 @@ Constraints
 ## Phase 1：Transcriptパース＆正規化
 
 ### 動機
-ToC 生成や summary 生成の前に、`captions.en.srt` を安定した内部表現に変換できるようにする。
+ToC 生成や summary 生成の前に、`captions.*.srt` を安定した内部表現に変換できるようにする。
 notebook / module 名は `xscript` のまま維持するが、役割は transcript のパースと正規化である。
 
 ### nbdev開発手順
 
-1. `nbs/02_xscript.ipynb` で `captions.en.srt` を観察
+1. `nbs/02_xscript.ipynb` で `captions.*.srt` を観察
 2. SRT を `start`, `end`, `text` の正規化された配列に変換する
 3. 必要な range extraction helper を追加する
 4. 動作確認後、`#| export` でモジュール化 → `yttoc/xscript.py`
 
 ### 対象機能
-- `parse_xscript`: `captions.en.srt` を正規化された transcript segment 列に変換
+- `parse_xscript`: `captions.*.srt` を正規化された transcript segment 列に変換
 - range extraction helper: `start/end` で transcript を切り出す
 
 ### 初期版の前提
-- 入力は `captions.en.srt` のみ
+- 入力は `captions.*.srt`（`ja` or `en`）のみ
 - 正規化結果はファイルに保存しない
-- 毎回 `captions.en.srt` から on-demand でパースする
+- 毎回 `captions.*.srt` から on-demand でパースする
 - `chunk_by_time` は入れない。必要になった時の最適化として後ろに回す
 
 ### この段階で使えるCLI
@@ -295,15 +295,18 @@ yttoc-raw "$vid" 3
 ```text
 ~/.cache/yttoc/<video_id>/
   meta.json
-  captions.en.srt
+  captions.ja.srt   # if Japanese captions exist
+  captions.en.srt   # otherwise fall back to English
   toc.json
   summaries.json
 ```
 
+- 字幕ファイルは `captions.{lang}.srt` 形式。`ja` 優先、無ければ `en` にフォールバック
 - `transcript.json` は作らない
-- transcript の正規化は毎回 `captions.en.srt` から行う
+- transcript の正規化は毎回 `captions.*.srt` から行う
 - `toc.json` は構造の権威データ
 - `summaries.json` は `toc.json` に従属する派生キャッシュ
+- キャッシュ済み動画は再 fetch しない。字幕言語を変えたい場合は `--refresh` で再取得する（将来実装）
 
 ### `meta.json` に入れるもの
 
@@ -314,20 +317,21 @@ yttoc-raw "$vid" 3
 - `upload_date`
 - `webpage_url`
 - `description` — 動画説明文。手動 ToC やゲスト情報を含むことが多く、ToC/summary 生成時の背景情報として使う
-- `caption_type`
+- `captions` — 取得済み字幕の言語と種別の dict（例: `{"ja": "manual"}`）。旧形式の `caption_type` は `yttoc_list` で後方互換処理あり
 - `last_used_at`
 
 ### 各コマンドの挙動
 
 - `fetch`
   - 単一動画 URL のみ対応
-  - 英語 manual captions を優先し、無ければ英語 auto captions を使う
+  - 字幕選択: `ja` manual → `ja` auto → `en` manual → `en` auto の優先順で最初に見つかった言語を取得
   - 成功時は `video_id` だけを stdout に 1 行で出す
   - 進捗や cache hit などの人間向けメッセージは stderr に出す
-  - 既にキャッシュ済みなら再取得しない
+  - 既にキャッシュ済み（`captions.*.srt` が存在）なら再取得しない
   - 成功時に `last_used_at` を更新する
 - `list`
-  - `meta.json` と `captions.en.srt` が揃っている動画だけを表示する
+  - `meta.json` と `captions.*.srt` が揃っている動画だけを表示する
+  - 取得済み言語を `[ja]` / `[en]` のように表示する
   - `last_used_at` 降順に並べる
 - `raw`
   - `raw <video_id>` は全文 transcript を表示する
@@ -400,7 +404,8 @@ This section introduces web scraping using Python...
 - `video_id` は exact match のみ
 - `toc.json` が section 境界の権威データ
 - `summaries.json` は `toc.json` 依存の派生キャッシュ
-- 初期版は英語字幕のみ、英語 ToC / summary のみ
+- 字幕取得は `ja` 優先 → `en` フォールバック。ToC / summary の出力言語は英語
+- キャッシュ済み動画の字幕言語変更は `--refresh` で対応（将来実装）
 - chunking は deferred optimization とし、必要になるまで入れない
 
 ---
