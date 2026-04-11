@@ -1,62 +1,12 @@
 [
   {
-    "objectID": "fetch.html",
-    "href": "fetch.html",
-    "title": "fetch",
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "core",
     "section": "",
-    "text": "yt-dlp xscript download (subtitles / auto-generated captions)\nMetadata extraction (title, duration, channel, upload date)\nStorage format and directory layout for 11 Solveit videos\n\n\nimport yt_dlp\nprint(yt_dlp.version.__version__)\n\n\nfrom pathlib import Path\n\nlinks_path = Path('solveit2.txt')\nurls = [link.strip() for link in links_path.read_text(encoding='utf-8').splitlines() if link.strip()]\n\nlen(urls), urls[5]\n\n\nurl = urls[5]\nydl_opts = {'skip_download': True, 'quiet': False}\nwith yt_dlp.YoutubeDL(ydl_opts) as ydl:\n    info = ydl.extract_info(url, download=False)\n\n\n# Check the fields we care about\nfor k in ['id', 'title', 'channel', 'duration', 'upload_date', 'webpage_url', 'description']:\n    print(f'{k}: {info.get(k)}')\n\n\n# Check subtitle tracks available\nprint('subtitles (manual):', list(info.get('subtitles', {}).keys()))\nprint('automatic_captions:', list(info.get('automatic_captions', {}).keys())[:10])\n\n\n# Is English auto-caption available?\nauto = info.get('automatic_captions', {})\nprint('en' in auto)\n# What formats are available for English?\nif 'en' in auto:\n    for entry in auto['en']:\n        print(f\"  ext={entry['ext']}\")\n\n\n# Check all 11 videos: manual subtitles vs auto captions\nfor u in urls:\n    vid = u.split('/')[-1].split('=')[-1]\n    opts = {'skip_download': True, 'quiet': True}\n    with yt_dlp.YoutubeDL(opts) as ydl:\n        i = ydl.extract_info(u, download=False)\n    subs = [k for k in i.get('subtitles', {}) if k != 'live_chat']\n    has_auto_en = 'en' in i.get('automatic_captions', {})\n    print(f'{vid}: manual={subs or \"none\"}, auto_en={has_auto_en}')",
+    "text": "source\n\nfoo\n\ndef foo(\n    \n):\n\nCall self as a function.",
     "crumbs": [
-      "fetch"
-    ]
-  },
-  {
-    "objectID": "fetch.html#what-to-explore",
-    "href": "fetch.html#what-to-explore",
-    "title": "fetch",
-    "section": "",
-    "text": "yt-dlp xscript download (subtitles / auto-generated captions)\nMetadata extraction (title, duration, channel, upload date)\nStorage format and directory layout for 11 Solveit videos\n\n\nimport yt_dlp\nprint(yt_dlp.version.__version__)\n\n\nfrom pathlib import Path\n\nlinks_path = Path('solveit2.txt')\nurls = [link.strip() for link in links_path.read_text(encoding='utf-8').splitlines() if link.strip()]\n\nlen(urls), urls[5]\n\n\nurl = urls[5]\nydl_opts = {'skip_download': True, 'quiet': False}\nwith yt_dlp.YoutubeDL(ydl_opts) as ydl:\n    info = ydl.extract_info(url, download=False)\n\n\n# Check the fields we care about\nfor k in ['id', 'title', 'channel', 'duration', 'upload_date', 'webpage_url', 'description']:\n    print(f'{k}: {info.get(k)}')\n\n\n# Check subtitle tracks available\nprint('subtitles (manual):', list(info.get('subtitles', {}).keys()))\nprint('automatic_captions:', list(info.get('automatic_captions', {}).keys())[:10])\n\n\n# Is English auto-caption available?\nauto = info.get('automatic_captions', {})\nprint('en' in auto)\n# What formats are available for English?\nif 'en' in auto:\n    for entry in auto['en']:\n        print(f\"  ext={entry['ext']}\")\n\n\n# Check all 11 videos: manual subtitles vs auto captions\nfor u in urls:\n    vid = u.split('/')[-1].split('=')[-1]\n    opts = {'skip_download': True, 'quiet': True}\n    with yt_dlp.YoutubeDL(opts) as ydl:\n        i = ydl.extract_info(u, download=False)\n    subs = [k for k in i.get('subtitles', {}) if k != 'live_chat']\n    has_auto_en = 'en' in i.get('automatic_captions', {})\n    print(f'{vid}: manual={subs or \"none\"}, auto_en={has_auto_en}')",
-    "crumbs": [
-      "fetch"
-    ]
-  },
-  {
-    "objectID": "fetch.html#compare-caption-formats-vtt-vs-srt-vs-json3",
-    "href": "fetch.html#compare-caption-formats-vtt-vs-srt-vs-json3",
-    "title": "fetch",
-    "section": "Compare caption formats: vtt vs srt vs json3",
-    "text": "Compare caption formats: vtt vs srt vs json3\n\nimport tempfile, os\n\n# Download English auto-captions in 3 formats for comparison\ntmp = tempfile.mkdtemp()\nfor fmt in ['vtt', 'srt', 'json3']:\n    opts = {\n        'skip_download': True, 'quiet': True,\n        'writeautomaticsub': True, 'subtitleslangs': ['en'],\n        'subtitlesformat': fmt,\n        'outtmpl': os.path.join(tmp, f'sample.%(ext)s'),\n    }\n    with yt_dlp.YoutubeDL(opts) as ydl:\n        ydl.download([url])\n\n# Show what was downloaded\nfor f in sorted(os.listdir(tmp)):\n    sz = os.path.getsize(os.path.join(tmp, f))\n    print(f'{f} ({sz:,} bytes)')\n\n\n# Show first 20 lines of each format\nimport glob\nfor f in sorted(glob.glob(os.path.join(tmp, '*'))):\n    print(f'=== {os.path.basename(f)} ===')\n    with open(f) as fh:\n        for i, line in enumerate(fh):\n            if i &gt;= 20: break\n            print(line, end='')\n    print('\\n')",
-    "crumbs": [
-      "fetch"
-    ]
-  },
-  {
-    "objectID": "fetch.html#observations",
-    "href": "fetch.html#observations",
-    "title": "fetch",
-    "section": "Observations",
-    "text": "Observations\nCaption availability (11 videos): - 2/11 have manual English subtitles (7T83srD0Mu4, uSkO1BDfcNM) - 11/11 have auto-generated English captions - live_chat appears as a subtitle track on live archives — not actual captions\nFormat comparison:\n\n\n\n\n\n\n\n\nFormat\nSize\nNotes\n\n\n\n\njson3\n2.1MB\nComplex header, hard to parse\n\n\nvtt\n1.0MB\nWord-level timing tags (&lt;c&gt;), HTML escapes\n\n\nsrt\n213KB\nSimplest — sequential number + timestamp + text. Best for downstream parsing\n\n\n\nMetadata: id, title, channel, duration, upload_date, webpage_url all available, including live archives.\nLive vs normal: No special handling needed — live archives behave identically.\nyt-dlp warnings: JS runtime (deno) and impersonation warnings appear but do not affect metadata or caption downloads. These only impact video format extraction which we don’t use. May require attention if yt-dlp changes behavior in future versions.",
-    "crumbs": [
-      "fetch"
-    ]
-  },
-  {
-    "objectID": "fetch.html#storage-design",
-    "href": "fetch.html#storage-design",
-    "title": "fetch",
-    "section": "Storage design",
-    "text": "Storage design\nInput: Checked-in URL lists live under nbs/ (for example nbs/solveit2.txt). Notebook examples can use solveit2.txt because nbdev_test runs from nbs/; library callers should pass an explicit path such as nbs/solveit2.txt. Series name comes from filename, series index from line order.\ndownloads/\n  {video_id}/\n    metadata.json\n    captions.en.srt        # manual if available, otherwise auto-generated\nmetadata.json fields:\n{\n  \"id\": \"Ap4DmaB0gLY\",\n  \"title\": \"Sysadmin, devops, and web scraping - Solveit lesson 6\",\n  \"channel\": \"Jeremy Howard\",\n  \"duration\": 8192,\n  \"upload_date\": \"20251117\",\n  \"webpage_url\": \"https://www.youtube.com/watch?v=Ap4DmaB0gLY\",\n  \"caption_type\": \"auto\",\n  \"series\": \"solveit2\",\n  \"series_index\": 5\n}\nCaption selection logic: prefer manual English (en, then en-*) → fall back to auto English (en, then en-*) → error if neither exists.\nOne srt file per video. No need to store multiple formats or languages for now.",
-    "crumbs": [
-      "fetch"
-    ]
-  },
-  {
-    "objectID": "fetch.html#modularize",
-    "href": "fetch.html#modularize",
-    "title": "fetch",
-    "section": "Modularize",
-    "text": "Modularize\n\nsource\n\nload_urls\n\ndef load_urls(\n    path:str | pathlib.Path, # Path to URL list file (e.g. 'nbs/solveit2.txt')\n)-&gt;tuple: # (urls, series_name)\n\nLoad URLs and derive series name from filename.\n\n# Test: load_urls\ntest_urls, test_series = load_urls('solveit2.txt')\nassert len(test_urls) == 11\nassert test_series == 'solveit2'\nassert test_urls[0].startswith('https://')\nprint('ok')\n\n\n# Test: helpers\nassert _pick_lang({'en': []}) == 'en'\nassert _pick_lang({'live_chat': [], 'en-US': []}) == 'en-US'\nassert _pick_lang({'ja': []}) is None\n\nfrom tempfile import TemporaryDirectory\nwith TemporaryDirectory() as d:\n    base = Path(d)\n    assert _find_downloaded_srt(base) is None\n    sample = base / 'captions.en-US.srt'\n    sample.write_text('1', encoding='utf-8')\n    assert _find_downloaded_srt(base) == sample\nprint('ok')\n\nok\n\n\n\nsource\n\n\nget_video_info\n\ndef get_video_info(\n    url:str, # YouTube video URL\n)-&gt;dict: # yt-dlp info dict\n\nExtract video metadata and caption info without downloading.\n\n# Test: get_video_info smoke test (requires network)\ninfo = get_video_info('https://www.youtube.com/live/Ap4DmaB0gLY')\nfor k in ['id', 'title', 'channel', 'duration', 'upload_date', 'webpage_url']:\n    assert k in info, f'missing {k}'\nassert info['id'] == 'Ap4DmaB0gLY'\nprint('ok')\n\n\nsource\n\n\nfetch_video\n\ndef fetch_video(\n    url:str, # YouTube video URL\n    info:dict, # Result of get_video_info\n    series:str, # Series name (e.g. 'solveit2')\n    series_index:int, # 0-based index in series\n    root:str | pathlib.Path='downloads', # Root download directory\n)-&gt;Path: # Path to video directory\n\nSave metadata and English srt captions for one video.\n\n# Test: fetch_video (requires network)\nimport shutil\ntest_root = 'downloads/_test'\nshutil.rmtree(test_root, ignore_errors=True)\n\nout = fetch_video(urls[5], info, 'solveit2', 5, root=test_root)\nassert (out / 'metadata.json').exists()\nassert (out / 'captions.en.srt').exists()\n\nmeta = json.loads((out / 'metadata.json').read_text(encoding='utf-8'))\nassert meta['id'] == 'Ap4DmaB0gLY'\nassert meta['series'] == 'solveit2'\nassert meta['series_index'] == 5\n\nshutil.rmtree(test_root)\nprint('ok')\n\n\nsource\n\n\nfetch_many\n\ndef fetch_many(\n    path:str | pathlib.Path, # Path to URL list file\n    root:str | pathlib.Path='downloads', # Root download directory\n)-&gt;list: # List of output Paths\n\nFetch metadata and captions for all videos in a URL list file.\n\n# Test: fetch_many (first 2 videos only, requires network)\nimport shutil, tempfile\ntest_file = Path(tempfile.mktemp(suffix='.txt'))\ntest_root = 'downloads/_test_many'\nshutil.rmtree(test_root, ignore_errors=True)\n\n# Write a 2-URL test file\ntest_file.write_text('\\n'.join(urls[:2]), encoding='utf-8')\nresults = fetch_many(str(test_file), root=test_root)\n\nassert len(results) == 2\nfor r in results:\n    assert (r / 'metadata.json').exists()\n    assert (r / 'captions.en.srt').exists()\n\nshutil.rmtree(test_root)\ntest_file.unlink()\nprint('ok')\n\n\n# Download all 11 solveit2 videos (requires network)\nresults = fetch_many('solveit2.txt')\nprint(f'\\nDone: {len(results)} videos')\n\n\n!tree downloads/",
-    "crumbs": [
-      "fetch"
+      "core"
     ]
   },
   {
@@ -100,13 +50,83 @@
     ]
   },
   {
-    "objectID": "core.html",
-    "href": "core.html",
-    "title": "core",
+    "objectID": "xscript.html",
+    "href": "xscript.html",
+    "title": "xscript",
     "section": "",
-    "text": "source\n\nfoo\n\ndef foo(\n    \n):",
+    "text": "parse_xscript(path) converts an SRT file into a list of normalized segments:\n[\n  {\"start\": 0.08, \"end\": 4.88, \"text\": \"code's not even the right verb anymore,\"},\n  {\"start\": 4.88, \"end\": 7.04, \"text\": \"to my agents for 16 hours a day\"},\n]\nPipeline: 1. Hand-written SRT parser (no new dependency) → raw cues (start, end, content) 2. Per-cue normalization: splitlines → strip → drop empty → strip leading &gt;&gt; per line → join with space 3. Rolling-window dedup: when curr.start &lt; prev.end, find longest k where prev_raw_tokens[-k:] matches curr_tokens[:k] (normalized for comparison only). Drop overlap prefix; bump start to prev.end. 4. Drop cues whose text becomes empty after dedup.\nDedup compares against prev raw tokens (not prev deduped), so rolling-window chains A→B→C stay consistent.",
     "crumbs": [
-      "core"
+      "xscript"
+    ]
+  },
+  {
+    "objectID": "xscript.html#design",
+    "href": "xscript.html#design",
+    "title": "xscript",
+    "section": "",
+    "text": "parse_xscript(path) converts an SRT file into a list of normalized segments:\n[\n  {\"start\": 0.08, \"end\": 4.88, \"text\": \"code's not even the right verb anymore,\"},\n  {\"start\": 4.88, \"end\": 7.04, \"text\": \"to my agents for 16 hours a day\"},\n]\nPipeline: 1. Hand-written SRT parser (no new dependency) → raw cues (start, end, content) 2. Per-cue normalization: splitlines → strip → drop empty → strip leading &gt;&gt; per line → join with space 3. Rolling-window dedup: when curr.start &lt; prev.end, find longest k where prev_raw_tokens[-k:] matches curr_tokens[:k] (normalized for comparison only). Drop overlap prefix; bump start to prev.end. 4. Drop cues whose text becomes empty after dedup.\nDedup compares against prev raw tokens (not prev deduped), so rolling-window chains A→B→C stay consistent.",
+    "crumbs": [
+      "xscript"
+    ]
+  },
+  {
+    "objectID": "xscript.html#stub",
+    "href": "xscript.html#stub",
+    "title": "xscript",
+    "section": "Stub",
+    "text": "Stub\n\nsource\n\nparse_xscript\n\ndef parse_xscript(\n    path:str | pathlib.Path, # Path to SRT file\n)-&gt;list: # List of {start, end, text} segments\n\nParse SRT file into normalized xscript segments (dedup rolling-window overlap).",
+    "crumbs": [
+      "xscript"
+    ]
+  },
+  {
+    "objectID": "xscript.html#tests",
+    "href": "xscript.html#tests",
+    "title": "xscript",
+    "section": "Tests",
+    "text": "Tests\n\nfrom tempfile import NamedTemporaryFile\n\ndef _write_srt(content: str) -&gt; Path:\n    \"Write SRT content to a temp file and return the path.\"\n    f = NamedTemporaryFile(mode='w', suffix='.srt', delete=False, encoding='utf-8')\n    f.write(content)\n    f.close()\n    return Path(f.name)\n\n\n# Test 1: HH:MM:SS,mmm → float seconds\nsrt = \"\"\"1\n00:00:00,080 --&gt; 00:00:04,880\nhello world\n\"\"\"\nsegs = parse_xscript(_write_srt(srt))\nassert len(segs) == 1\nassert segs[0]['start'] == 0.08\nassert segs[0]['end'] == 4.88\nassert segs[0]['text'] == 'hello world'\nprint('ok')\n\n\n# Test 2: multi-line cue → space join\nsrt = \"\"\"1\n00:00:00,000 --&gt; 00:00:02,000\nfirst line\nsecond line\n\"\"\"\nsegs = parse_xscript(_write_srt(srt))\nassert len(segs) == 1\nassert segs[0]['text'] == 'first line second line'\nprint('ok')\n\n\n# Test 3: overlapping auto-caption → dedup + start bump\nsrt = \"\"\"1\n00:00:00,000 --&gt; 00:00:05,000\ncode's not even the right verb anymore\n\n2\n00:00:02,000 --&gt; 00:00:07,000\nthe right verb anymore to my agents\n\"\"\"\nsegs = parse_xscript(_write_srt(srt))\nassert len(segs) == 2\nassert segs[0]['text'] == \"code's not even the right verb anymore\"\nassert segs[1]['text'] == 'to my agents'\nassert segs[1]['start'] == 5.0  # bumped from 2.0 to prev.end\nprint('ok')\n\n\n# Test 4: non-overlapping cues → unchanged\nsrt = \"\"\"1\n00:00:00,000 --&gt; 00:00:03,000\nfirst sentence\n\n2\n00:00:05,000 --&gt; 00:00:08,000\ncompletely different\n\"\"\"\nsegs = parse_xscript(_write_srt(srt))\nassert len(segs) == 2\nassert segs[0]['text'] == 'first sentence'\nassert segs[1]['text'] == 'completely different'\nassert segs[1]['start'] == 5.0  # no bump, original\nprint('ok')\n\n\n# Test 5: full overlap → empty cue dropped\nsrt = \"\"\"1\n00:00:00,000 --&gt; 00:00:05,000\nhello world\n\n2\n00:00:02,000 --&gt; 00:00:07,000\nhello world\n\"\"\"\nsegs = parse_xscript(_write_srt(srt))\nassert len(segs) == 1\nassert segs[0]['text'] == 'hello world'\nprint('ok')\n\n\n# Test 6: start bumped past end → clamp end = start (preserve new tokens)\nsrt = \"\"\"1\n00:00:00,000 --&gt; 00:00:10,000\nhello\n\n2\n00:00:08,000 --&gt; 00:00:09,000\nhello world\n\"\"\"\nsegs = parse_xscript(_write_srt(srt))\nassert len(segs) == 2\nassert segs[0]['text'] == 'hello'\nassert segs[1]['text'] == 'world'\nassert segs[1]['start'] == 10.0  # bumped to prev.end\nassert segs[1]['end'] == 10.0  # clamped (original was 9.0)\nassert segs[1]['start'] &lt;= segs[1]['end']  # invariant\nprint('ok')\n\n\n# Test 7: malformed SRT block raises ValueError (no silent data loss)\nsrt = \"\"\"1\n00:00:00,000 --&gt; 00:00:01,000\nfirst\n\nBROKEN BLOCK WITHOUT TIMING\n\n3\n00:00:03,000 --&gt; 00:00:04,000\nthird\n\"\"\"\ntry:\n    parse_xscript(_write_srt(srt))\n    assert False, 'should have raised ValueError'\nexcept ValueError as e:\n    assert 'BROKEN' in str(e) or 'malformed' in str(e).lower() or 'timestamp' in str(e).lower()\nprint('ok')\n\n\n# Smoke test: parse a real cached SRT and show the first 15 segments.\n# Requires ~/.cache/yttoc/&lt;video_id&gt;/captions.*.srt from yttoc-fetch.\nimport os\ncache = Path(os.environ.get('XDG_CACHE_HOME', Path.home() / '.cache')) / 'yttoc'\nfor d in cache.iterdir() if cache.exists() else []:\n    srt_files = sorted(d.glob('captions.*.srt'))\n    if not srt_files: continue\n    print(f\"=== {d.name} / {srt_files[0].name} ===\")\n    segs = parse_xscript(srt_files[0])\n    print(f\"total segments: {len(segs)}\")\n    for s in segs[:10]:\n        mm = int(s['start'] // 60)\n        ss = int(s['start'] % 60)\n        print(f\"[{mm:02d}:{ss:02d}] {s['text']}\")\n    print()\n    break  # just one video is enough for smoke test",
+    "crumbs": [
+      "xscript"
+    ]
+  },
+  {
+    "objectID": "fetch.html",
+    "href": "fetch.html",
+    "title": "fetch",
+    "section": "",
+    "text": "Storage location: ~/.cache/yttoc/{video_id}/ (XDG Base Directory spec — re-downloadable data belongs in cache). Overridable via --root.\n~/.cache/yttoc/\n  {video_id}/\n    meta.json\n    captions.ja.srt        # if Japanese captions exist\n    captions.en.srt        # otherwise fall back to English\nmeta.json fields:\n{\n  \"id\": \"kwSVtQ7dziU\",\n  \"title\": \"Skill Issue: Andrej Karpathy on Code Agents...\",\n  \"channel\": \"No Priors\",\n  \"duration\": 3991,\n  \"upload_date\": \"20260320\",\n  \"webpage_url\": \"https://www.youtube.com/watch?v=kwSVtQ7dziU\",\n  \"description\": \"Video description with possible manual ToC...\",\n  \"captions\": {\"ja\": \"manual\"},\n  \"last_used_at\": \"2026-04-06T14:22:31+00:00\"\n}\ndescription is preserved for use as background context in ToC/summary generation. Many videos include a manual ToC with timestamps in their description.\nCaption selection logic: try Japanese first (manual ja/ja-* → auto ja/ja-*), then English (manual en/en-* → auto en/en-*). Error if neither exists.\nCLI: yttoc-fetch &lt;url&gt; fetches one video, prints video_id to stdout. Batch via shell: cat urls.txt | xargs -I{} yttoc-fetch {}",
+    "crumbs": [
+      "fetch"
+    ]
+  },
+  {
+    "objectID": "fetch.html#storage-design",
+    "href": "fetch.html#storage-design",
+    "title": "fetch",
+    "section": "",
+    "text": "Storage location: ~/.cache/yttoc/{video_id}/ (XDG Base Directory spec — re-downloadable data belongs in cache). Overridable via --root.\n~/.cache/yttoc/\n  {video_id}/\n    meta.json\n    captions.ja.srt        # if Japanese captions exist\n    captions.en.srt        # otherwise fall back to English\nmeta.json fields:\n{\n  \"id\": \"kwSVtQ7dziU\",\n  \"title\": \"Skill Issue: Andrej Karpathy on Code Agents...\",\n  \"channel\": \"No Priors\",\n  \"duration\": 3991,\n  \"upload_date\": \"20260320\",\n  \"webpage_url\": \"https://www.youtube.com/watch?v=kwSVtQ7dziU\",\n  \"description\": \"Video description with possible manual ToC...\",\n  \"captions\": {\"ja\": \"manual\"},\n  \"last_used_at\": \"2026-04-06T14:22:31+00:00\"\n}\ndescription is preserved for use as background context in ToC/summary generation. Many videos include a manual ToC with timestamps in their description.\nCaption selection logic: try Japanese first (manual ja/ja-* → auto ja/ja-*), then English (manual en/en-* → auto en/en-*). Error if neither exists.\nCLI: yttoc-fetch &lt;url&gt; fetches one video, prints video_id to stdout. Batch via shell: cat urls.txt | xargs -I{} yttoc-fetch {}",
+    "crumbs": [
+      "fetch"
+    ]
+  },
+  {
+    "objectID": "fetch.html#modularize",
+    "href": "fetch.html#modularize",
+    "title": "fetch",
+    "section": "Modularize",
+    "text": "Modularize\n\n# Test: helpers\nassert _pick_lang({'en': []}) == 'en'\nassert _pick_lang({'live_chat': [], 'en-US': []}) == 'en-US'\nassert _pick_lang({'ja': []}) is None\nassert _pick_lang({'ja': []}, 'ja') == 'ja'\nassert _pick_lang({'ja-JP': []}, 'ja') == 'ja-JP'\nassert _pick_lang({'en': []}, 'ja') is None\n\nfrom tempfile import TemporaryDirectory\n\n# _glob_srt with default pattern (cache lookup)\nwith TemporaryDirectory() as d:\n    base = Path(d)\n    assert _glob_srt(base) == []\n    (base / 'captions.ja.srt').write_text('1', encoding='utf-8')\n    assert _glob_srt(base) == [base / 'captions.ja.srt']\n\n# _glob_srt with download prefix pattern\nwith TemporaryDirectory() as d:\n    base = Path(d)\n    sample = base / 'captions_en.en-US.srt'\n    sample.write_text('1', encoding='utf-8')\n    assert _glob_srt(base, 'captions_en*.srt') == [sample]\n\n# Test: _build_meta\nfake_info = {'id': 'X', 'title': 't', 'channel': 'c', 'duration': 1,\n             'upload_date': '20260101', 'webpage_url': 'u',\n             'description': 'desc', 'subtitles': {}, 'automatic_captions': {'en': []}}\nm = _build_meta(fake_info, lang='en', caption_type='auto')\nassert m['captions'] == {'en': 'auto'}\nassert m['description'] == 'desc'\n\nm_ja = _build_meta(fake_info, lang='ja', caption_type='manual')\nassert m_ja['captions'] == {'ja': 'manual'}\n\n# Test: _update_last_used\nwith TemporaryDirectory() as d:\n    p = Path(d) / 'meta.json'\n    p.write_text('{\"id\":\"X\"}')\n    _update_last_used(p)\n    assert 'last_used_at' in json.loads(p.read_text())\n\nprint('ok')\n\nok\n\n\n\n# Test: _download_srt language priority (unit-level, no network)\n# We can't call _download_srt without network, but we can verify the\n# selection logic it uses by testing _pick_lang against _LANG_PRIORITY.\n\ndef _resolve_lang(subtitles, automatic_captions):\n    \"Simulate _download_srt's language resolution without downloading.\"\n    for lang in _LANG_PRIORITY:\n        manual = _pick_lang(subtitles, lang)\n        auto = _pick_lang(automatic_captions, lang)\n        if manual or auto:\n            selected = manual or auto\n            return lang, 'manual' if manual else 'auto', selected\n    return None, None, None\n\n# ja manual available → picks ja\nlang, ctype, sel = _resolve_lang({'ja': [], 'en': []}, {'en': []})\nassert lang == 'ja' and ctype == 'manual'\n\n# ja auto only → picks ja auto\nlang, ctype, sel = _resolve_lang({'en': []}, {'ja': [], 'en': []})\nassert lang == 'ja' and ctype == 'auto'\n\n# no ja at all → falls back to en manual\nlang, ctype, sel = _resolve_lang({'en': []}, {'en': []})\nassert lang == 'en' and ctype == 'manual'\n\n# en auto only\nlang, ctype, sel = _resolve_lang({}, {'en': []})\nassert lang == 'en' and ctype == 'auto'\n\n# neither → None\nlang, ctype, sel = _resolve_lang({}, {'fr': []})\nassert lang is None\n\n# ja-JP variant matches ja priority\nlang, ctype, sel = _resolve_lang({'ja-JP': []}, {})\nassert lang == 'ja' and ctype == 'manual' and sel == 'ja-JP'\n\nprint('ok')\n\n\nsource\n\nget_video_info\n\ndef get_video_info(\n    url:str, # YouTube video URL\n)-&gt;dict: # yt-dlp info dict\n\nExtract video metadata and caption info without downloading.\n\n# Test: get_video_info smoke test (requires network)\ninfo = get_video_info('https://www.youtube.com/watch?v=kwSVtQ7dziU')\nfor k in ['id', 'title', 'channel', 'duration', 'upload_date', 'webpage_url']:\n    assert k in info, f'missing {k}'\nassert info['id'] == 'kwSVtQ7dziU'\nprint('ok')\n\n\nsource\n\n\nfetch_video\n\ndef fetch_video(\n    url:str, # YouTube video URL\n    info:dict, # Result of get_video_info\n    root:str | pathlib.Path=None, # Root download directory (default: ~/.cache/yttoc)\n)-&gt;Path: # Path to video directory\n\nSave metadata and srt captions for one video (ja preferred, en fallback).\n\n# Test: fetch_video (requires network)\nimport shutil\ntest_root = '/tmp/yttoc_test'\nshutil.rmtree(test_root, ignore_errors=True)\n\nurl = 'https://www.youtube.com/watch?v=kwSVtQ7dziU'\ninfo = get_video_info(url)\nout = fetch_video(url, info, root=test_root)\nassert (out / 'meta.json').exists()\nassert _glob_srt(out)\n\nmeta = json.loads((out / 'meta.json').read_text(encoding='utf-8'))\nassert meta['id'] == 'kwSVtQ7dziU'\nassert 'last_used_at' in meta\nassert 'captions' in meta\n\nshutil.rmtree(test_root)\nprint('ok')",
+    "crumbs": [
+      "fetch"
+    ]
+  },
+  {
+    "objectID": "fetch.html#cli",
+    "href": "fetch.html#cli",
+    "title": "fetch",
+    "section": "CLI",
+    "text": "CLI\n\nsource\n\nyttoc_fetch\n\ndef yttoc_fetch(\n    url:str, # YouTube video URL\n    root:str=None, # Root download directory (default: ~/.cache/yttoc)\n):\n\nFetch metadata and captions for a single YouTube video (ja preferred, en fallback).\n\n# Test: _fmt_duration\nassert _fmt_duration(3991) == '1:06:31'\nassert _fmt_duration(195) == '3:15'\nassert _fmt_duration(0) == '0:00'\nassert _fmt_duration(60) == '1:00'\nassert _fmt_duration(3600) == '1:00:00'\nprint('ok')\n\n\nsource\n\n\nyttoc_list\n\ndef yttoc_list(\n    root:str=None, # Root directory (default: ~/.cache/yttoc)\n):\n\nList cached videos sorted by last used.\n\n# Test: yttoc_list output\nimport io, contextlib\nfrom tempfile import TemporaryDirectory\n\nwith TemporaryDirectory() as d:\n    root = Path(d)\n    # Video A: older, English only\n    a = root / 'AAAA'\n    a.mkdir()\n    (a / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nhi\\n')\n    (a / 'meta.json').write_text(json.dumps({\n        'id': 'AAAA', 'title': 'Old video', 'duration': 195,\n        'captions': {'en': 'auto'},\n        'last_used_at': '2026-01-01T00:00:00+00:00'}))\n    # Video B: newer, Japanese\n    b = root / 'BBBB'\n    b.mkdir()\n    (b / 'captions.ja.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nこんにちは\\n')\n    (b / 'meta.json').write_text(json.dumps({\n        'id': 'BBBB', 'title': 'New video', 'duration': 3991,\n        'captions': {'ja': 'manual'},\n        'last_used_at': '2026-04-06T15:00:00+00:00'}))\n    # Video C: incomplete (no srt) — should be skipped\n    c = root / 'CCCC'\n    c.mkdir()\n    (c / 'meta.json').write_text('{\"id\":\"CCCC\"}')\n\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        yttoc_list(root=str(root))\n    out = buf.getvalue()\n\n    lines = [l for l in out.strip().splitlines() if l.strip()]\n    assert len(lines) == 2, f'expected 2 lines, got {len(lines)}'\n    assert 'CCCC' not in out, 'incomplete video CCCC should be skipped'\n    assert 'BBBB' in out, 'Japanese video should appear'\n    assert '[ja]' in out, 'BBBB should show ja'\n    assert '[en]' in out, 'AAAA should show en'\n    # BBBB before AAAA (newer first)\n    pos_b = out.index('BBBB')\n    pos_a = out.index('AAAA')\n    assert pos_b &lt; pos_a, 'BBBB (newer) should appear before AAAA (older)'\n\n# Legacy: yttoc_list handles old meta.json with caption_type (no captions dict)\nwith TemporaryDirectory() as d:\n    root = Path(d)\n    v = root / 'LEGACY'; v.mkdir()\n    (v / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nhi\\n')\n    (v / 'meta.json').write_text(json.dumps({\n        'id': 'LEGACY', 'title': 'Legacy video', 'duration': 60,\n        'caption_type': 'auto', 'last_used_at': '2026-01-01T00:00:00+00:00'}))\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        yttoc_list(root=str(root))\n    out = buf.getvalue()\n    assert 'LEGACY' in out, 'legacy video should appear'\n    assert '[en]' in out, 'should detect language from filename'\n\nprint('ok')\n\nok\n\n\n\n# Test: fetch_video cache hit with existing captions\nfrom tempfile import TemporaryDirectory\nwith TemporaryDirectory() as d:\n    fake_info = {'id': 'TEST123', 'title': 't', 'channel': 'c',\n                 'duration': 60, 'upload_date': '20260101',\n                 'webpage_url': 'https://example.com', 'description': '',\n                 'subtitles': {}, 'automatic_captions': {'en': [{'ext': 'srt'}]}}\n    out_dir = Path(d) / 'TEST123'\n    out_dir.mkdir()\n    (out_dir / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\ntest\\n')\n    (out_dir / 'meta.json').write_text('{\"id\":\"TEST123\"}')\n    result = fetch_video('https://example.com', fake_info, root=d)\n    assert result.name == 'TEST123'\n    meta = json.loads((result / 'meta.json').read_text())\n    assert 'last_used_at' in meta\n\n# Cache hit also works with ja srt\nwith TemporaryDirectory() as d:\n    out_dir = Path(d) / 'TEST456'\n    out_dir.mkdir()\n    (out_dir / 'captions.ja.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nテスト\\n')\n    (out_dir / 'meta.json').write_text('{\"id\":\"TEST456\",\"captions\":{\"ja\":\"manual\"}}')\n    result = fetch_video('https://example.com',\n        {'id': 'TEST456', 'title': 't', 'channel': 'c', 'duration': 60,\n         'upload_date': '20260101', 'webpage_url': 'u', 'description': '',\n         'subtitles': {'ja': []}, 'automatic_captions': {}}, root=d)\n    meta = json.loads((result / 'meta.json').read_text())\n    assert meta['captions'] == {'ja': 'manual'}\nprint('ok')\n\nok",
+    "crumbs": [
+      "fetch"
     ]
   }
 ]

@@ -17,3 +17,5 @@ def foo(
 ):
 
 ```
+
+*Call self as a function.*
