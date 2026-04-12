@@ -222,18 +222,16 @@ def yttoc_fetch(
 en fallback).*
 
 ``` python
-# Test: _fmt_duration
+# Test: _fmt_duration (imported from core)
 assert _fmt_duration(3991) == '1:06:31'
 assert _fmt_duration(195) == '3:15'
 assert _fmt_duration(0) == '0:00'
-assert _fmt_duration(60) == '1:00'
-assert _fmt_duration(3600) == '1:00:00'
 print('ok')
 ```
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L145"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L140"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_list

@@ -5,6 +5,40 @@
 
 ------------------------------------------------------------------------
 
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L18"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### format_header
+
+``` python
+
+def format_header(
+    meta:dict, # meta.json content
+)->str: # Formatted header string
+
+```
+
+*Shared header for toc/sum/raw CLI commands.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L11"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### fmt_duration
+
+``` python
+
+def fmt_duration(
+    seconds:int, # Duration in seconds
+)->str: # Formatted as H:MM:SS or M:SS
+
+```
+
+*Format seconds as human-readable duration.*
+
+------------------------------------------------------------------------
+
 <a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L9"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
@@ -19,3 +53,27 @@ def foo(
 ```
 
 *Call self as a function.*
+
+``` python
+# Test: fmt_duration
+assert fmt_duration(3991) == '1:06:31'
+assert fmt_duration(195) == '3:15'
+assert fmt_duration(0) == '0:00'
+assert fmt_duration(60) == '1:00'
+assert fmt_duration(3600) == '1:00:00'
+print('ok')
+```
+
+``` python
+# Test: format_header
+hdr = format_header({
+    'title': 'Test Video', 'channel': 'Test Channel',
+    'duration': 3991, 'upload_date': '20260320'})
+assert hdr == '# Test Video\nChannel: Test Channel | Duration: 1:06:31 | 20260320'
+
+# Missing fields default to empty
+hdr2 = format_header({'title': 'X'})
+assert '# X' in hdr2
+assert 'Duration: 0:00' in hdr2
+print('ok')
+```

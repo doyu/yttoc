@@ -196,3 +196,84 @@ for d in cache.iterdir() if cache.exists() else []:
     print()
     break  # just one video is enough for smoke test
 ```
+
+## CLI
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L113"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### yttoc_raw
+
+``` python
+
+def yttoc_raw(
+    video_id:str, # Exact video_id
+    root:str=None, # Root cache directory (default: ~/.cache/yttoc)
+):
+
+```
+
+*Display full transcript for a cached video.*
+
+``` python
+# Test 8: yttoc_raw — missing video_id raises SystemExit
+from tempfile import TemporaryDirectory
+import io, contextlib
+
+with TemporaryDirectory() as d:
+    try:
+        yttoc_raw('NONEXIST', root=d)
+        assert False, 'should have raised SystemExit'
+    except SystemExit:
+        pass
+print('ok')
+```
+
+    ok
+
+``` python
+# Test 9: yttoc_raw — outputs header + [MM:SS] segments
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID1'; v.mkdir()
+    (v / 'captions.en.srt').write_text(
+        '1\n00:01:05,000 --> 00:01:08,000\nhello world\n\n'
+        '2\n00:01:10,000 --> 00:01:13,000\nsecond line\n')
+    (v / 'meta.json').write_text(json.dumps({
+        'id': 'VID1', 'title': 'Test Video', 'channel': 'Ch',
+        'duration': 120, 'upload_date': '20260101',
+        'last_used_at': '2026-01-01T00:00:00+00:00'}))
+
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        yttoc_raw('VID1', root=str(root))
+    out = buf.getvalue()
+
+    assert '# Test Video' in out
+    assert 'Channel: Ch' in out
+    assert '[01:05] hello world' in out
+    assert '[01:10] second line' in out
+print('ok')
+```
+
+``` python
+# Test 10: yttoc_raw — updates last_used_at
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID2'; v.mkdir()
+    (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
+    (v / 'meta.json').write_text(json.dumps({
+        'id': 'VID2', 'title': 't', 'channel': 'c',
+        'duration': 1, 'upload_date': '20260101',
+        'last_used_at': '2000-01-01T00:00:00+00:00'}))
+
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        yttoc_raw('VID2', root=str(root))
+
+    meta = json.loads((v / 'meta.json').read_text())
+    assert meta['last_used_at'] > '2000-01-01', 'last_used_at should be updated'
+print('ok')
+```
