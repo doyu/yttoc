@@ -133,12 +133,7 @@ def yttoc_fetch(url: str, # YouTube video URL
     print(info['id'])
 
 # %% ../nbs/01_fetch.ipynb #1c717918
-def _fmt_duration(seconds: int # Duration in seconds
-                 ) -> str: # Formatted as H:MM:SS or M:SS
-    "Format seconds as human-readable duration."
-    h, rem = divmod(seconds, 3600)
-    m, s = divmod(rem, 60)
-    return f'{h}:{m:02d}:{s:02d}' if h else f'{m}:{s:02d}'
+from .core import fmt_duration as _fmt_duration
 
 # %% ../nbs/01_fetch.ipynb #9e0508a9
 @call_parse

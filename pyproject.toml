@@ -21,6 +21,7 @@ Documentation = "https://doyu.github.io/yttoc"
 [project.scripts]
 yttoc-fetch = "yttoc.fetch:yttoc_fetch"
 yttoc-list = "yttoc.fetch:yttoc_list"
+yttoc-raw = "yttoc.xscript:yttoc_raw"
 
 [project.entry-points.nbdev]
 yttoc = "yttoc._modidx:d"
