@@ -2,18 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://doyu.github.io/yttoc/core.html</loc>
-    <lastmod>2026-04-12T10:08:02.234Z</lastmod>
-  </url>
-  <url>
-    <loc>https://doyu.github.io/yttoc/index.html</loc>
-    <lastmod>2026-04-12T10:08:02.456Z</lastmod>
-  </url>
-  <url>
-    <loc>https://doyu.github.io/yttoc/xscript.html</loc>
-    <lastmod>2026-04-12T10:08:02.411Z</lastmod>
+    <lastmod>2026-04-13T08:52:40.938Z</lastmod>
   </url>
   <url>
     <loc>https://doyu.github.io/yttoc/fetch.html</loc>
-    <lastmod>2026-04-12T10:08:02.496Z</lastmod>
+    <lastmod>2026-04-13T08:52:41.185Z</lastmod>
+  </url>
+  <url>
+    <loc>https://doyu.github.io/yttoc/xscript.html</loc>
+    <lastmod>2026-04-13T08:52:41.119Z</lastmod>
+  </url>
+  <url>
+    <loc>https://doyu.github.io/yttoc/toc.html</loc>
+    <lastmod>2026-04-13T08:52:41.210Z</lastmod>
+  </url>
+  <url>
+    <loc>https://doyu.github.io/yttoc/index.html</loc>
+    <lastmod>2026-04-13T08:52:41.252Z</lastmod>
+  </url>
+  <url>
+    <loc>https://doyu.github.io/yttoc/summarize.html</loc>
+    <lastmod>2026-04-13T08:52:41.274Z</lastmod>
   </url>
 </urlset>

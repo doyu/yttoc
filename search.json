@@ -10,43 +10,43 @@
     ]
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "yttoc",
+    "objectID": "fetch.html",
+    "href": "fetch.html",
+    "title": "fetch",
     "section": "",
-    "text": "This file will become your README and also the index of your documentation.",
+    "text": "Storage location: ~/.cache/yttoc/{video_id}/ (XDG Base Directory spec — re-downloadable data belongs in cache). Overridable via --root.\n~/.cache/yttoc/\n  {video_id}/\n    meta.json\n    captions.ja.srt        # if Japanese captions exist\n    captions.en.srt        # otherwise fall back to English\nmeta.json fields:\n{\n  \"id\": \"kwSVtQ7dziU\",\n  \"title\": \"Skill Issue: Andrej Karpathy on Code Agents...\",\n  \"channel\": \"No Priors\",\n  \"duration\": 3991,\n  \"upload_date\": \"20260320\",\n  \"webpage_url\": \"https://www.youtube.com/watch?v=kwSVtQ7dziU\",\n  \"description\": \"Video description with possible manual ToC...\",\n  \"captions\": {\"ja\": \"manual\"},\n  \"last_used_at\": \"2026-04-06T14:22:31+00:00\"\n}\ndescription is preserved for use as background context in ToC/summary generation. Many videos include a manual ToC with timestamps in their description.\nCaption selection logic: try Japanese first (manual ja/ja-* → auto ja/ja-*), then English (manual en/en-* → auto en/en-*). Error if neither exists.\nCLI: yttoc-fetch &lt;url&gt; fetches one video, prints video_id to stdout. Batch via shell: cat urls.txt | xargs -I{} yttoc-fetch {}",
     "crumbs": [
-      "yttoc"
+      "fetch"
     ]
   },
   {
-    "objectID": "index.html#developer-guide",
-    "href": "index.html#developer-guide",
-    "title": "yttoc",
-    "section": "Developer Guide",
-    "text": "Developer Guide\nIf you are new to using nbdev here are some useful pointers to get you started.\n\nInstall yttoc in Development mode\n# make sure yttoc package is installed in development mode\n$ pip install -e .\n\n# make changes under nbs/ directory\n# ...\n\n# compile to have changes apply to yttoc\n$ nbdev_prepare",
+    "objectID": "fetch.html#storage-design",
+    "href": "fetch.html#storage-design",
+    "title": "fetch",
+    "section": "",
+    "text": "Storage location: ~/.cache/yttoc/{video_id}/ (XDG Base Directory spec — re-downloadable data belongs in cache). Overridable via --root.\n~/.cache/yttoc/\n  {video_id}/\n    meta.json\n    captions.ja.srt        # if Japanese captions exist\n    captions.en.srt        # otherwise fall back to English\nmeta.json fields:\n{\n  \"id\": \"kwSVtQ7dziU\",\n  \"title\": \"Skill Issue: Andrej Karpathy on Code Agents...\",\n  \"channel\": \"No Priors\",\n  \"duration\": 3991,\n  \"upload_date\": \"20260320\",\n  \"webpage_url\": \"https://www.youtube.com/watch?v=kwSVtQ7dziU\",\n  \"description\": \"Video description with possible manual ToC...\",\n  \"captions\": {\"ja\": \"manual\"},\n  \"last_used_at\": \"2026-04-06T14:22:31+00:00\"\n}\ndescription is preserved for use as background context in ToC/summary generation. Many videos include a manual ToC with timestamps in their description.\nCaption selection logic: try Japanese first (manual ja/ja-* → auto ja/ja-*), then English (manual en/en-* → auto en/en-*). Error if neither exists.\nCLI: yttoc-fetch &lt;url&gt; fetches one video, prints video_id to stdout. Batch via shell: cat urls.txt | xargs -I{} yttoc-fetch {}",
     "crumbs": [
-      "yttoc"
+      "fetch"
     ]
   },
   {
-    "objectID": "index.html#usage",
-    "href": "index.html#usage",
-    "title": "yttoc",
-    "section": "Usage",
-    "text": "Usage\n\nInstallation\nInstall latest from the GitHub repository:\n$ pip install git+https://github.com/doyu/yttoc.git\n\n\nDocumentation\nDocumentation can be found hosted on this GitHub repository’s pages.",
+    "objectID": "fetch.html#modularize",
+    "href": "fetch.html#modularize",
+    "title": "fetch",
+    "section": "Modularize",
+    "text": "Modularize\n\n# Test: helpers\nassert _pick_lang({'en': []}) == 'en'\nassert _pick_lang({'live_chat': [], 'en-US': []}) == 'en-US'\nassert _pick_lang({'ja': []}) is None\nassert _pick_lang({'ja': []}, 'ja') == 'ja'\nassert _pick_lang({'ja-JP': []}, 'ja') == 'ja-JP'\nassert _pick_lang({'en': []}, 'ja') is None\n\nfrom tempfile import TemporaryDirectory\n\n# _glob_srt with default pattern (cache lookup)\nwith TemporaryDirectory() as d:\n    base = Path(d)\n    assert _glob_srt(base) == []\n    (base / 'captions.ja.srt').write_text('1', encoding='utf-8')\n    assert _glob_srt(base) == [base / 'captions.ja.srt']\n\n# _glob_srt with download prefix pattern\nwith TemporaryDirectory() as d:\n    base = Path(d)\n    sample = base / 'captions_en.en-US.srt'\n    sample.write_text('1', encoding='utf-8')\n    assert _glob_srt(base, 'captions_en*.srt') == [sample]\n\n# Test: _build_meta\nfake_info = {'id': 'X', 'title': 't', 'channel': 'c', 'duration': 1,\n             'upload_date': '20260101', 'webpage_url': 'u',\n             'description': 'desc', 'subtitles': {}, 'automatic_captions': {'en': []}}\nm = _build_meta(fake_info, lang='en', caption_type='auto')\nassert m['captions'] == {'en': 'auto'}\nassert m['description'] == 'desc'\n\nm_ja = _build_meta(fake_info, lang='ja', caption_type='manual')\nassert m_ja['captions'] == {'ja': 'manual'}\n\n# Test: _update_last_used\nwith TemporaryDirectory() as d:\n    p = Path(d) / 'meta.json'\n    p.write_text('{\"id\":\"X\"}')\n    _update_last_used(p)\n    assert 'last_used_at' in json.loads(p.read_text())\n\nprint('ok')\n\nok\n\n\n\n# Test: _download_srt language priority (unit-level, no network)\n# We can't call _download_srt without network, but we can verify the\n# selection logic it uses by testing _pick_lang against _LANG_PRIORITY.\n\ndef _resolve_lang(subtitles, automatic_captions):\n    \"Simulate _download_srt's language resolution without downloading.\"\n    for lang in _LANG_PRIORITY:\n        manual = _pick_lang(subtitles, lang)\n        auto = _pick_lang(automatic_captions, lang)\n        if manual or auto:\n            selected = manual or auto\n            return lang, 'manual' if manual else 'auto', selected\n    return None, None, None\n\n# ja manual available → picks ja\nlang, ctype, sel = _resolve_lang({'ja': [], 'en': []}, {'en': []})\nassert lang == 'ja' and ctype == 'manual'\n\n# ja auto only → picks ja auto\nlang, ctype, sel = _resolve_lang({'en': []}, {'ja': [], 'en': []})\nassert lang == 'ja' and ctype == 'auto'\n\n# no ja at all → falls back to en manual\nlang, ctype, sel = _resolve_lang({'en': []}, {'en': []})\nassert lang == 'en' and ctype == 'manual'\n\n# en auto only\nlang, ctype, sel = _resolve_lang({}, {'en': []})\nassert lang == 'en' and ctype == 'auto'\n\n# neither → None\nlang, ctype, sel = _resolve_lang({}, {'fr': []})\nassert lang is None\n\n# ja-JP variant matches ja priority\nlang, ctype, sel = _resolve_lang({'ja-JP': []}, {})\nassert lang == 'ja' and ctype == 'manual' and sel == 'ja-JP'\n\nprint('ok')\n\n\nsource\n\nget_video_info\n\ndef get_video_info(\n    url:str, # YouTube video URL\n)-&gt;dict: # yt-dlp info dict\n\nExtract video metadata and caption info without downloading.\n\n# Test: get_video_info smoke test (requires network)\ninfo = get_video_info('https://www.youtube.com/watch?v=kwSVtQ7dziU')\nfor k in ['id', 'title', 'channel', 'duration', 'upload_date', 'webpage_url']:\n    assert k in info, f'missing {k}'\nassert info['id'] == 'kwSVtQ7dziU'\nprint('ok')\n\n\nsource\n\n\nfetch_video\n\ndef fetch_video(\n    url:str, # YouTube video URL\n    info:dict, # Result of get_video_info\n    root:str | pathlib.Path=None, # Root download directory (default: ~/.cache/yttoc)\n)-&gt;Path: # Path to video directory\n\nSave metadata and srt captions for one video (ja preferred, en fallback).\n\n# Test: fetch_video (requires network)\nimport shutil\ntest_root = '/tmp/yttoc_test'\nshutil.rmtree(test_root, ignore_errors=True)\n\nurl = 'https://www.youtube.com/watch?v=kwSVtQ7dziU'\ninfo = get_video_info(url)\nout = fetch_video(url, info, root=test_root)\nassert (out / 'meta.json').exists()\nassert _glob_srt(out)\n\nmeta = json.loads((out / 'meta.json').read_text(encoding='utf-8'))\nassert meta['id'] == 'kwSVtQ7dziU'\nassert 'last_used_at' in meta\nassert 'captions' in meta\n\nshutil.rmtree(test_root)\nprint('ok')",
     "crumbs": [
-      "yttoc"
+      "fetch"
     ]
   },
   {
-    "objectID": "index.html#how-to-use",
-    "href": "index.html#how-to-use",
-    "title": "yttoc",
-    "section": "How to use",
-    "text": "How to use\nFill me in please! Don’t forget code examples:\n\n1+1\n\n2",
+    "objectID": "fetch.html#cli",
+    "href": "fetch.html#cli",
+    "title": "fetch",
+    "section": "CLI",
+    "text": "CLI\n\nsource\n\nyttoc_fetch\n\ndef yttoc_fetch(\n    url:str, # YouTube video URL\n    root:str=None, # Root download directory (default: ~/.cache/yttoc)\n):\n\nFetch metadata and captions for a single YouTube video (ja preferred, en fallback).\n\n# Test: _fmt_duration (imported from core)\nassert _fmt_duration(3991) == '1:06:31'\nassert _fmt_duration(195) == '3:15'\nassert _fmt_duration(0) == '0:00'\nprint('ok')\n\n\nsource\n\n\nyttoc_list\n\ndef yttoc_list(\n    root:str=None, # Root directory (default: ~/.cache/yttoc)\n):\n\nList cached videos sorted by last used.\n\n# Test: yttoc_list output\nimport io, contextlib\nfrom tempfile import TemporaryDirectory\n\nwith TemporaryDirectory() as d:\n    root = Path(d)\n    # Video A: older, English only\n    a = root / 'AAAA'\n    a.mkdir()\n    (a / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nhi\\n')\n    (a / 'meta.json').write_text(json.dumps({\n        'id': 'AAAA', 'title': 'Old video', 'duration': 195,\n        'captions': {'en': 'auto'},\n        'last_used_at': '2026-01-01T00:00:00+00:00'}))\n    # Video B: newer, Japanese\n    b = root / 'BBBB'\n    b.mkdir()\n    (b / 'captions.ja.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nこんにちは\\n')\n    (b / 'meta.json').write_text(json.dumps({\n        'id': 'BBBB', 'title': 'New video', 'duration': 3991,\n        'captions': {'ja': 'manual'},\n        'last_used_at': '2026-04-06T15:00:00+00:00'}))\n    # Video C: incomplete (no srt) — should be skipped\n    c = root / 'CCCC'\n    c.mkdir()\n    (c / 'meta.json').write_text('{\"id\":\"CCCC\"}')\n\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        yttoc_list(root=str(root))\n    out = buf.getvalue()\n\n    lines = [l for l in out.strip().splitlines() if l.strip()]\n    assert len(lines) == 2, f'expected 2 lines, got {len(lines)}'\n    assert 'CCCC' not in out, 'incomplete video CCCC should be skipped'\n    assert 'BBBB' in out, 'Japanese video should appear'\n    assert '[ja]' in out, 'BBBB should show ja'\n    assert '[en]' in out, 'AAAA should show en'\n    # BBBB before AAAA (newer first)\n    pos_b = out.index('BBBB')\n    pos_a = out.index('AAAA')\n    assert pos_b &lt; pos_a, 'BBBB (newer) should appear before AAAA (older)'\n\n# Legacy: yttoc_list handles old meta.json with caption_type (no captions dict)\nwith TemporaryDirectory() as d:\n    root = Path(d)\n    v = root / 'LEGACY'; v.mkdir()\n    (v / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nhi\\n')\n    (v / 'meta.json').write_text(json.dumps({\n        'id': 'LEGACY', 'title': 'Legacy video', 'duration': 60,\n        'caption_type': 'auto', 'last_used_at': '2026-01-01T00:00:00+00:00'}))\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        yttoc_list(root=str(root))\n    out = buf.getvalue()\n    assert 'LEGACY' in out, 'legacy video should appear'\n    assert '[en]' in out, 'should detect language from filename'\n\nprint('ok')\n\nok\n\n\n\n# Test: fetch_video cache hit with existing captions\nfrom tempfile import TemporaryDirectory\nwith TemporaryDirectory() as d:\n    fake_info = {'id': 'TEST123', 'title': 't', 'channel': 'c',\n                 'duration': 60, 'upload_date': '20260101',\n                 'webpage_url': 'https://example.com', 'description': '',\n                 'subtitles': {}, 'automatic_captions': {'en': [{'ext': 'srt'}]}}\n    out_dir = Path(d) / 'TEST123'\n    out_dir.mkdir()\n    (out_dir / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\ntest\\n')\n    (out_dir / 'meta.json').write_text('{\"id\":\"TEST123\"}')\n    result = fetch_video('https://example.com', fake_info, root=d)\n    assert result.name == 'TEST123'\n    meta = json.loads((result / 'meta.json').read_text())\n    assert 'last_used_at' in meta\n\n# Cache hit also works with ja srt\nwith TemporaryDirectory() as d:\n    out_dir = Path(d) / 'TEST456'\n    out_dir.mkdir()\n    (out_dir / 'captions.ja.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nテスト\\n')\n    (out_dir / 'meta.json').write_text('{\"id\":\"TEST456\",\"captions\":{\"ja\":\"manual\"}}')\n    result = fetch_video('https://example.com',\n        {'id': 'TEST456', 'title': 't', 'channel': 'c', 'duration': 60,\n         'upload_date': '20260101', 'webpage_url': 'u', 'description': '',\n         'subtitles': {'ja': []}, 'automatic_captions': {}}, root=d)\n    meta = json.loads((result / 'meta.json').read_text())\n    assert meta['captions'] == {'ja': 'manual'}\nprint('ok')\n\nok",
     "crumbs": [
-      "yttoc"
+      "fetch"
     ]
   },
   {
@@ -100,43 +100,123 @@
     ]
   },
   {
-    "objectID": "fetch.html",
-    "href": "fetch.html",
-    "title": "fetch",
+    "objectID": "toc.html",
+    "href": "toc.html",
+    "title": "toc",
     "section": "",
-    "text": "Storage location: ~/.cache/yttoc/{video_id}/ (XDG Base Directory spec — re-downloadable data belongs in cache). Overridable via --root.\n~/.cache/yttoc/\n  {video_id}/\n    meta.json\n    captions.ja.srt        # if Japanese captions exist\n    captions.en.srt        # otherwise fall back to English\nmeta.json fields:\n{\n  \"id\": \"kwSVtQ7dziU\",\n  \"title\": \"Skill Issue: Andrej Karpathy on Code Agents...\",\n  \"channel\": \"No Priors\",\n  \"duration\": 3991,\n  \"upload_date\": \"20260320\",\n  \"webpage_url\": \"https://www.youtube.com/watch?v=kwSVtQ7dziU\",\n  \"description\": \"Video description with possible manual ToC...\",\n  \"captions\": {\"ja\": \"manual\"},\n  \"last_used_at\": \"2026-04-06T14:22:31+00:00\"\n}\ndescription is preserved for use as background context in ToC/summary generation. Many videos include a manual ToC with timestamps in their description.\nCaption selection logic: try Japanese first (manual ja/ja-* → auto ja/ja-*), then English (manual en/en-* → auto en/en-*). Error if neither exists.\nCLI: yttoc-fetch &lt;url&gt; fetches one video, prints video_id to stdout. Batch via shell: cat urls.txt | xargs -I{} yttoc-fetch {}",
+    "text": "LLM returns [{title, start}, ...]. App-side adds path (sequential) and end (next start or duration).\nPipeline: 1. _build_toc_prompt(segments, meta) — build prompt from xscript segments 2. _call_llm(prompt) — call OpenAI gpt-5.4, return raw [{title, start}] 3. _normalize_sections(raw, duration) — add path/end, sort, dedup, validate 4. Write toc.json to cache dir\ntoc.json format:\n{\"sections\": [{\"path\": \"1\", \"title\": \"Introduction\", \"start\": 0, \"end\": 750}]}",
     "crumbs": [
-      "fetch"
+      "toc"
     ]
   },
   {
-    "objectID": "fetch.html#storage-design",
-    "href": "fetch.html#storage-design",
-    "title": "fetch",
+    "objectID": "toc.html#design",
+    "href": "toc.html#design",
+    "title": "toc",
     "section": "",
-    "text": "Storage location: ~/.cache/yttoc/{video_id}/ (XDG Base Directory spec — re-downloadable data belongs in cache). Overridable via --root.\n~/.cache/yttoc/\n  {video_id}/\n    meta.json\n    captions.ja.srt        # if Japanese captions exist\n    captions.en.srt        # otherwise fall back to English\nmeta.json fields:\n{\n  \"id\": \"kwSVtQ7dziU\",\n  \"title\": \"Skill Issue: Andrej Karpathy on Code Agents...\",\n  \"channel\": \"No Priors\",\n  \"duration\": 3991,\n  \"upload_date\": \"20260320\",\n  \"webpage_url\": \"https://www.youtube.com/watch?v=kwSVtQ7dziU\",\n  \"description\": \"Video description with possible manual ToC...\",\n  \"captions\": {\"ja\": \"manual\"},\n  \"last_used_at\": \"2026-04-06T14:22:31+00:00\"\n}\ndescription is preserved for use as background context in ToC/summary generation. Many videos include a manual ToC with timestamps in their description.\nCaption selection logic: try Japanese first (manual ja/ja-* → auto ja/ja-*), then English (manual en/en-* → auto en/en-*). Error if neither exists.\nCLI: yttoc-fetch &lt;url&gt; fetches one video, prints video_id to stdout. Batch via shell: cat urls.txt | xargs -I{} yttoc-fetch {}",
+    "text": "LLM returns [{title, start}, ...]. App-side adds path (sequential) and end (next start or duration).\nPipeline: 1. _build_toc_prompt(segments, meta) — build prompt from xscript segments 2. _call_llm(prompt) — call OpenAI gpt-5.4, return raw [{title, start}] 3. _normalize_sections(raw, duration) — add path/end, sort, dedup, validate 4. Write toc.json to cache dir\ntoc.json format:\n{\"sections\": [{\"path\": \"1\", \"title\": \"Introduction\", \"start\": 0, \"end\": 750}]}",
     "crumbs": [
-      "fetch"
+      "toc"
     ]
   },
   {
-    "objectID": "fetch.html#modularize",
-    "href": "fetch.html#modularize",
-    "title": "fetch",
-    "section": "Modularize",
-    "text": "Modularize\n\n# Test: helpers\nassert _pick_lang({'en': []}) == 'en'\nassert _pick_lang({'live_chat': [], 'en-US': []}) == 'en-US'\nassert _pick_lang({'ja': []}) is None\nassert _pick_lang({'ja': []}, 'ja') == 'ja'\nassert _pick_lang({'ja-JP': []}, 'ja') == 'ja-JP'\nassert _pick_lang({'en': []}, 'ja') is None\n\nfrom tempfile import TemporaryDirectory\n\n# _glob_srt with default pattern (cache lookup)\nwith TemporaryDirectory() as d:\n    base = Path(d)\n    assert _glob_srt(base) == []\n    (base / 'captions.ja.srt').write_text('1', encoding='utf-8')\n    assert _glob_srt(base) == [base / 'captions.ja.srt']\n\n# _glob_srt with download prefix pattern\nwith TemporaryDirectory() as d:\n    base = Path(d)\n    sample = base / 'captions_en.en-US.srt'\n    sample.write_text('1', encoding='utf-8')\n    assert _glob_srt(base, 'captions_en*.srt') == [sample]\n\n# Test: _build_meta\nfake_info = {'id': 'X', 'title': 't', 'channel': 'c', 'duration': 1,\n             'upload_date': '20260101', 'webpage_url': 'u',\n             'description': 'desc', 'subtitles': {}, 'automatic_captions': {'en': []}}\nm = _build_meta(fake_info, lang='en', caption_type='auto')\nassert m['captions'] == {'en': 'auto'}\nassert m['description'] == 'desc'\n\nm_ja = _build_meta(fake_info, lang='ja', caption_type='manual')\nassert m_ja['captions'] == {'ja': 'manual'}\n\n# Test: _update_last_used\nwith TemporaryDirectory() as d:\n    p = Path(d) / 'meta.json'\n    p.write_text('{\"id\":\"X\"}')\n    _update_last_used(p)\n    assert 'last_used_at' in json.loads(p.read_text())\n\nprint('ok')\n\nok\n\n\n\n# Test: _download_srt language priority (unit-level, no network)\n# We can't call _download_srt without network, but we can verify the\n# selection logic it uses by testing _pick_lang against _LANG_PRIORITY.\n\ndef _resolve_lang(subtitles, automatic_captions):\n    \"Simulate _download_srt's language resolution without downloading.\"\n    for lang in _LANG_PRIORITY:\n        manual = _pick_lang(subtitles, lang)\n        auto = _pick_lang(automatic_captions, lang)\n        if manual or auto:\n            selected = manual or auto\n            return lang, 'manual' if manual else 'auto', selected\n    return None, None, None\n\n# ja manual available → picks ja\nlang, ctype, sel = _resolve_lang({'ja': [], 'en': []}, {'en': []})\nassert lang == 'ja' and ctype == 'manual'\n\n# ja auto only → picks ja auto\nlang, ctype, sel = _resolve_lang({'en': []}, {'ja': [], 'en': []})\nassert lang == 'ja' and ctype == 'auto'\n\n# no ja at all → falls back to en manual\nlang, ctype, sel = _resolve_lang({'en': []}, {'en': []})\nassert lang == 'en' and ctype == 'manual'\n\n# en auto only\nlang, ctype, sel = _resolve_lang({}, {'en': []})\nassert lang == 'en' and ctype == 'auto'\n\n# neither → None\nlang, ctype, sel = _resolve_lang({}, {'fr': []})\nassert lang is None\n\n# ja-JP variant matches ja priority\nlang, ctype, sel = _resolve_lang({'ja-JP': []}, {})\nassert lang == 'ja' and ctype == 'manual' and sel == 'ja-JP'\n\nprint('ok')\n\n\nsource\n\nget_video_info\n\ndef get_video_info(\n    url:str, # YouTube video URL\n)-&gt;dict: # yt-dlp info dict\n\nExtract video metadata and caption info without downloading.\n\n# Test: get_video_info smoke test (requires network)\ninfo = get_video_info('https://www.youtube.com/watch?v=kwSVtQ7dziU')\nfor k in ['id', 'title', 'channel', 'duration', 'upload_date', 'webpage_url']:\n    assert k in info, f'missing {k}'\nassert info['id'] == 'kwSVtQ7dziU'\nprint('ok')\n\n\nsource\n\n\nfetch_video\n\ndef fetch_video(\n    url:str, # YouTube video URL\n    info:dict, # Result of get_video_info\n    root:str | pathlib.Path=None, # Root download directory (default: ~/.cache/yttoc)\n)-&gt;Path: # Path to video directory\n\nSave metadata and srt captions for one video (ja preferred, en fallback).\n\n# Test: fetch_video (requires network)\nimport shutil\ntest_root = '/tmp/yttoc_test'\nshutil.rmtree(test_root, ignore_errors=True)\n\nurl = 'https://www.youtube.com/watch?v=kwSVtQ7dziU'\ninfo = get_video_info(url)\nout = fetch_video(url, info, root=test_root)\nassert (out / 'meta.json').exists()\nassert _glob_srt(out)\n\nmeta = json.loads((out / 'meta.json').read_text(encoding='utf-8'))\nassert meta['id'] == 'kwSVtQ7dziU'\nassert 'last_used_at' in meta\nassert 'captions' in meta\n\nshutil.rmtree(test_root)\nprint('ok')",
+    "objectID": "toc.html#tests",
+    "href": "toc.html#tests",
+    "title": "toc",
+    "section": "Tests",
+    "text": "Tests\n\n# Test 1: basic — adds path and computes end from next start; last end = duration\nraw = [{'title': 'Intro', 'start': 0}, {'title': 'Main', 'start': 300}, {'title': 'Outro', 'start': 600}]\nsecs = _normalize_sections(raw, duration=900)\nassert len(secs) == 3\nassert secs[0] == {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300}\nassert secs[1] == {'path': '2', 'title': 'Main', 'start': 300, 'end': 600}\nassert secs[2] == {'path': '3', 'title': 'Outro', 'start': 600, 'end': 900}\nprint('ok')\n\n\n# Test 2: sorts by start ascending\nraw = [{'title': 'B', 'start': 300}, {'title': 'A', 'start': 0}]\nsecs = _normalize_sections(raw, duration=600)\nassert secs[0]['title'] == 'A'\nassert secs[1]['title'] == 'B'\nprint('ok')\n\n\n# Test 3: removes duplicate starts (keeps first occurrence after sort)\nraw = [{'title': 'A', 'start': 0}, {'title': 'A-dup', 'start': 0}, {'title': 'B', 'start': 300}]\nsecs = _normalize_sections(raw, duration=600)\nassert len(secs) == 2\nassert secs[0]['title'] == 'A'\nassert secs[1]['title'] == 'B'\nprint('ok')\n\n\n# Test 4: fixes first section start to 0 if not already\nraw = [{'title': 'Late start', 'start': 30}, {'title': 'Next', 'start': 300}]\nsecs = _normalize_sections(raw, duration=600)\nassert secs[0]['start'] == 0\nassert secs[0]['end'] == 300\nprint('ok')\n\n\n# Test 5: empty input raises ValueError\ntry:\n    _normalize_sections([], duration=600)\n    assert False, 'should have raised'\nexcept ValueError:\n    pass\nprint('ok')\n\n\n# Test 6: _build_toc_prompt includes transcript and meta context\nsegments = [\n    {'start': 0.0, 'end': 5.0, 'text': 'hello world'},\n    {'start': 5.0, 'end': 10.0, 'text': 'second segment'},\n]\nmeta = {'title': 'Test Video', 'channel': 'Ch', 'description': 'A test video'}\nprompt = _build_toc_prompt(segments, meta)\nassert 'hello world' in prompt\nassert 'second segment' in prompt\nassert 'Test Video' in prompt\nassert '[00:00]' in prompt  # timestamps formatted\nprint('ok')",
     "crumbs": [
-      "fetch"
+      "toc"
     ]
   },
   {
-    "objectID": "fetch.html#cli",
-    "href": "fetch.html#cli",
-    "title": "fetch",
+    "objectID": "toc.html#cli",
+    "href": "toc.html#cli",
+    "title": "toc",
     "section": "CLI",
-    "text": "CLI\n\nsource\n\nyttoc_fetch\n\ndef yttoc_fetch(\n    url:str, # YouTube video URL\n    root:str=None, # Root download directory (default: ~/.cache/yttoc)\n):\n\nFetch metadata and captions for a single YouTube video (ja preferred, en fallback).\n\n# Test: _fmt_duration (imported from core)\nassert _fmt_duration(3991) == '1:06:31'\nassert _fmt_duration(195) == '3:15'\nassert _fmt_duration(0) == '0:00'\nprint('ok')\n\n\nsource\n\n\nyttoc_list\n\ndef yttoc_list(\n    root:str=None, # Root directory (default: ~/.cache/yttoc)\n):\n\nList cached videos sorted by last used.\n\n# Test: yttoc_list output\nimport io, contextlib\nfrom tempfile import TemporaryDirectory\n\nwith TemporaryDirectory() as d:\n    root = Path(d)\n    # Video A: older, English only\n    a = root / 'AAAA'\n    a.mkdir()\n    (a / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nhi\\n')\n    (a / 'meta.json').write_text(json.dumps({\n        'id': 'AAAA', 'title': 'Old video', 'duration': 195,\n        'captions': {'en': 'auto'},\n        'last_used_at': '2026-01-01T00:00:00+00:00'}))\n    # Video B: newer, Japanese\n    b = root / 'BBBB'\n    b.mkdir()\n    (b / 'captions.ja.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nこんにちは\\n')\n    (b / 'meta.json').write_text(json.dumps({\n        'id': 'BBBB', 'title': 'New video', 'duration': 3991,\n        'captions': {'ja': 'manual'},\n        'last_used_at': '2026-04-06T15:00:00+00:00'}))\n    # Video C: incomplete (no srt) — should be skipped\n    c = root / 'CCCC'\n    c.mkdir()\n    (c / 'meta.json').write_text('{\"id\":\"CCCC\"}')\n\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        yttoc_list(root=str(root))\n    out = buf.getvalue()\n\n    lines = [l for l in out.strip().splitlines() if l.strip()]\n    assert len(lines) == 2, f'expected 2 lines, got {len(lines)}'\n    assert 'CCCC' not in out, 'incomplete video CCCC should be skipped'\n    assert 'BBBB' in out, 'Japanese video should appear'\n    assert '[ja]' in out, 'BBBB should show ja'\n    assert '[en]' in out, 'AAAA should show en'\n    # BBBB before AAAA (newer first)\n    pos_b = out.index('BBBB')\n    pos_a = out.index('AAAA')\n    assert pos_b &lt; pos_a, 'BBBB (newer) should appear before AAAA (older)'\n\n# Legacy: yttoc_list handles old meta.json with caption_type (no captions dict)\nwith TemporaryDirectory() as d:\n    root = Path(d)\n    v = root / 'LEGACY'; v.mkdir()\n    (v / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nhi\\n')\n    (v / 'meta.json').write_text(json.dumps({\n        'id': 'LEGACY', 'title': 'Legacy video', 'duration': 60,\n        'caption_type': 'auto', 'last_used_at': '2026-01-01T00:00:00+00:00'}))\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        yttoc_list(root=str(root))\n    out = buf.getvalue()\n    assert 'LEGACY' in out, 'legacy video should appear'\n    assert '[en]' in out, 'should detect language from filename'\n\nprint('ok')\n\nok\n\n\n\n# Test: fetch_video cache hit with existing captions\nfrom tempfile import TemporaryDirectory\nwith TemporaryDirectory() as d:\n    fake_info = {'id': 'TEST123', 'title': 't', 'channel': 'c',\n                 'duration': 60, 'upload_date': '20260101',\n                 'webpage_url': 'https://example.com', 'description': '',\n                 'subtitles': {}, 'automatic_captions': {'en': [{'ext': 'srt'}]}}\n    out_dir = Path(d) / 'TEST123'\n    out_dir.mkdir()\n    (out_dir / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\ntest\\n')\n    (out_dir / 'meta.json').write_text('{\"id\":\"TEST123\"}')\n    result = fetch_video('https://example.com', fake_info, root=d)\n    assert result.name == 'TEST123'\n    meta = json.loads((result / 'meta.json').read_text())\n    assert 'last_used_at' in meta\n\n# Cache hit also works with ja srt\nwith TemporaryDirectory() as d:\n    out_dir = Path(d) / 'TEST456'\n    out_dir.mkdir()\n    (out_dir / 'captions.ja.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nテスト\\n')\n    (out_dir / 'meta.json').write_text('{\"id\":\"TEST456\",\"captions\":{\"ja\":\"manual\"}}')\n    result = fetch_video('https://example.com',\n        {'id': 'TEST456', 'title': 't', 'channel': 'c', 'duration': 60,\n         'upload_date': '20260101', 'webpage_url': 'u', 'description': '',\n         'subtitles': {'ja': []}, 'automatic_captions': {}}, root=d)\n    meta = json.loads((result / 'meta.json').read_text())\n    assert meta['captions'] == {'ja': 'manual'}\nprint('ok')\n\nok",
+    "text": "CLI\n\nsource\n\nyttoc_toc\n\ndef yttoc_toc(\n    video_id:str, # Exact video_id\n    root:str=None, # Root cache directory\n):\n\nGenerate and display Table of Contents for a cached video.\n\nsource\n\n\ngenerate_toc\n\ndef generate_toc(\n    video_id:str, # Exact video_id\n    root:Path=None, # Root cache directory\n)-&gt;list: # Normalized sections\n\nGenerate toc.json for a cached video. Returns sections list.\n\n# Test 7: generate_toc returns cached toc.json without calling LLM\nfrom tempfile import TemporaryDirectory\nimport io, contextlib\n\nwith TemporaryDirectory() as d:\n    root = Path(d)\n    v = root / 'VID1'; v.mkdir()\n    (v / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nhi\\n')\n    (v / 'meta.json').write_text(json.dumps({\n        'id': 'VID1', 'title': 'T', 'channel': 'C', 'duration': 600,\n        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID1',\n        'last_used_at': '2000-01-01T00:00:00'}))\n    # Pre-write toc.json so LLM is never called\n    (v / 'toc.json').write_text(json.dumps({'sections': [\n        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},\n        {'path': '2', 'title': 'Main', 'start': 300, 'end': 600},\n    ]}))\n\n    secs = generate_toc('VID1', root)\n    assert len(secs) == 2\n    assert secs[0]['title'] == 'Intro'\n    assert secs[1]['title'] == 'Main'\nprint('ok')\n\nok\n\n\n\n# Test 8: yttoc_toc outputs header + formatted section lines\nwith TemporaryDirectory() as d:\n    root = Path(d)\n    v = root / 'VID2'; v.mkdir()\n    (v / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nhi\\n')\n    (v / 'meta.json').write_text(json.dumps({\n        'id': 'VID2', 'title': 'Test Video', 'channel': 'Ch', 'duration': 900,\n        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID2',\n        'last_used_at': '2000-01-01T00:00:00'}))\n    (v / 'toc.json').write_text(json.dumps({'sections': [\n        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},\n        {'path': '2', 'title': 'Main', 'start': 300, 'end': 900},\n    ]}))\n\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        yttoc_toc('VID2', root=str(root))\n    out = buf.getvalue()\n\n    assert '# Test Video' in out\n    assert '1. Intro 0:00-5:00' in out\n    assert '2. Main 5:00-15:00' in out\n    assert '(5:00)' in out  # span duration\n    assert '&t=300' in out  # deep link\nprint('ok')",
     "crumbs": [
-      "fetch"
+      "toc"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "yttoc",
+    "section": "",
+    "text": "This file will become your README and also the index of your documentation.",
+    "crumbs": [
+      "yttoc"
+    ]
+  },
+  {
+    "objectID": "index.html#developer-guide",
+    "href": "index.html#developer-guide",
+    "title": "yttoc",
+    "section": "Developer Guide",
+    "text": "Developer Guide\nIf you are new to using nbdev here are some useful pointers to get you started.\n\nInstall yttoc in Development mode\n# make sure yttoc package is installed in development mode\n$ pip install -e .\n\n# make changes under nbs/ directory\n# ...\n\n# compile to have changes apply to yttoc\n$ nbdev_prepare",
+    "crumbs": [
+      "yttoc"
+    ]
+  },
+  {
+    "objectID": "index.html#usage",
+    "href": "index.html#usage",
+    "title": "yttoc",
+    "section": "Usage",
+    "text": "Usage\n\nInstallation\nInstall latest from the GitHub repository:\n$ pip install git+https://github.com/doyu/yttoc.git\n\n\nDocumentation\nDocumentation can be found hosted on this GitHub repository’s pages.",
+    "crumbs": [
+      "yttoc"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "yttoc",
+    "section": "How to use",
+    "text": "How to use\nFill me in please! Don’t forget code examples:\n\n1+1\n\n2",
+    "crumbs": [
+      "yttoc"
+    ]
+  },
+  {
+    "objectID": "summarize.html",
+    "href": "summarize.html",
+    "title": "summarize",
+    "section": "",
+    "text": "One LLM call generates all section summaries + a full video summary. Each section summary includes: summary text, keywords, and evidence quote.\nsummaries.json format:\n{\n  \"full\": {\"summary\": \"...\", \"keywords\": [...], \"evidence\": {\"text\": \"...\", \"at\": 123}},\n  \"sections\": {\n    \"1\": {\"summary\": \"...\", \"keywords\": [...], \"evidence\": {\"text\": \"...\", \"at\": 456}}\n  }\n}\nIf toc.json is missing, generate_toc is called first internally.",
+    "crumbs": [
+      "summarize"
+    ]
+  },
+  {
+    "objectID": "summarize.html#design",
+    "href": "summarize.html#design",
+    "title": "summarize",
+    "section": "",
+    "text": "One LLM call generates all section summaries + a full video summary. Each section summary includes: summary text, keywords, and evidence quote.\nsummaries.json format:\n{\n  \"full\": {\"summary\": \"...\", \"keywords\": [...], \"evidence\": {\"text\": \"...\", \"at\": 123}},\n  \"sections\": {\n    \"1\": {\"summary\": \"...\", \"keywords\": [...], \"evidence\": {\"text\": \"...\", \"at\": 456}}\n  }\n}\nIf toc.json is missing, generate_toc is called first internally.",
+    "crumbs": [
+      "summarize"
+    ]
+  },
+  {
+    "objectID": "summarize.html#tests",
+    "href": "summarize.html#tests",
+    "title": "summarize",
+    "section": "Tests",
+    "text": "Tests\n\n# Test 1: _slice_segments returns segments within time range\nsegs = [\n    {'start': 0, 'end': 5, 'text': 'a'},\n    {'start': 5, 'end': 10, 'text': 'b'},\n    {'start': 10, 'end': 15, 'text': 'c'},\n    {'start': 15, 'end': 20, 'text': 'd'},\n]\nsliced = _slice_segments(segs, start=5, end=15)\nassert len(sliced) == 2\nassert sliced[0]['text'] == 'b'\nassert sliced[1]['text'] == 'c'\nprint('ok')\n\n\n# Test 2: _slice_segments with no matching segments returns empty\nsliced = _slice_segments(segs, start=100, end=200)\nassert sliced == []\nprint('ok')\n\n\n# Test 3: _build_summary_prompt includes section titles and transcript\nsegments = [\n    {'start': 0, 'end': 5, 'text': 'hello world'},\n    {'start': 5, 'end': 10, 'text': 'second part'},\n]\nsections = [\n    {'path': '1', 'title': 'Intro', 'start': 0, 'end': 5},\n    {'path': '2', 'title': 'Main', 'start': 5, 'end': 10},\n]\nmeta = {'title': 'Test Video', 'channel': 'Ch'}\nprompt = _build_summary_prompt(segments, sections, meta)\nassert 'Test Video' in prompt\nassert 'Intro' in prompt\nassert 'Main' in prompt\nassert 'hello world' in prompt\nassert 'second part' in prompt\nprint('ok')",
+    "crumbs": [
+      "summarize"
+    ]
+  },
+  {
+    "objectID": "summarize.html#cli",
+    "href": "summarize.html#cli",
+    "title": "summarize",
+    "section": "CLI",
+    "text": "CLI\n\nsource\n\nyttoc_sum\n\ndef yttoc_sum(\n    video_id:str, # Exact video_id\n    section:str=None, # Optional section path (e.g. \"3\")\n    root:str=None, # Root cache directory\n):\n\nDisplay summaries for a cached video.\n\nsource\n\n\ngenerate_summaries\n\ndef generate_summaries(\n    video_id:str, # Exact video_id\n    root:Path=None, # Root cache directory\n)-&gt;dict: # {full, sections} summaries\n\nGenerate summaries.json for a cached video. Returns summaries dict.\n\n# Test 4: generate_summaries returns cached summaries.json without LLM call\nfrom tempfile import TemporaryDirectory\nimport io, contextlib\n\n_test_summaries = {\n    'full': {'summary': 'Full video about testing.', 'keywords': ['test'], 'evidence': {'text': 'hello', 'at': 0}},\n    'sections': {\n        '1': {'summary': 'Intro section.', 'keywords': ['intro'], 'evidence': {'text': 'hi', 'at': 0}},\n        '2': {'summary': 'Main section.', 'keywords': ['main'], 'evidence': {'text': 'bye', 'at': 300}},\n    },\n}\n\nwith TemporaryDirectory() as d:\n    root = Path(d)\n    v = root / 'VID1'; v.mkdir()\n    (v / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nhi\\n')\n    (v / 'meta.json').write_text(json.dumps({\n        'id': 'VID1', 'title': 'T', 'channel': 'C', 'duration': 600,\n        'upload_date': '20260101', 'last_used_at': '2000-01-01T00:00:00'}))\n    (v / 'toc.json').write_text(json.dumps({'sections': [\n        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},\n        {'path': '2', 'title': 'Main', 'start': 300, 'end': 600},\n    ]}))\n    (v / 'summaries.json').write_text(json.dumps(_test_summaries))\n\n    result = generate_summaries('VID1', root)\n    assert result['full']['summary'] == 'Full video about testing.'\n    assert '1' in result['sections']\n    assert '2' in result['sections']\nprint('ok')\n\nok\n\n\n\n# Test 5: yttoc_sum displays all sections + full summary\nwith TemporaryDirectory() as d:\n    root = Path(d)\n    v = root / 'VID2'; v.mkdir()\n    (v / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nhi\\n')\n    (v / 'meta.json').write_text(json.dumps({\n        'id': 'VID2', 'title': 'Test Video', 'channel': 'Ch', 'duration': 600,\n        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID2',\n        'last_used_at': '2000-01-01T00:00:00'}))\n    (v / 'toc.json').write_text(json.dumps({'sections': [\n        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},\n        {'path': '2', 'title': 'Main', 'start': 300, 'end': 600},\n    ]}))\n    (v / 'summaries.json').write_text(json.dumps(_test_summaries))\n\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        yttoc_sum('VID2', root=str(root))\n    out = buf.getvalue()\n\n    assert '# Test Video' in out\n    assert '## 1. Intro (0:00)' in out\n    assert 'Intro section.' in out\n    assert '**Keywords:** intro' in out\n    assert '## Full Summary' in out\n    assert 'Full video about testing.' in out\nprint('ok')\n\n\n# Test 6: yttoc_sum with section argument shows only that section\nwith TemporaryDirectory() as d:\n    root = Path(d)\n    v = root / 'VID3'; v.mkdir()\n    (v / 'captions.en.srt').write_text('1\\n00:00:00,000 --&gt; 00:00:01,000\\nhi\\n')\n    (v / 'meta.json').write_text(json.dumps({\n        'id': 'VID3', 'title': 'T', 'channel': 'C', 'duration': 600,\n        'upload_date': '20260101', 'last_used_at': '2000-01-01T00:00:00'}))\n    (v / 'toc.json').write_text(json.dumps({'sections': [\n        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},\n        {'path': '2', 'title': 'Main', 'start': 300, 'end': 600},\n    ]}))\n    (v / 'summaries.json').write_text(json.dumps(_test_summaries))\n\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        yttoc_sum('VID3', section='2', root=str(root))\n    out = buf.getvalue()\n\n    assert '## 2. Main (5:00)' in out\n    assert 'Main section.' in out\n    assert 'Intro section.' not in out  # only section 2\n    assert '## Full Summary' not in out\nprint('ok')",
+    "crumbs": [
+      "summarize"
     ]
   }
 ]
