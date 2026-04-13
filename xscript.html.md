@@ -210,12 +210,13 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 
 def yttoc_raw(
     video_id:str, # Exact video_id
+    section:str='', # Section path (e.g. "3"); empty for full transcript
     root:str=None, # Root cache directory (default: ~/.cache/yttoc)
 ):
 
 ```
 
-*Display full transcript for a cached video.*
+*Display transcript for a cached video (full or by section).*
 
 ``` python
 # Test 8: yttoc_raw — missing video_id raises SystemExit
@@ -275,5 +276,35 @@ with TemporaryDirectory() as d:
 
     meta = json.loads((v / 'meta.json').read_text())
     assert meta['last_used_at'] > '2000-01-01', 'last_used_at should be updated'
+print('ok')
+```
+
+``` python
+# Test 11: yttoc_raw --section shows only that section's transcript
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID3'; v.mkdir()
+    (v / 'captions.en.srt').write_text(
+        '1\n00:00:00,000 --> 00:00:03,000\nfirst segment\n\n'
+        '2\n00:00:05,000 --> 00:00:08,000\nsecond segment\n\n'
+        '3\n00:00:10,000 --> 00:00:13,000\nthird segment\n')
+    (v / 'meta.json').write_text(json.dumps({
+        'id': 'VID3', 'title': 'T', 'channel': 'C',
+        'duration': 15, 'upload_date': '20260101',
+        'last_used_at': '2000-01-01T00:00:00+00:00'}))
+    (v / 'toc.json').write_text(json.dumps({'sections': [
+        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 5},
+        {'path': '2', 'title': 'Main', 'start': 5, 'end': 15},
+    ]}))
+
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        yttoc_raw('VID3', section='2', root=str(root))
+    out = buf.getvalue()
+
+    assert '## 2. Main (0:05 - 0:15)' in out
+    assert '[00:05] second segment' in out
+    assert '[00:10] third segment' in out
+    assert 'first segment' not in out  # section 1 excluded
 print('ok')
 ```

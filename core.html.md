@@ -5,6 +5,25 @@
 
 ------------------------------------------------------------------------
 
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L27"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### slice_segments
+
+``` python
+
+def slice_segments(
+    segments:list, # [{start, end, text}, ...]
+    start:int, # Section start in seconds
+    end:int, # Section end in seconds
+)->list: # Segments within [start, end)
+
+```
+
+*Return segments that fall within the given time range.*
+
+------------------------------------------------------------------------
+
 <a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L18"
 target="_blank" style="float:right; font-size:smaller">source</a>
 

@@ -27,14 +27,14 @@ called first internally.
 ## Tests
 
 ``` python
-# Test 1: _slice_segments returns segments within time range
+# Test 1: slice_segments returns segments within time range
 segs = [
     {'start': 0, 'end': 5, 'text': 'a'},
     {'start': 5, 'end': 10, 'text': 'b'},
     {'start': 10, 'end': 15, 'text': 'c'},
     {'start': 15, 'end': 20, 'text': 'd'},
 ]
-sliced = _slice_segments(segs, start=5, end=15)
+sliced = slice_segments(segs, start=5, end=15)
 assert len(sliced) == 2
 assert sliced[0]['text'] == 'b'
 assert sliced[1]['text'] == 'c'
@@ -42,8 +42,8 @@ print('ok')
 ```
 
 ``` python
-# Test 2: _slice_segments with no matching segments returns empty
-sliced = _slice_segments(segs, start=100, end=200)
+# Test 2: slice_segments with no matching segments returns empty
+sliced = slice_segments(segs, start=100, end=200)
 assert sliced == []
 print('ok')
 ```
@@ -73,7 +73,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L149"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L144"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_sum
@@ -82,7 +82,7 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 
 def yttoc_sum(
     video_id:str, # Exact video_id
-    section:str=None, # Optional section path (e.g. "3")
+    section:str='', # Section path (e.g. "3"); empty for all
     root:str=None, # Root cache directory
 ):
 
@@ -93,7 +93,7 @@ def yttoc_sum(
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L118"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L113"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_summaries
@@ -191,7 +191,7 @@ with TemporaryDirectory() as d:
 
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        yttoc_sum('VID3', section='2', root=str(root))
+        yttoc_sum('VID3', '2', root=str(root))  # positional section arg
     out = buf.getvalue()
 
     assert '## 2. Main (5:00)' in out
