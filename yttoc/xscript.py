@@ -106,14 +106,15 @@ def parse_xscript(path: str | Path # Path to SRT file
 # %% ../nbs/02_xscript.ipynb #bcd5731c
 import json
 from fastcore.script import call_parse
-from .core import format_header
+from .core import fmt_duration, format_header, slice_segments
 from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
 
 @call_parse
 def yttoc_raw(video_id: str, # Exact video_id
+              section: str = '', # Section path (e.g. "3"); empty for full transcript
               root: str = None, # Root cache directory (default: ~/.cache/yttoc)
              ):
-    "Display full transcript for a cached video."
+    "Display transcript for a cached video (full or by section)."
     root = Path(root) if root else _DEFAULT_ROOT
     d = root / video_id
     meta_path = d / 'meta.json'
@@ -126,6 +127,20 @@ def yttoc_raw(video_id: str, # Exact video_id
     print()
 
     segments = parse_xscript(srt_files[0])
+
+    if section:
+        toc_path = d / 'toc.json'
+        if not toc_path.exists():
+            raise SystemExit(f"No toc.json for {video_id}. Run yttoc-toc first.")
+        toc = json.loads(toc_path.read_text(encoding='utf-8'))
+        sec_info = next((s for s in toc['sections'] if s['path'] == section), None)
+        if sec_info is None:
+            raise SystemExit(f"Section {section} not found")
+        segments = slice_segments(segments, sec_info['start'], sec_info['end'])
+        s_start = fmt_duration(sec_info['start'])
+        s_end = fmt_duration(sec_info['end'])
+        print(f"## {section}. {sec_info['title']} ({s_start} - {s_end})")
+
     for s in segments:
         mm = int(s['start'] // 60)
         ss = int(s['start'] % 60)

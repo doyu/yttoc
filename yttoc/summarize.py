@@ -10,12 +10,7 @@ import json
 from pathlib import Path
 
 # %% ../nbs/04_summarize.ipynb #c1000005
-def _slice_segments(segments: list[dict], # [{start, end, text}, ...]
-                    start: int, # Section start in seconds
-                    end: int # Section end in seconds
-                   ) -> list[dict]: # Segments within [start, end)
-    "Return segments that fall within the given time range."
-    return [s for s in segments if s['start'] >= start and s['start'] < end]
+from .core import slice_segments
 
 def _build_summary_prompt(segments: list[dict], # Full xscript segments
                           sections: list[dict], # [{path, title, start, end}, ...] from toc.json
@@ -24,7 +19,7 @@ def _build_summary_prompt(segments: list[dict], # Full xscript segments
     "Build prompt asking LLM to summarize each section and the full video."
     parts = []
     for sec in sections:
-        sliced = _slice_segments(segments, sec['start'], sec['end'])
+        sliced = slice_segments(segments, sec['start'], sec['end'])
         lines = []
         for s in sliced:
             mm = int(s['start'] // 60)
@@ -147,7 +142,7 @@ def generate_summaries(video_id: str, # Exact video_id
 
 @call_parse
 def yttoc_sum(video_id: str, # Exact video_id
-              section: str = None, # Optional section path (e.g. "3")
+              section: str = '', # Section path (e.g. "3"); empty for all
               root: str = None, # Root cache directory
              ):
     "Display summaries for a cached video."
