@@ -144,17 +144,7 @@
     "href": "index.html",
     "title": "yttoc",
     "section": "",
-    "text": "This file will become your README and also the index of your documentation.",
-    "crumbs": [
-      "yttoc"
-    ]
-  },
-  {
-    "objectID": "index.html#developer-guide",
-    "href": "index.html#developer-guide",
-    "title": "yttoc",
-    "section": "Developer Guide",
-    "text": "Developer Guide\nIf you are new to using nbdev here are some useful pointers to get you started.\n\nInstall yttoc in Development mode\n# make sure yttoc package is installed in development mode\n$ pip install -e .\n\n# make changes under nbs/ directory\n# ...\n\n# compile to have changes apply to yttoc\n$ nbdev_prepare",
+    "text": "yttoc downloads YouTube captions (Japanese preferred, English fallback), parses them into normalized transcript segments, and uses an LLM to generate a structured Table of Contents with section summaries, keywords, and evidence quotes.\nWhat you get from a single video URL:",
     "crumbs": [
       "yttoc"
     ]
@@ -164,17 +154,27 @@
     "href": "index.html#usage",
     "title": "yttoc",
     "section": "Usage",
-    "text": "Usage\n\nInstallation\nInstall latest from the GitHub repository:\n$ pip install git+https://github.com/doyu/yttoc.git\n\n\nDocumentation\nDocumentation can be found hosted on this GitHub repository’s pages.",
+    "text": "Usage\n\nInstallation\npip install git+https://github.com/doyu/yttoc.git\nRequirements: - Python 3.9+ - yt-dlp (installed automatically) - OPENAI_API_KEY environment variable set (for yttoc-toc and yttoc-sum)",
     "crumbs": [
       "yttoc"
     ]
   },
   {
-    "objectID": "index.html#how-to-use",
-    "href": "index.html#how-to-use",
+    "objectID": "index.html#example-andrej-karpathy-on-code-agents-66-min",
+    "href": "index.html#example-andrej-karpathy-on-code-agents-66-min",
     "title": "yttoc",
-    "section": "How to use",
-    "text": "How to use\nFill me in please! Don’t forget code examples:\n\n1+1\n\n2",
+    "section": "Example: Andrej Karpathy on Code Agents (66 min)",
+    "text": "Example: Andrej Karpathy on Code Agents (66 min)\nFetch the video and generate a full ToC + summaries in three commands:\nvid=$(yttoc-fetch https://www.youtube.com/watch?v=kwSVtQ7dziU)\nyttoc-toc \"$vid\"\nyttoc-sum \"$vid\"\n\nyttoc-toc — Table of Contents\n# Skill Issue: Andrej Karpathy on Code Agents, AutoResearch, and the Loopy Era of AI\nChannel: No Priors: AI, Machine Learning, Tech, & Startups | Duration: 1:06:31 | 20260320\n\n1. AI agents change coding overnight 0:00-3:24 (3:24) https://youtube.com/watch?v=kwSVtQ7dziU&t=0\n2. Parallel agents, token throughput, and the new bottleneck 3:24-6:49 (3:25) ...&t=204\n3. From agents to persistent 'claws' 6:49-9:25 (2:36) ...&t=409\n...\n6. AutoResearch and removing humans from the loop 16:33-21:00 (4:27) ...&t=993\n...\n14. MicroGPT and teaching agents instead of humans 1:01:31-1:06:31 (5:00) ...&t=3691\nEach line links directly to that section in the YouTube player.\n\n\nyttoc-sum --section 6 — Section Summary\n## 6. AutoResearch and removing humans from the loop (16:33)\nAutoResearch is Karpathy's attempt to remove humans from the research loop\nby letting agents pursue objectives autonomously for long periods. He found\nthat even on a well-tuned small LLM training setup, the system discovered\nimprovements he had missed, reinforcing his belief in recursive self-improvement.\n**Keywords:** AutoResearch, recursive self-improvement, hyperparameter tuning,\nLLM training, DataChat, validation loss, objective metrics, automation\n**Evidence:** \"I don't want to be like the researcher in the loop...\nI'm holding the system back\" [17:17]\n\n\nyttoc-raw --section 6 — Section Transcript\n## 6. AutoResearch and removing humans from the loop (16:33 - 21:00)\n[16:33] Auto research. Yeah. So I think like I\n[16:36] had a tweet earlier where I kind of like\n[16:38] said something along the lines of to get\n[16:40] the most out of the tools that have\n[16:41] become available now you have to remove\n[16:43] yourself as the as the bottleneck.\n...\n\n\nAll commands\nyttoc-fetch &lt;url&gt;              # Download captions (ja preferred, en fallback)\nyttoc-list                     # Show cached videos\nyttoc-raw &lt;video_id&gt;           # Full transcript\nyttoc-raw &lt;vid&gt; --section 3    # Section transcript\nyttoc-toc &lt;video_id&gt;           # Generate Table of Contents\nyttoc-sum &lt;video_id&gt;           # All section summaries + full summary\nyttoc-sum &lt;vid&gt; --section 3    # Single section summary",
+    "crumbs": [
+      "yttoc"
+    ]
+  },
+  {
+    "objectID": "index.html#development",
+    "href": "index.html#development",
+    "title": "yttoc",
+    "section": "Development",
+    "text": "Development\nBuilt with nbdev. Source of truth is in nbs/ notebooks.\npip install -e .\nnbdev_prepare    # export, test, build docs",
     "crumbs": [
       "yttoc"
     ]
