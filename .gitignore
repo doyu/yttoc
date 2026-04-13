@@ -150,3 +150,8 @@ checklink/cookies.txt
 
 # Quarto
 .quarto
+
+# Unlisted video URLs (private)
+nbs/solveit2.txt
+docs/videos.md
+docs/reference-tocs.md
