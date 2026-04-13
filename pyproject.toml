@@ -23,6 +23,7 @@ yttoc-fetch = "yttoc.fetch:yttoc_fetch"
 yttoc-list = "yttoc.fetch:yttoc_list"
 yttoc-raw = "yttoc.xscript:yttoc_raw"
 yttoc-toc = "yttoc.toc:yttoc_toc"
+yttoc-sum = "yttoc.summarize:yttoc_sum"
 
 [project.entry-points.nbdev]
 yttoc = "yttoc._modidx:d"
