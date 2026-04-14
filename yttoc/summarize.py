@@ -105,7 +105,7 @@ def _call_summary_llm(prompt: str) -> dict:
 
 # %% ../nbs/04_summarize.ipynb #d286018a
 from fastcore.script import call_parse
-from .core import fmt_duration, format_header
+from .core import fmt_duration, format_header, format_toc_line
 from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
 from .xscript import parse_xscript
 from .toc import generate_toc
@@ -144,6 +144,15 @@ def generate_summaries(video_id: str, # Exact video_id
     _update_last_used(meta_path)
     return result
 
+def _print_section_summary(path: str, s: dict, toc_sections: list[dict], url: str):
+    "Render one section as a TOC-style header followed by summary/keywords/evidence."
+    sec_info = next((t for t in toc_sections if t['path'] == path), None)
+    header = format_toc_line(sec_info, url) if sec_info else f"{path}. Section {path}"
+    print(f"## {header}")
+    print(s['summary'])
+    print(f"**Keywords:** {', '.join(s['keywords'])}")
+    print(f"**Evidence:** \"{s['evidence']['text']}\" [{fmt_duration(s['evidence']['at'])}]")
+
 @call_parse
 def yttoc_sum(video_id: str, # Exact video_id
               section: str = '', # Section path (e.g. "3"); empty for all
@@ -159,37 +168,24 @@ def yttoc_sum(video_id: str, # Exact video_id
 
     meta = json.loads(meta_path.read_text(encoding='utf-8'))
     sums = generate_summaries(video_id, root, refresh=refresh)
+    url = meta.get('webpage_url', '')
+    toc_sections = json.loads((d / 'toc.json').read_text(encoding='utf-8'))['sections']
 
     print(format_header(meta))
     print()
 
     if section:
-        # Show specific section
         s = sums['sections'].get(section)
         if s is None:
             raise SystemExit(f"Section {section} not found")
-        toc = json.loads((d / 'toc.json').read_text(encoding='utf-8'))
-        sec_info = next((t for t in toc['sections'] if t['path'] == section), None)
-        title = sec_info['title'] if sec_info else f'Section {section}'
-        start = fmt_duration(sec_info['start']) if sec_info else '?'
-        print(f"## {section}. {title} ({start})")
-        print(s['summary'])
-        print(f"**Keywords:** {', '.join(s['keywords'])}")
-        print(f"**Evidence:** \"{s['evidence']['text']}\" [{fmt_duration(s['evidence']['at'])}]")
+        _print_section_summary(section, s, toc_sections, url)
     else:
-        # Show all sections + full
         for path, s in sorted(sums['sections'].items(), key=lambda x: int(x[0])):
-            toc = json.loads((d / 'toc.json').read_text(encoding='utf-8'))
-            sec_info = next((t for t in toc['sections'] if t['path'] == path), None)
-            title = sec_info['title'] if sec_info else f'Section {path}'
-            start = fmt_duration(sec_info['start']) if sec_info else '?'
-            print(f"## {path}. {title} ({start})")
-            print(s['summary'])
-            print(f"**Keywords:** {', '.join(s['keywords'])}")
-            print(f"**Evidence:** \"{s['evidence']['text']}\" [{fmt_duration(s['evidence']['at'])}]")
+            _print_section_summary(path, s, toc_sections, url)
             print()
 
         print("## Full Summary")
         print(sums['full']['summary'])
         print(f"**Keywords:** {', '.join(sums['full']['keywords'])}")
         print(f"**Evidence:** \"{sums['full']['evidence']['text']}\" [{fmt_duration(sums['full']['evidence']['at'])}]")
+        if url: print(url)

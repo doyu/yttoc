@@ -110,7 +110,7 @@ def _call_llm(prompt: str # Full prompt
 # %% ../nbs/03_toc.ipynb #795bea0d
 import sys
 from fastcore.script import call_parse
-from .core import fmt_duration, format_header
+from .core import format_header, format_toc_line
 from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
 from .xscript import parse_xscript
 
@@ -169,8 +169,4 @@ def yttoc_toc(video_id: str, # Exact video_id
     print()
     url = meta.get('webpage_url', '')
     for s in sections:
-        s_start = fmt_duration(s['start'])
-        s_end = fmt_duration(s['end'])
-        span = fmt_duration(s['end'] - s['start'])
-        t_param = f"&t={s['start']}" if url else ''
-        print(f"{s['path']}. {s['title']} {s_start}-{s_end} ({span}) {url}{t_param}")
+        print(format_toc_line(s, url))
