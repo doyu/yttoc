@@ -110,11 +110,46 @@ from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
 from .xscript import parse_xscript
 from .toc import generate_toc
 
+def _assemble_summaries(meta: dict, # meta.json content
+                        toc_sections: list[dict], # [{path, title, start, end}, ...] from toc.json
+                        llm_result: dict # {full, sections: {path: {...}}}
+                       ) -> dict: # Self-contained summaries.json payload
+    "Merge meta + toc + LLM output into the canonical summaries.json shape. Raise if LLM omitted any section."
+    missing = [sec['path'] for sec in toc_sections if sec['path'] not in llm_result['sections']]
+    if missing:
+        raise ValueError(f"LLM omitted summaries for sections: {missing}")
+    return {
+        'video': {
+            'id': meta.get('id'),
+            'title': meta.get('title'),
+            'channel': meta.get('channel'),
+            'url': meta.get('webpage_url'),
+            'duration': meta.get('duration'),
+            'upload_date': meta.get('upload_date'),
+        },
+        'sections': [
+            {'path': sec['path'], 'title': sec['title'],
+             'start': sec['start'], 'end': sec['end'],
+             **llm_result['sections'][sec['path']]}
+            for sec in toc_sections
+        ],
+        'full': llm_result['full'],
+    }
+
+def _migrate_old_summaries(cached: dict, # Old-format summaries dict {full, sections: {path: {...}}}
+                           video_id: str, root: Path
+                          ) -> dict: # New-format summaries dict
+    "Rebuild a self-contained summaries.json from the legacy {full, sections: {...}} shape."
+    meta_path = root / video_id / 'meta.json'
+    meta = json.loads(meta_path.read_text(encoding='utf-8'))
+    toc_sections = generate_toc(video_id, root)  # cached toc.json hit; no LLM call
+    return _assemble_summaries(meta, toc_sections, cached)
+
 def generate_summaries(video_id: str, # Exact video_id
                        root: Path = None, # Root cache directory
                        refresh: bool = False, # Delete cached summaries and regenerate
-                      ) -> dict: # {full, sections} summaries
-    "Generate summaries.json for a cached video. Returns summaries dict."
+                      ) -> dict: # Self-contained summaries dict
+    "Generate summaries.json for a cached video. Returns summaries dict (auto-migrating old shape)."
     root = root or _DEFAULT_ROOT
     d = root / video_id
     meta_path = d / 'meta.json'
@@ -126,17 +161,23 @@ def generate_summaries(video_id: str, # Exact video_id
     if refresh and sum_path.exists():
         sum_path.unlink()
 
-    # Return cached summaries if exists
     if sum_path.exists():
-        return json.loads(sum_path.read_text(encoding='utf-8'))
+        cached = json.loads(sum_path.read_text(encoding='utf-8'))
+        if 'video' in cached:
+            return cached
+        # Legacy shape: rebuild in place (no LLM call)
+        result = _migrate_old_summaries(cached, video_id, root)
+        sum_path.write_text(
+            json.dumps(result, indent=2, ensure_ascii=False),
+            encoding='utf-8')
+        return result
 
-    # Ensure toc.json exists
-    sections = generate_toc(video_id, root)
-
+    toc_sections = generate_toc(video_id, root)
     meta = json.loads(meta_path.read_text(encoding='utf-8'))
     segments = parse_xscript(srt_files[0])
-    prompt = _build_summary_prompt(segments, sections, meta)
-    result = _call_summary_llm(prompt)
+    prompt = _build_summary_prompt(segments, toc_sections, meta)
+    llm_result = _call_summary_llm(prompt)
+    result = _assemble_summaries(meta, toc_sections, llm_result)
 
     sum_path.write_text(
         json.dumps(result, indent=2, ensure_ascii=False),
@@ -144,11 +185,9 @@ def generate_summaries(video_id: str, # Exact video_id
     _update_last_used(meta_path)
     return result
 
-def _print_section_summary(path: str, s: dict, toc_sections: list[dict], url: str):
+def _print_section_summary(s: dict, url: str):
     "Render one section as a TOC-style header followed by summary/keywords/evidence."
-    sec_info = next((t for t in toc_sections if t['path'] == path), None)
-    header = format_toc_line(sec_info, url) if sec_info else f"{path}. Section {path}"
-    print(f"## {header}")
+    print(f"## {format_toc_line(s, url)}")
     print(s['summary'])
     print(f"**Keywords:** {', '.join(s['keywords'])}")
     print(f"**Evidence:** \"{s['evidence']['text']}\" [{fmt_duration(s['evidence']['at'])}]")
@@ -161,27 +200,21 @@ def yttoc_sum(video_id: str, # Exact video_id
              ):
     "Display summaries for a cached video."
     root = Path(root) if root else _DEFAULT_ROOT
-    d = root / video_id
-    meta_path = d / 'meta.json'
-    if not meta_path.exists():
-        raise SystemExit(f"Not cached: {video_id}")
-
-    meta = json.loads(meta_path.read_text(encoding='utf-8'))
     sums = generate_summaries(video_id, root, refresh=refresh)
-    url = meta.get('webpage_url', '')
-    toc_sections = json.loads((d / 'toc.json').read_text(encoding='utf-8'))['sections']
+    video = sums['video']
+    url = video.get('url') or ''
 
-    print(format_header(meta))
+    print(format_header(video))
     print()
 
     if section:
-        s = sums['sections'].get(section)
+        s = next((sec for sec in sums['sections'] if sec['path'] == section), None)
         if s is None:
             raise SystemExit(f"Section {section} not found")
-        _print_section_summary(section, s, toc_sections, url)
+        _print_section_summary(s, url)
     else:
-        for path, s in sorted(sums['sections'].items(), key=lambda x: int(x[0])):
-            _print_section_summary(path, s, toc_sections, url)
+        for s in sums['sections']:
+            _print_section_summary(s, url)
             print()
 
         print("## Full Summary")

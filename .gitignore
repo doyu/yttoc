@@ -155,3 +155,9 @@ checklink/cookies.txt
 nbs/solveit2.txt
 docs/videos.md
 docs/reference-tocs.md
+
+# Private id lists and any generated course-map artifacts
+solveit2*
+*-ids.txt
+*-map.md
+*-map.html
