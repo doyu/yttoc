@@ -112,6 +112,7 @@ from .toc import generate_toc
 
 def generate_summaries(video_id: str, # Exact video_id
                        root: Path = None, # Root cache directory
+                       refresh: bool = False, # Delete cached summaries and regenerate
                       ) -> dict: # {full, sections} summaries
     "Generate summaries.json for a cached video. Returns summaries dict."
     root = root or _DEFAULT_ROOT
@@ -121,6 +122,9 @@ def generate_summaries(video_id: str, # Exact video_id
     srt_files = _glob_srt(d)
     if not (meta_path.exists() and srt_files):
         raise SystemExit(f"Not cached: {video_id}")
+
+    if refresh and sum_path.exists():
+        sum_path.unlink()
 
     # Return cached summaries if exists
     if sum_path.exists():
@@ -144,6 +148,7 @@ def generate_summaries(video_id: str, # Exact video_id
 def yttoc_sum(video_id: str, # Exact video_id
               section: str = '', # Section path (e.g. "3"); empty for all
               root: str = None, # Root cache directory
+              refresh: bool = False, # Regenerate summaries
              ):
     "Display summaries for a cached video."
     root = Path(root) if root else _DEFAULT_ROOT
@@ -153,7 +158,7 @@ def yttoc_sum(video_id: str, # Exact video_id
         raise SystemExit(f"Not cached: {video_id}")
 
     meta = json.loads(meta_path.read_text(encoding='utf-8'))
-    sums = generate_summaries(video_id, root)
+    sums = generate_summaries(video_id, root, refresh=refresh)
 
     print(format_header(meta))
     print()

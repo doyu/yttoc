@@ -108,6 +108,7 @@ def _call_llm(prompt: str # Full prompt
     return result['sections']
 
 # %% ../nbs/03_toc.ipynb #795bea0d
+import sys
 from fastcore.script import call_parse
 from .core import fmt_duration, format_header
 from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
@@ -115,6 +116,7 @@ from .xscript import parse_xscript
 
 def generate_toc(video_id: str, # Exact video_id
                  root: Path = None, # Root cache directory
+                 refresh: bool = False, # Delete cached toc/summaries and regenerate
                 ) -> list[dict]: # Normalized sections
     "Generate toc.json for a cached video. Returns sections list."
     root = root or _DEFAULT_ROOT
@@ -124,6 +126,13 @@ def generate_toc(video_id: str, # Exact video_id
     srt_files = _glob_srt(d)
     if not (meta_path.exists() and srt_files):
         raise SystemExit(f"Not cached: {video_id}")
+
+    if refresh:
+        if toc_path.exists(): toc_path.unlink()
+        sum_path = d / 'summaries.json'
+        if sum_path.exists():
+            sum_path.unlink()
+            print('Invalidated summaries.json (depends on toc)', file=sys.stderr)
 
     # Return cached toc if exists
     if toc_path.exists():
@@ -144,6 +153,7 @@ def generate_toc(video_id: str, # Exact video_id
 @call_parse
 def yttoc_toc(video_id: str, # Exact video_id
               root: str = None, # Root cache directory
+              refresh: bool = False, # Regenerate toc (and invalidate summaries)
              ):
     "Generate and display Table of Contents for a cached video."
     root = Path(root) if root else _DEFAULT_ROOT
@@ -153,7 +163,7 @@ def yttoc_toc(video_id: str, # Exact video_id
         raise SystemExit(f"Not cached: {video_id}")
 
     meta = json.loads(meta_path.read_text(encoding='utf-8'))
-    sections = generate_toc(video_id, root)
+    sections = generate_toc(video_id, root, refresh=refresh)
 
     print(format_header(meta))
     print()
