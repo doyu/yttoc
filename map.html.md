@@ -364,3 +364,52 @@ Tune the By Topic view by raising the cross-lesson threshold:
 ``` bash
 yttoc-map $(cat course-ids.txt) --min-topic-lessons 3 > course-map.md
 ```
+
+## Searching with fzf
+
+`yttoc-map` is for **browsing** (full overview, folding mindmap). For
+**finding** — “where is FastHTML mentioned across the whole course?” —
+pipe the cached `summaries.json` files through `jq` into `fzf` instead.
+Markmap has browser-side search, but interactive incremental search
+across hundreds of sections is much faster in the terminal.
+
+Drop this into `~/.bashrc`:
+
+``` bash
+yttoc-find() {
+    for id in "$@"; do
+        jq -r --arg id "$id" '
+            .video.url as $u
+            | .sections[]
+            | [
+                ($u + "&t=" + (.start|tostring)),
+                ($id + " §" + .path + " " + .title),
+                .summary,
+                (.keywords | join(", "))
+            ] | @tsv
+        ' "$HOME/.cache/yttoc/$id/summaries.json"
+    done \
+    | fzf --delimiter=$'\t' \
+          --with-nth=2 \
+          --preview 'printf "%s\n\nKeywords: %s\n" {3} {4}' \
+          --preview-window=down:60%:wrap \
+          --bind 'enter:execute(xdg-open {1})'
+}
+```
+
+Usage — same shell-expansion style as `yttoc-map`:
+
+``` bash
+yttoc-find $(cat course-ids.txt)
+yttoc-find $(ls ~/.cache/yttoc)
+yttoc-find <VIDEO_ID_1> <VIDEO_ID_2>
+```
+
+Fuzzy-search section labels in the left pane, see the summary and
+keywords in the preview pane below, hit Enter to open the deep-linked
+YouTube URL in your browser. Replace `xdg-open` with `open` on macOS.
+
+The fzf snippet stays out of the Python package on purpose:
+`xdg-open`/`open` is environment-specific, fzf isn’t a Python dep, and
+shell composition is what shells are good at. yttoc generates the data;
+your shell does the searching.

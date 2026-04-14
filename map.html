@@ -217,6 +217,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#tests" id="toc-tests" class="nav-link" data-scroll-target="#tests">Tests</a></li>
   <li><a href="#generating-a-course-map" id="toc-generating-a-course-map" class="nav-link" data-scroll-target="#generating-a-course-map">Generating a course map</a></li>
+  <li><a href="#searching-with-fzf" id="toc-searching-with-fzf" class="nav-link" data-scroll-target="#searching-with-fzf">Searching with fzf</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/doyu/yttoc/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="map.html.md"><i class="bi bi-file-code"></i>CommonMark</a></li></ul></div></nav>
     </div>
@@ -530,6 +531,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pandoc</span> course-map.md <span class="at">-s</span> <span class="at">--toc</span> <span class="at">-o</span> course-map.html</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Tune the By Topic view by raising the cross-lesson threshold:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-map</span> <span class="va">$(</span><span class="fu">cat</span> course-ids.txt<span class="va">)</span> <span class="at">--min-topic-lessons</span> 3 <span class="op">&gt;</span> course-map.md</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="searching-with-fzf" class="level2">
+<h2 class="anchored" data-anchor-id="searching-with-fzf">Searching with fzf</h2>
+<p><code>yttoc-map</code> is for <strong>browsing</strong> (full overview, folding mindmap). For <strong>finding</strong> — “where is FastHTML mentioned across the whole course?” — pipe the cached <code>summaries.json</code> files through <code>jq</code> into <code>fzf</code> instead. Markmap has browser-side search, but interactive incremental search across hundreds of sections is much faster in the terminal.</p>
+<p>Drop this into <code>~/.bashrc</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">yttoc-find()</span> <span class="kw">{</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> id <span class="kw">in</span> <span class="st">"</span><span class="va">$@</span><span class="st">"</span><span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="ex">jq</span> <span class="at">-r</span> <span class="at">--arg</span> id <span class="st">"</span><span class="va">$id</span><span class="st">"</span> <span class="st">'</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="st">            .video.url as $u</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="st">            | .sections[]</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="st">            | [</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="st">                ($u + "&amp;t=" + (.start|tostring)),</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="st">                ($id + " §" + .path + " " + .title),</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="st">                .summary,</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="st">                (.keywords | join(", "))</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="st">            ] | @tsv</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="st">        '</span> <span class="st">"</span><span class="va">$HOME</span><span class="st">/.cache/yttoc/</span><span class="va">$id</span><span class="st">/summaries.json"</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">done</span> <span class="dt">\</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">|</span> <span class="ex">fzf</span> <span class="at">--delimiter</span><span class="op">=</span><span class="st">$'</span><span class="dt">\t</span><span class="st">'</span> <span class="dt">\</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>          <span class="at">--with-nth</span><span class="op">=</span>2 <span class="dt">\</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>          <span class="at">--preview</span> <span class="st">'printf "%s\n\nKeywords: %s\n" {3} {4}'</span> <span class="dt">\</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>          <span class="at">--preview-window</span><span class="op">=</span>down:60%:wrap <span class="dt">\</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>          <span class="at">--bind</span> <span class="st">'enter:execute(xdg-open {1})'</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Usage — same shell-expansion style as <code>yttoc-map</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-find</span> <span class="va">$(</span><span class="fu">cat</span> course-ids.txt<span class="va">)</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-find</span> <span class="va">$(</span><span class="fu">ls</span> ~/.cache/yttoc<span class="va">)</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-find</span> <span class="op">&lt;</span>VIDEO_ID_1<span class="op">&gt;</span> <span class="op">&lt;</span>VIDEO_ID_2<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Fuzzy-search section labels in the left pane, see the summary and keywords in the preview pane below, hit Enter to open the deep-linked YouTube URL in your browser. Replace <code>xdg-open</code> with <code>open</code> on macOS.</p>
+<p>The fzf snippet stays out of the Python package on purpose: <code>xdg-open</code>/<code>open</code> is environment-specific, fzf isn’t a Python dep, and shell composition is what shells are good at. yttoc generates the data; your shell does the searching.</p>
 
 
 </section>
