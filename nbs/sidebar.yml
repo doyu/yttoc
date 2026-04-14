@@ -1,0 +1,10 @@
+website:
+  sidebar:
+    contents:
+      - index.ipynb
+      - 00_core.ipynb
+      - 01_fetch.ipynb
+      - 02_xscript.ipynb
+      - 03_toc.ipynb
+      - 04_summarize.ipynb
+      - 05_map.ipynb

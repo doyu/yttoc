@@ -85,7 +85,75 @@ yttoc-raw <vid> --section 3    # Section transcript
 yttoc-toc <video_id>           # Generate Table of Contents
 yttoc-sum <video_id>           # All section summaries + full summary
 yttoc-sum <vid> --section 3    # Single section summary
+yttoc-map <id1> <id2> ...      # Course-wide learning map across multiple videos
 ```
+
+## Course maps across multiple videos
+
+Once several videos in a course are cached, `yttoc-map` builds a single
+Markdown learning map with three views — **By Lecture** / **By Topic** /
+**By Keyword** — each section linking to the YouTube player at the right
+timestamp.
+
+``` bash
+yttoc-map $(cat course-ids.txt) --title "My Course Map" > course-map.md
+```
+
+Render it as an interactive folding mindmap (single offline HTML file):
+
+``` bash
+npx -y markmap-cli@latest --offline course-map.md -o course-map.html
+xdg-open course-map.html
+```
+
+…or as a static linked page:
+
+``` bash
+pandoc course-map.md -s --toc -o course-map.html
+```
+
+### Searching with fzf
+
+`yttoc-map` is for **browsing**. For **finding** a specific topic across
+the whole course, pipe `summaries.json` through `jq` into `fzf` —
+fuzzy-search section titles in the left pane, see summary + keywords in
+the preview pane below, hit Enter to open the deep-linked YouTube URL.
+
+``` bash
+yttoc-find() {
+    for id in "$@"; do
+        jq -r --arg id "$id" '
+            .video.url as $u
+            | .sections[]
+            | [
+                ($u + "&t=" + (.start|tostring)),
+                ($id + " §" + .path + " " + .title),
+                .summary,
+                (.keywords | join(", "))
+            ] | @tsv
+        ' "$HOME/.cache/yttoc/$id/summaries.json"
+    done \
+    | fzf --delimiter=$'\t' \
+          --with-nth=2 \
+          --preview 'printf "%s\n\nKeywords: %s\n" {3} {4}' \
+          --preview-window=down:60%:wrap \
+          --bind 'enter:execute(xdg-open {1})'
+}
+```
+
+Usage — same shell-expansion style as `yttoc-map`:
+
+``` bash
+yttoc-find $(cat course-ids.txt)
+yttoc-find $(ls ~/.cache/yttoc)
+```
+
+Drop into `~/.bashrc`. Replace `xdg-open` with `open` on macOS.
+
+The fzf snippet stays out of the Python package on purpose —
+`xdg-open`/`open` is environment-specific, fzf isn’t a Python dep, and
+shell composition is what shells are good at. yttoc generates the data;
+your shell does the searching.
 
 ## Development
 
