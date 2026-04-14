@@ -20,7 +20,7 @@ def _ts_to_sec(h: int, m: int, s: int, ms: int) -> float:
 def _parse_srt(content: str) -> list[tuple[float, float, str]]:
     "Parse SRT text into raw (start, end, content) tuples. Raise ValueError on malformed blocks."
     cues = []
-    for block in re.split(r'\n\s*\n', content.strip()):
+    for block in re.split(r'\r?\n\r?\n+', content.strip()):
         lines = [l for l in block.splitlines() if l.strip()]
         if not lines: continue  # whitespace-only block
         # Find the --> line (may be at [0] if index line is missing, otherwise [1])
