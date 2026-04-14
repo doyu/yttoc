@@ -5,6 +5,24 @@
 
 ------------------------------------------------------------------------
 
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L34"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### format_toc_line
+
+``` python
+
+def format_toc_line(
+    section:dict, # {path, title, start, end}
+    url:str='', # webpage_url for &t= deep link (omit when empty)
+)->str: # Single-line TOC entry
+
+```
+
+*Format a TOC section as ‘N. title H:MM:SS-H:MM:SS (span) URL&t=N’.*
+
+------------------------------------------------------------------------
+
 <a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L27"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
@@ -94,5 +112,19 @@ assert hdr == '# Test Video\nChannel: Test Channel | Duration: 1:06:31 | 2026032
 hdr2 = format_header({'title': 'X'})
 assert '# X' in hdr2
 assert 'Duration: 0:00' in hdr2
+print('ok')
+```
+
+``` python
+# Test: format_toc_line
+sec = {'path': '1', 'title': 'Intro', 'start': 0, 'end': 137}
+url = 'https://www.youtube.com/watch?v=ABC'
+assert format_toc_line(sec, url) == '1. Intro 0:00-2:17 (2:17) https://www.youtube.com/watch?v=ABC&t=0'
+
+sec2 = {'path': '3', 'title': 'Deep dive', 'start': 600, 'end': 4191}
+assert format_toc_line(sec2, url) == '3. Deep dive 10:00-1:09:51 (59:51) https://www.youtube.com/watch?v=ABC&t=600'
+
+# Empty URL: no trailing space, no &t=
+assert format_toc_line(sec) == '1. Intro 0:00-2:17 (2:17)'
 print('ok')
 ```

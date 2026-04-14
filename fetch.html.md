@@ -92,50 +92,51 @@ print('ok')
     ok
 
 ``` python
-# Test: _download_srt language priority (unit-level, no network)
-# We can't call _download_srt without network, but we can verify the
-# selection logic it uses by testing _pick_lang against _LANG_PRIORITY.
+# Test: _download_srt language resolution (unit-level, no network)
+# Picks the original spoken language from info['language'], preferring manual
+# captions over auto. No cross-language fallback / translation.
 
-def _resolve_lang(subtitles, automatic_captions):
+def _resolve_lang(info):
     "Simulate _download_srt's language resolution without downloading."
-    for lang in _LANG_PRIORITY:
-        manual = _pick_lang(subtitles, lang)
-        auto = _pick_lang(automatic_captions, lang)
-        if manual or auto:
-            selected = manual or auto
-            return lang, 'manual' if manual else 'auto', selected
+    base = info.get('language')
+    if not base:
+        return None, None, None
+    manual = _pick_lang(info.get('subtitles', {}), base)
+    auto = _pick_lang(info.get('automatic_captions', {}), base)
+    if manual or auto:
+        return base, ('manual' if manual else 'auto'), (manual or auto)
     return None, None, None
 
-# ja manual available → picks ja
-lang, ctype, sel = _resolve_lang({'ja': [], 'en': []}, {'en': []})
-assert lang == 'ja' and ctype == 'manual'
+# English video with manual en subs → en manual
+lang, ctype, sel = _resolve_lang({'language': 'en', 'subtitles': {'en': []}, 'automatic_captions': {}})
+assert (lang, ctype, sel) == ('en', 'manual', 'en')
 
-# ja auto only → picks ja auto
-lang, ctype, sel = _resolve_lang({'en': []}, {'ja': [], 'en': []})
-assert lang == 'ja' and ctype == 'auto'
+# English video with only auto en → en auto
+lang, ctype, sel = _resolve_lang({'language': 'en', 'subtitles': {}, 'automatic_captions': {'en': [], 'ja': []}})
+assert (lang, ctype) == ('en', 'auto') and sel == 'en'
 
-# no ja at all → falls back to en manual
-lang, ctype, sel = _resolve_lang({'en': []}, {'en': []})
-assert lang == 'en' and ctype == 'manual'
+# Japanese video → picks ja, ignores en
+lang, ctype, sel = _resolve_lang({'language': 'ja', 'subtitles': {}, 'automatic_captions': {'ja': [], 'en': []}})
+assert (lang, ctype, sel) == ('ja', 'auto', 'ja')
 
-# en auto only
-lang, ctype, sel = _resolve_lang({}, {'en': []})
-assert lang == 'en' and ctype == 'auto'
+# Original ja with ja-JP variant
+lang, ctype, sel = _resolve_lang({'language': 'ja', 'subtitles': {'ja-JP': []}, 'automatic_captions': {}})
+assert (lang, ctype, sel) == ('ja', 'manual', 'ja-JP')
 
-# neither → None
-lang, ctype, sel = _resolve_lang({}, {'fr': []})
+# English video but no en captions at all → None (no cross-language fallback)
+lang, ctype, sel = _resolve_lang({'language': 'en', 'subtitles': {}, 'automatic_captions': {'ja': []}})
 assert lang is None
 
-# ja-JP variant matches ja priority
-lang, ctype, sel = _resolve_lang({'ja-JP': []}, {})
-assert lang == 'ja' and ctype == 'manual' and sel == 'ja-JP'
+# Missing language field → None
+lang, ctype, sel = _resolve_lang({'subtitles': {'en': []}, 'automatic_captions': {}})
+assert lang is None
 
 print('ok')
 ```
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L95"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L93"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_video_info
@@ -161,7 +162,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L102"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L100"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### fetch_video
@@ -176,8 +177,8 @@ def fetch_video(
 
 ```
 
-*Save metadata and srt captions for one video (ja preferred, en
-fallback).*
+*Save metadata and srt captions for one video in its original spoken
+language.*
 
 ``` python
 # Test: fetch_video (requires network)
@@ -204,7 +205,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L127"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L125"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_fetch
@@ -218,8 +219,8 @@ def yttoc_fetch(
 
 ```
 
-*Fetch metadata and captions for a single YouTube video (ja preferred,
-en fallback).*
+*Fetch metadata and captions for a single YouTube video in its original
+spoken language.*
 
 ``` python
 # Test: _fmt_duration (imported from core)
@@ -231,7 +232,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L140"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L138"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_list

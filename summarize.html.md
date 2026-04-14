@@ -9,20 +9,35 @@ One LLM call generates all section summaries + a full video summary.
 Each section summary includes: summary text, keywords, and evidence
 quote.
 
+`summaries.json` is **self-contained**: it embeds the relevant
+`meta.json` and `toc.json` fields so downstream consumers (CLI,
+learning-map generators, external tools) only need to open one file per
+video.
+
 **summaries.json format:**
 
 ``` json
 {
-  "full": {"summary": "...", "keywords": [...], "evidence": {"text": "...", "at": 123}},
-  "sections": {
-    "1": {"summary": "...", "keywords": [...], "evidence": {"text": "...", "at": 456}}
-  }
+  "video": {
+    "id": "<VIDEO_ID>", "title": "...", "channel": "...",
+    "url": "https://www.youtube.com/watch?v=<VIDEO_ID>",
+    "duration": 7007, "upload_date": "20251101"
+  },
+  "sections": [
+    {"path": "1", "title": "Introduction", "start": 0, "end": 137,
+     "summary": "...", "keywords": [...],
+     "evidence": {"text": "...", "at": 63}}
+  ],
+  "full": {"summary": "...", "keywords": [...], "evidence": {"text": "...", "at": 123}}
 }
 ```
 
 If `toc.json` is missing,
 [`generate_toc`](https://doyu.github.io/yttoc/toc.html#generate_toc) is
-called first internally.
+called first internally. The LLM call returns
+`{full, sections: {path: {...}}}` and
+[`_assemble_summaries`](https://doyu.github.io/yttoc/summarize.html#_assemble_summaries)
+merges it with `meta` and `toc_sections` into the canonical shape above.
 
 ## Tests
 
@@ -73,7 +88,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L144"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L196"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_sum
@@ -84,6 +99,7 @@ def yttoc_sum(
     video_id:str, # Exact video_id
     section:str='', # Section path (e.g. "3"); empty for all
     root:str=None, # Root cache directory
+    refresh:bool=False, # Regenerate summaries
 ):
 
 ```
@@ -93,7 +109,7 @@ def yttoc_sum(
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L113"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L148"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_summaries
@@ -103,24 +119,37 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 def generate_summaries(
     video_id:str, # Exact video_id
     root:Path=None, # Root cache directory
-)->dict: # {full, sections} summaries
+    refresh:bool=False, # Delete cached summaries and regenerate
+)->dict: # Self-contained summaries dict
 
 ```
 
-*Generate summaries.json for a cached video. Returns summaries dict.*
+*Generate summaries.json for a cached video. Returns summaries dict
+(auto-migrating old shape).*
 
 ``` python
 # Test 4: generate_summaries returns cached summaries.json without LLM call
 from tempfile import TemporaryDirectory
 import io, contextlib
 
-_test_summaries = {
-    'full': {'summary': 'Full video about testing.', 'keywords': ['test'], 'evidence': {'text': 'hello', 'at': 0}},
-    'sections': {
-        '1': {'summary': 'Intro section.', 'keywords': ['intro'], 'evidence': {'text': 'hi', 'at': 0}},
-        '2': {'summary': 'Main section.', 'keywords': ['main'], 'evidence': {'text': 'bye', 'at': 300}},
-    },
-}
+def _make_test_summaries(video_id: str, url: str = ''):
+    "Build a self-contained summaries.json fixture with the given id/url."
+    return {
+        'video': {
+            'id': video_id, 'title': 'T', 'channel': 'C',
+            'url': url, 'duration': 600, 'upload_date': '20260101',
+        },
+        'sections': [
+            {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300,
+             'summary': 'Intro section.', 'keywords': ['intro'],
+             'evidence': {'text': 'hi', 'at': 0}},
+            {'path': '2', 'title': 'Main', 'start': 300, 'end': 600,
+             'summary': 'Main section.', 'keywords': ['main'],
+             'evidence': {'text': 'bye', 'at': 300}},
+        ],
+        'full': {'summary': 'Full video about testing.', 'keywords': ['test'],
+                 'evidence': {'text': 'hello', 'at': 0}},
+    }
 
 with TemporaryDirectory() as d:
     root = Path(d)
@@ -129,36 +158,32 @@ with TemporaryDirectory() as d:
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID1', 'title': 'T', 'channel': 'C', 'duration': 600,
         'upload_date': '20260101', 'last_used_at': '2000-01-01T00:00:00'}))
-    (v / 'toc.json').write_text(json.dumps({'sections': [
-        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},
-        {'path': '2', 'title': 'Main', 'start': 300, 'end': 600},
-    ]}))
-    (v / 'summaries.json').write_text(json.dumps(_test_summaries))
+    (v / 'summaries.json').write_text(json.dumps(_make_test_summaries('VID1')))
 
     result = generate_summaries('VID1', root)
     assert result['full']['summary'] == 'Full video about testing.'
-    assert '1' in result['sections']
-    assert '2' in result['sections']
+    assert result['video']['id'] == 'VID1'
+    assert len(result['sections']) == 2
+    assert {s['path'] for s in result['sections']} == {'1', '2'}
 print('ok')
 ```
 
     ok
 
 ``` python
-# Test 5: yttoc_sum displays all sections + full summary
+# Test 5: yttoc_sum reads summaries.json only (no toc.json), embedded URL flows through
 with TemporaryDirectory() as d:
     root = Path(d)
     v = root / 'VID2'; v.mkdir()
     (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID2', 'title': 'Test Video', 'channel': 'Ch', 'duration': 600,
-        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID2',
-        'last_used_at': '2000-01-01T00:00:00'}))
-    (v / 'toc.json').write_text(json.dumps({'sections': [
-        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},
-        {'path': '2', 'title': 'Main', 'start': 300, 'end': 600},
-    ]}))
-    (v / 'summaries.json').write_text(json.dumps(_test_summaries))
+        'upload_date': '20260101', 'last_used_at': '2000-01-01T00:00:00'}))
+    fixture = _make_test_summaries('VID2', url='https://youtube.com/watch?v=VID2')
+    fixture['video']['title'] = 'Test Video'
+    fixture['video']['channel'] = 'Ch'
+    (v / 'summaries.json').write_text(json.dumps(fixture))
+    # Intentionally NO toc.json — yttoc_sum must not depend on it.
 
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
@@ -166,16 +191,18 @@ with TemporaryDirectory() as d:
     out = buf.getvalue()
 
     assert '# Test Video' in out
-    assert '## 1. Intro (0:00)' in out
+    assert '## 1. Intro 0:00-5:00 (5:00) https://youtube.com/watch?v=VID2&t=0' in out
+    assert '## 2. Main 5:00-10:00 (5:00) https://youtube.com/watch?v=VID2&t=300' in out
     assert 'Intro section.' in out
     assert '**Keywords:** intro' in out
     assert '## Full Summary' in out
     assert 'Full video about testing.' in out
+    assert 'https://youtube.com/watch?v=VID2' in out  # full-summary URL line
 print('ok')
 ```
 
 ``` python
-# Test 6: yttoc_sum with section argument shows only that section
+# Test 6: yttoc_sum --section shows only that section (no URL when summaries lacks it)
 with TemporaryDirectory() as d:
     root = Path(d)
     v = root / 'VID3'; v.mkdir()
@@ -183,20 +210,77 @@ with TemporaryDirectory() as d:
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID3', 'title': 'T', 'channel': 'C', 'duration': 600,
         'upload_date': '20260101', 'last_used_at': '2000-01-01T00:00:00'}))
-    (v / 'toc.json').write_text(json.dumps({'sections': [
-        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},
-        {'path': '2', 'title': 'Main', 'start': 300, 'end': 600},
-    ]}))
-    (v / 'summaries.json').write_text(json.dumps(_test_summaries))
+    (v / 'summaries.json').write_text(json.dumps(_make_test_summaries('VID3')))
 
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
         yttoc_sum('VID3', '2', root=str(root))  # positional section arg
     out = buf.getvalue()
 
-    assert '## 2. Main (5:00)' in out
+    assert '## 2. Main 5:00-10:00 (5:00)' in out
+    assert '&t=' not in out  # no URL → no deep link
     assert 'Main section.' in out
     assert 'Intro section.' not in out  # only section 2
     assert '## Full Summary' not in out
+print('ok')
+```
+
+``` python
+# Test 7: legacy summaries.json (no 'video' key) is auto-migrated in place — no LLM call
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID4'; v.mkdir()
+    (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
+    (v / 'meta.json').write_text(json.dumps({
+        'id': 'VID4', 'title': 'Old', 'channel': 'Ch', 'duration': 600,
+        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID4',
+        'last_used_at': '2000-01-01T00:00:00'}))
+    (v / 'toc.json').write_text(json.dumps({'sections': [
+        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},
+        {'path': '2', 'title': 'Main', 'start': 300, 'end': 600},
+    ]}))
+    # Legacy shape: dict-keyed sections, no 'video' block
+    legacy = {
+        'full': {'summary': 'old full', 'keywords': ['k'], 'evidence': {'text': 'q', 'at': 5}},
+        'sections': {
+            '1': {'summary': 's1', 'keywords': ['kw1'], 'evidence': {'text': 'e1', 'at': 1}},
+            '2': {'summary': 's2', 'keywords': ['kw2'], 'evidence': {'text': 'e2', 'at': 2}},
+        },
+    }
+    sum_path = v / 'summaries.json'
+    sum_path.write_text(json.dumps(legacy))
+
+    result = generate_summaries('VID4', root)
+    assert 'video' in result
+    assert result['video']['id'] == 'VID4'
+    assert result['video']['url'] == 'https://youtube.com/watch?v=VID4'
+    assert isinstance(result['sections'], list)
+    assert len(result['sections']) == 2
+    assert result['sections'][0]['title'] == 'Intro'    # from toc
+    assert result['sections'][0]['summary'] == 's1'     # from legacy LLM payload
+    # On disk has been rewritten in new shape:
+    on_disk = json.loads(sum_path.read_text())
+    assert 'video' in on_disk
+print('ok')
+```
+
+``` python
+# Test 8: _assemble_summaries raises if LLM omits any toc section (no silent corruption)
+toc = [
+    {'path': '1', 'title': 'A', 'start': 0, 'end': 100},
+    {'path': '2', 'title': 'B', 'start': 100, 'end': 200},
+]
+llm_partial = {
+    'full': {'summary': 'f', 'keywords': [], 'evidence': {'text': '', 'at': 0}},
+    'sections': {
+        '1': {'summary': 's1', 'keywords': [], 'evidence': {'text': '', 'at': 0}},
+        # '2' is missing
+    },
+}
+try:
+    _assemble_summaries({'id': 'X', 'title': 't'}, toc, llm_partial)
+    assert False, 'should have raised'
+except ValueError as e:
+    assert "'2'" in str(e)
 print('ok')
 ```

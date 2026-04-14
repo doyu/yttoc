@@ -159,7 +159,26 @@ print('ok')
 ```
 
 ``` python
-# Test 7: malformed SRT block raises ValueError (no silent data loss)
+# Test 7: whitespace-only line inside cue does not split the block
+srt = """1
+00:00:00,000 --> 00:00:03,000
+Here we go.
+\u00a0
+Hello everybody.
+
+2
+00:00:03,000 --> 00:00:04,000
+next cue
+"""
+segs = parse_xscript(_write_srt(srt))
+assert len(segs) == 2
+assert segs[0]['text'] == 'Here we go. Hello everybody.'
+assert segs[1]['text'] == 'next cue'
+print('ok')
+```
+
+``` python
+# Test 8: malformed SRT block raises ValueError (no silent data loss)
 srt = """1
 00:00:00,000 --> 00:00:01,000
 first
@@ -219,7 +238,7 @@ def yttoc_raw(
 *Display transcript for a cached video (full or by section).*
 
 ``` python
-# Test 8: yttoc_raw — missing video_id raises SystemExit
+# Test 9: yttoc_raw — missing video_id raises SystemExit
 from tempfile import TemporaryDirectory
 import io, contextlib
 

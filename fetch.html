@@ -186,6 +186,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">summarize</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./map.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">map</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -313,48 +319,49 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div id="be22c346" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: _download_srt language priority (unit-level, no network)</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># We can't call _download_srt without network, but we can verify the</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># selection logic it uses by testing _pick_lang against _LANG_PRIORITY.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: _download_srt language resolution (unit-level, no network)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Picks the original spoken language from info['language'], preferring manual</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># captions over auto. No cross-language fallback / translation.</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _resolve_lang(subtitles, automatic_captions):</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _resolve_lang(info):</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Simulate _download_srt's language resolution without downloading."</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> lang <span class="kw">in</span> _LANG_PRIORITY:</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        manual <span class="op">=</span> _pick_lang(subtitles, lang)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        auto <span class="op">=</span> _pick_lang(automatic_captions, lang)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> manual <span class="kw">or</span> auto:</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>            selected <span class="op">=</span> manual <span class="kw">or</span> auto</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> lang, <span class="st">'manual'</span> <span class="cf">if</span> manual <span class="cf">else</span> <span class="st">'auto'</span>, selected</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co"># ja manual available → picks ja</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>lang, ctype, sel <span class="op">=</span> _resolve_lang({<span class="st">'ja'</span>: [], <span class="st">'en'</span>: []}, {<span class="st">'en'</span>: []})</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> lang <span class="op">==</span> <span class="st">'ja'</span> <span class="kw">and</span> ctype <span class="op">==</span> <span class="st">'manual'</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># ja auto only → picks ja auto</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>lang, ctype, sel <span class="op">=</span> _resolve_lang({<span class="st">'en'</span>: []}, {<span class="st">'ja'</span>: [], <span class="st">'en'</span>: []})</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> lang <span class="op">==</span> <span class="st">'ja'</span> <span class="kw">and</span> ctype <span class="op">==</span> <span class="st">'auto'</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co"># no ja at all → falls back to en manual</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>lang, ctype, sel <span class="op">=</span> _resolve_lang({<span class="st">'en'</span>: []}, {<span class="st">'en'</span>: []})</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> lang <span class="op">==</span> <span class="st">'en'</span> <span class="kw">and</span> ctype <span class="op">==</span> <span class="st">'manual'</span></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co"># en auto only</span></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>lang, ctype, sel <span class="op">=</span> _resolve_lang({}, {<span class="st">'en'</span>: []})</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> lang <span class="op">==</span> <span class="st">'en'</span> <span class="kw">and</span> ctype <span class="op">==</span> <span class="st">'auto'</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co"># neither → None</span></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>lang, ctype, sel <span class="op">=</span> _resolve_lang({}, {<span class="st">'fr'</span>: []})</span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> lang <span class="kw">is</span> <span class="va">None</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="co"># ja-JP variant matches ja priority</span></span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>lang, ctype, sel <span class="op">=</span> _resolve_lang({<span class="st">'ja-JP'</span>: []}, {})</span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> lang <span class="op">==</span> <span class="st">'ja'</span> <span class="kw">and</span> ctype <span class="op">==</span> <span class="st">'manual'</span> <span class="kw">and</span> sel <span class="op">==</span> <span class="st">'ja-JP'</span></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    base <span class="op">=</span> info.get(<span class="st">'language'</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> base:</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    manual <span class="op">=</span> _pick_lang(info.get(<span class="st">'subtitles'</span>, {}), base)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    auto <span class="op">=</span> _pick_lang(info.get(<span class="st">'automatic_captions'</span>, {}), base)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> manual <span class="kw">or</span> auto:</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> base, (<span class="st">'manual'</span> <span class="cf">if</span> manual <span class="cf">else</span> <span class="st">'auto'</span>), (manual <span class="kw">or</span> auto)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">None</span>, <span class="va">None</span>, <span class="va">None</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># English video with manual en subs → en manual</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>lang, ctype, sel <span class="op">=</span> _resolve_lang({<span class="st">'language'</span>: <span class="st">'en'</span>, <span class="st">'subtitles'</span>: {<span class="st">'en'</span>: []}, <span class="st">'automatic_captions'</span>: {}})</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> (lang, ctype, sel) <span class="op">==</span> (<span class="st">'en'</span>, <span class="st">'manual'</span>, <span class="st">'en'</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># English video with only auto en → en auto</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>lang, ctype, sel <span class="op">=</span> _resolve_lang({<span class="st">'language'</span>: <span class="st">'en'</span>, <span class="st">'subtitles'</span>: {}, <span class="st">'automatic_captions'</span>: {<span class="st">'en'</span>: [], <span class="st">'ja'</span>: []}})</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> (lang, ctype) <span class="op">==</span> (<span class="st">'en'</span>, <span class="st">'auto'</span>) <span class="kw">and</span> sel <span class="op">==</span> <span class="st">'en'</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Japanese video → picks ja, ignores en</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>lang, ctype, sel <span class="op">=</span> _resolve_lang({<span class="st">'language'</span>: <span class="st">'ja'</span>, <span class="st">'subtitles'</span>: {}, <span class="st">'automatic_captions'</span>: {<span class="st">'ja'</span>: [], <span class="st">'en'</span>: []}})</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> (lang, ctype, sel) <span class="op">==</span> (<span class="st">'ja'</span>, <span class="st">'auto'</span>, <span class="st">'ja'</span>)</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Original ja with ja-JP variant</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>lang, ctype, sel <span class="op">=</span> _resolve_lang({<span class="st">'language'</span>: <span class="st">'ja'</span>, <span class="st">'subtitles'</span>: {<span class="st">'ja-JP'</span>: []}, <span class="st">'automatic_captions'</span>: {}})</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> (lang, ctype, sel) <span class="op">==</span> (<span class="st">'ja'</span>, <span class="st">'manual'</span>, <span class="st">'ja-JP'</span>)</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="co"># English video but no en captions at all → None (no cross-language fallback)</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>lang, ctype, sel <span class="op">=</span> _resolve_lang({<span class="st">'language'</span>: <span class="st">'en'</span>, <span class="st">'subtitles'</span>: {}, <span class="st">'automatic_captions'</span>: {<span class="st">'ja'</span>: []}})</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> lang <span class="kw">is</span> <span class="va">None</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Missing language field → None</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>lang, ctype, sel <span class="op">=</span> _resolve_lang({<span class="st">'subtitles'</span>: {<span class="st">'en'</span>: []}, <span class="st">'automatic_captions'</span>: {}})</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> lang <span class="kw">is</span> <span class="va">None</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L95" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L93" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="get_video_info" class="level3">
 <h3 class="anchored" data-anchor-id="get_video_info">get_video_info</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -372,7 +379,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L102" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L100" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="fetch_video" class="level3">
 <h3 class="anchored" data-anchor-id="fetch_video">fetch_video</h3>
@@ -383,7 +390,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Root download directory (default: ~/.cache/yttoc)</span></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Path: <span class="co"># Path to video directory</span></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><em>Save metadata and srt captions for one video (ja preferred, en fallback).</em></p>
+<p><em>Save metadata and srt captions for one video in its original spoken language.</em></p>
 <div id="caapibpd5m" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: fetch_video (requires network)</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shutil</span>
@@ -409,7 +416,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="cli" class="level2">
 <h2 class="anchored" data-anchor-id="cli">CLI</h2>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L127" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L125" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="yttoc_fetch" class="level3">
 <h3 class="anchored" data-anchor-id="yttoc_fetch">yttoc_fetch</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -418,7 +425,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Root download directory (default: ~/.cache/yttoc)</span></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>):</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><em>Fetch metadata and captions for a single YouTube video (ja preferred, en fallback).</em></p>
+<p><em>Fetch metadata and captions for a single YouTube video in its original spoken language.</em></p>
 <div id="0852550a" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: _fmt_duration (imported from core)</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> _fmt_duration(<span class="dv">3991</span>) <span class="op">==</span> <span class="st">'1:06:31'</span></span>
@@ -427,7 +434,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L140" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L138" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="yttoc_list" class="level3">
 <h3 class="anchored" data-anchor-id="yttoc_list">yttoc_list</h3>

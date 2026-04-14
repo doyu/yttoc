@@ -89,7 +89,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L145"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L154"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_toc
@@ -99,6 +99,7 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 def yttoc_toc(
     video_id:str, # Exact video_id
     root:str=None, # Root cache directory
+    refresh:bool=False, # Regenerate toc (and invalidate summaries)
 ):
 
 ```
@@ -107,7 +108,7 @@ def yttoc_toc(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L116"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L117"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_toc
@@ -117,6 +118,7 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 def generate_toc(
     video_id:str, # Exact video_id
     root:Path=None, # Root cache directory
+    refresh:bool=False, # Delete cached toc/summaries and regenerate
 )->list: # Normalized sections
 
 ```
