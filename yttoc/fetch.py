@@ -14,8 +14,6 @@ import yt_dlp
 _DEFAULT_ROOT = Path(os.environ.get('XDG_CACHE_HOME', Path.home() / '.cache')) / 'yttoc'
 
 # %% ../nbs/01_fetch.ipynb #0zd7en6efu0n
-_LANG_PRIORITY = ['ja', 'en'] # Try Japanese first, fall back to English
-
 def _pick_lang(tracks: dict,
                base_lang: str = 'en' # Preferred base language
               ) -> str | None: # Best-matching language key
@@ -59,37 +57,37 @@ def _build_meta(info: dict, # yt-dlp info dict
 
 def _download_srt(url: str, info: dict, out_dir: Path
                  ) -> tuple[Path, str, str]: # (srt_path, lang, caption_type)
-    "Download SRT captions (ja preferred, en fallback), return path and metadata."
-    for lang in _LANG_PRIORITY:
-        manual_lang = _pick_lang(info.get('subtitles', {}), lang)
-        auto_lang = _pick_lang(info.get('automatic_captions', {}), lang)
-        selected_lang = manual_lang or auto_lang
-        if selected_lang is None:
-            continue
+    "Download SRT captions in the video's original spoken language."
+    base_lang = info.get('language')
+    if not base_lang:
+        raise ValueError(f"Cannot determine original language for {info['id']}")
+    manual_lang = _pick_lang(info.get('subtitles', {}), base_lang)
+    auto_lang = _pick_lang(info.get('automatic_captions', {}), base_lang)
+    selected_lang = manual_lang or auto_lang
+    if selected_lang is None:
+        raise ValueError(f"No {base_lang} captions available for {info['id']}")
 
-        sub_opt = 'writesubtitles' if manual_lang else 'writeautomaticsub'
-        opts = {
-            'skip_download': True, 'quiet': True,
-            sub_opt: True,
-            'subtitleslangs': [selected_lang],
-            'subtitlesformat': 'srt',
-            'outtmpl': str(out_dir / f'captions_{lang}.%(ext)s'),
-        }
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            ydl.download([url])
+    sub_opt = 'writesubtitles' if manual_lang else 'writeautomaticsub'
+    opts = {
+        'skip_download': True, 'quiet': True,
+        sub_opt: True,
+        'subtitleslangs': [selected_lang],
+        'subtitlesformat': 'srt',
+        'outtmpl': str(out_dir / f'captions_{base_lang}.%(ext)s'),
+    }
+    with yt_dlp.YoutubeDL(opts) as ydl:
+        ydl.download([url])
 
-        srt_path = out_dir / f'captions.{lang}.srt'
-        matches = _glob_srt(out_dir, f'captions_{lang}*.srt')
-        if not matches:
-            raise FileNotFoundError(f"yt-dlp did not write an srt caption for {info['id']}")
-        if len(matches) > 1:
-            raise ValueError(f"Ambiguous caption files: {', '.join(p.name for p in matches)}")
-        if matches[0] != srt_path:
-            matches[0].replace(srt_path)
-        caption_type = 'manual' if manual_lang else 'auto'
-        return srt_path, lang, caption_type
-
-    raise ValueError(f"No captions available for {info['id']} (tried {', '.join(_LANG_PRIORITY)})")
+    srt_path = out_dir / f'captions.{base_lang}.srt'
+    matches = _glob_srt(out_dir, f'captions_{base_lang}*.srt')
+    if not matches:
+        raise FileNotFoundError(f"yt-dlp did not write an srt caption for {info['id']}")
+    if len(matches) > 1:
+        raise ValueError(f"Ambiguous caption files: {', '.join(p.name for p in matches)}")
+    if matches[0] != srt_path:
+        matches[0].replace(srt_path)
+    caption_type = 'manual' if manual_lang else 'auto'
+    return srt_path, base_lang, caption_type
 
 # %% ../nbs/01_fetch.ipynb #tccc8rj4sxs
 def get_video_info(url: str # YouTube video URL
@@ -103,7 +101,7 @@ def fetch_video(url: str, # YouTube video URL
                 info: dict, # Result of get_video_info
                 root: str | Path = None, # Root download directory (default: ~/.cache/yttoc)
                ) -> Path: # Path to video directory
-    "Save metadata and srt captions for one video (ja preferred, en fallback)."
+    "Save metadata and srt captions for one video in its original spoken language."
     root = Path(root) if root else _DEFAULT_ROOT
     out_dir = root / info['id']
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -127,7 +125,7 @@ from fastcore.script import call_parse
 def yttoc_fetch(url: str, # YouTube video URL
                 root: str = None, # Root download directory (default: ~/.cache/yttoc)
                ):
-    "Fetch metadata and captions for a single YouTube video (ja preferred, en fallback)."
+    "Fetch metadata and captions for a single YouTube video in its original spoken language."
     info = get_video_info(url)
     out = fetch_video(url, info, root)
     print(info['id'])
