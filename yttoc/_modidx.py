@@ -43,9 +43,11 @@ d = { 'settings': { 'branch': 'main',
                            'yttoc.toc.generate_toc': ('toc.html#generate_toc', 'yttoc/toc.py'),
                            'yttoc.toc.yttoc_toc': ('toc.html#yttoc_toc', 'yttoc/toc.py')},
             'yttoc.xscript': { 'yttoc.xscript._find_overlap': ('xscript.html#_find_overlap', 'yttoc/xscript.py'),
+                               'yttoc.xscript._load_segments': ('xscript.html#_load_segments', 'yttoc/xscript.py'),
                                'yttoc.xscript._norm_token': ('xscript.html#_norm_token', 'yttoc/xscript.py'),
                                'yttoc.xscript._normalize_cue': ('xscript.html#_normalize_cue', 'yttoc/xscript.py'),
                                'yttoc.xscript._parse_srt': ('xscript.html#_parse_srt', 'yttoc/xscript.py'),
                                'yttoc.xscript._ts_to_sec': ('xscript.html#_ts_to_sec', 'yttoc/xscript.py'),
                                'yttoc.xscript.parse_xscript': ('xscript.html#parse_xscript', 'yttoc/xscript.py'),
-                               'yttoc.xscript.yttoc_raw': ('xscript.html#yttoc_raw', 'yttoc/xscript.py')}}}
+                               'yttoc.xscript.yttoc_raw': ('xscript.html#yttoc_raw', 'yttoc/xscript.py'),
+                               'yttoc.xscript.yttoc_txt': ('xscript.html#yttoc_txt', 'yttoc/xscript.py')}}}
