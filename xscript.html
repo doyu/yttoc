@@ -192,6 +192,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">map</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ask.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ask</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -210,7 +216,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#tests" id="toc-tests" class="nav-link" data-scroll-target="#tests">Tests</a></li>
   <li><a href="#cli" id="toc-cli" class="nav-link" data-scroll-target="#cli">CLI</a>
   <ul class="collapse">
+  <li><a href="#yttoc_txt" id="toc-yttoc_txt" class="nav-link" data-scroll-target="#yttoc_txt">yttoc_txt</a></li>
   <li><a href="#yttoc_raw" id="toc-yttoc_raw" class="nav-link" data-scroll-target="#yttoc_raw">yttoc_raw</a></li>
+  <li><a href="#get_xscript_range" id="toc-get_xscript_range" class="nav-link" data-scroll-target="#get_xscript_range">get_xscript_range</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/doyu/yttoc/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="xscript.html.md"><i class="bi bi-file-code"></i>CommonMark</a></li></ul></div></nav>
@@ -431,104 +439,222 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="cli" class="level2">
 <h2 class="anchored" data-anchor-id="cli">CLI</h2>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L113" target="_blank" style="float:right; font-size:smaller">source</a></p>
-<section id="yttoc_raw" class="level3">
-<h3 class="anchored" data-anchor-id="yttoc_raw">yttoc_raw</h3>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L162" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="yttoc_txt" class="level3">
+<h3 class="anchored" data-anchor-id="yttoc_txt">yttoc_txt</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> yttoc_raw(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> yttoc_txt(</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    section:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, <span class="co"># Section path (e.g. "3"); empty for full transcript</span></span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory (default: ~/.cache/yttoc)</span></span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>):</span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Display transcript as plain prose with no timestamps.</em></p>
+<hr>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L139" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="yttoc_raw" class="level3">
+<h3 class="anchored" data-anchor-id="yttoc_raw">yttoc_raw</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> yttoc_raw(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    section:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, <span class="co"># Section path (e.g. "3"); empty for full transcript</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory (default: ~/.cache/yttoc)</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Display transcript for a cached video (full or by section).</em></p>
+<hr>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L183" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="get_xscript_range" class="level3">
+<h3 class="anchored" data-anchor-id="get_xscript_range">get_xscript_range</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_xscript_range(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    start:<span class="bu">int</span> <span class="op">|</span> <span class="bu">float</span>, <span class="co"># Start time in seconds</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    end:<span class="bu">int</span> <span class="op">|</span> <span class="bu">float</span>, <span class="co"># End time in seconds</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>[<span class="bu">dict</span>] <span class="op">|</span> <span class="bu">dict</span>: <span class="co"># [{start, end, text}, ...] or {"error": "..."}</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Return parsed xscript segments within [start, end). Raw parse_xscript + slice_segments output.</em></p>
 <div id="fcc9b5a9" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 9: yttoc_raw — missing video_id raises SystemExit</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> io, contextlib</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        yttoc_raw(<span class="st">'NONEXIST'</span>, root<span class="op">=</span>d)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="va">False</span>, <span class="st">'should have raised SystemExit'</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">SystemExit</span>:</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">pass</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 9: yttoc_raw — missing video_id raises SystemExit</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> io, contextlib</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>        yttoc_raw(<span class="st">'NONEXIST'</span>, root<span class="op">=</span>d)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="va">False</span>, <span class="st">'should have raised SystemExit'</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">SystemExit</span>:</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">pass</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ok</code></pre>
 </div>
 </div>
 <div id="62c0b0ec" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 9: yttoc_raw — outputs header + [MM:SS] segments</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID1'</span><span class="op">;</span> v.mkdir()</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1</span><span class="ch">\n</span><span class="st">00:01:05,000 --&gt; 00:01:08,000</span><span class="ch">\n</span><span class="st">hello world</span><span class="ch">\n\n</span><span class="st">'</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'2</span><span class="ch">\n</span><span class="st">00:01:10,000 --&gt; 00:01:13,000</span><span class="ch">\n</span><span class="st">second line</span><span class="ch">\n</span><span class="st">'</span>)</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'VID1'</span>, <span class="st">'title'</span>: <span class="st">'Test Video'</span>, <span class="st">'channel'</span>: <span class="st">'Ch'</span>,</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'duration'</span>: <span class="dv">120</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>,</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2026-01-01T00:00:00+00:00'</span>}))</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    buf <span class="op">=</span> io.StringIO()</span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> contextlib.redirect_stdout(buf):</span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>        yttoc_raw(<span class="st">'VID1'</span>, root<span class="op">=</span><span class="bu">str</span>(root))</span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> buf.getvalue()</span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'# Test Video'</span> <span class="kw">in</span> out</span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'Channel: Ch'</span> <span class="kw">in</span> out</span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'[01:05] hello world'</span> <span class="kw">in</span> out</span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'[01:10] second line'</span> <span class="kw">in</span> out</span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div id="d0e75349" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 10: yttoc_raw — updates last_used_at</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID2'</span><span class="op">;</span> v.mkdir()</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(<span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:01,000</span><span class="ch">\n</span><span class="st">hi</span><span class="ch">\n</span><span class="st">'</span>)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'VID2'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>,</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">'duration'</span>: <span class="dv">1</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>,</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>}))</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    buf <span class="op">=</span> io.StringIO()</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> contextlib.redirect_stdout(buf):</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>        yttoc_raw(<span class="st">'VID2'</span>, root<span class="op">=</span><span class="bu">str</span>(root))</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    meta <span class="op">=</span> json.loads((v <span class="op">/</span> <span class="st">'meta.json'</span>).read_text())</span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> meta[<span class="st">'last_used_at'</span>] <span class="op">&gt;</span> <span class="st">'2000-01-01'</span>, <span class="st">'last_used_at should be updated'</span></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div id="7dacf6bc" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 11: yttoc_raw --section shows only that section's transcript</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 9: yttoc_raw — outputs header + [MM:SS] segments</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID3'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID1'</span><span class="op">;</span> v.mkdir()</span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:03,000</span><span class="ch">\n</span><span class="st">first segment</span><span class="ch">\n\n</span><span class="st">'</span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'2</span><span class="ch">\n</span><span class="st">00:00:05,000 --&gt; 00:00:08,000</span><span class="ch">\n</span><span class="st">second segment</span><span class="ch">\n\n</span><span class="st">'</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">'3</span><span class="ch">\n</span><span class="st">00:00:10,000 --&gt; 00:00:13,000</span><span class="ch">\n</span><span class="st">third segment</span><span class="ch">\n</span><span class="st">'</span>)</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'VID3'</span>, <span class="st">'title'</span>: <span class="st">'T'</span>, <span class="st">'channel'</span>: <span class="st">'C'</span>,</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'duration'</span>: <span class="dv">15</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>,</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>}))</span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'toc.json'</span>).write_text(json.dumps({<span class="st">'sections'</span>: [</span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'path'</span>: <span class="st">'1'</span>, <span class="st">'title'</span>: <span class="st">'Intro'</span>, <span class="st">'start'</span>: <span class="dv">0</span>, <span class="st">'end'</span>: <span class="dv">5</span>},</span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'path'</span>: <span class="st">'2'</span>, <span class="st">'title'</span>: <span class="st">'Main'</span>, <span class="st">'start'</span>: <span class="dv">5</span>, <span class="st">'end'</span>: <span class="dv">15</span>},</span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    ]}))</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1</span><span class="ch">\n</span><span class="st">00:01:05,000 --&gt; 00:01:08,000</span><span class="ch">\n</span><span class="st">hello world</span><span class="ch">\n\n</span><span class="st">'</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'2</span><span class="ch">\n</span><span class="st">00:01:10,000 --&gt; 00:01:13,000</span><span class="ch">\n</span><span class="st">second line</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'VID1'</span>, <span class="st">'title'</span>: <span class="st">'Test Video'</span>, <span class="st">'channel'</span>: <span class="st">'Ch'</span>,</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'duration'</span>: <span class="dv">120</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>,</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2026-01-01T00:00:00+00:00'</span>}))</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    buf <span class="op">=</span> io.StringIO()</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> contextlib.redirect_stdout(buf):</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>        yttoc_raw(<span class="st">'VID1'</span>, root<span class="op">=</span><span class="bu">str</span>(root))</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> buf.getvalue()</span>
 <span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>    buf <span class="op">=</span> io.StringIO()</span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> contextlib.redirect_stdout(buf):</span>
-<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>        yttoc_raw(<span class="st">'VID3'</span>, section<span class="op">=</span><span class="st">'2'</span>, root<span class="op">=</span><span class="bu">str</span>(root))</span>
-<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> buf.getvalue()</span>
-<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'## 2. Main (0:05 - 0:15)'</span> <span class="kw">in</span> out</span>
-<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'[00:05] second segment'</span> <span class="kw">in</span> out</span>
-<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'[00:10] third segment'</span> <span class="kw">in</span> out</span>
-<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'first segment'</span> <span class="kw">not</span> <span class="kw">in</span> out  <span class="co"># section 1 excluded</span></span>
-<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'# Test Video'</span> <span class="kw">in</span> out</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'Channel: Ch'</span> <span class="kw">in</span> out</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'[01:05] hello world'</span> <span class="kw">in</span> out</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'[01:10] second line'</span> <span class="kw">in</span> out</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="d0e75349" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 10: yttoc_raw — updates last_used_at</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID2'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(<span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:01,000</span><span class="ch">\n</span><span class="st">hi</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'VID2'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">'duration'</span>: <span class="dv">1</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>,</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>}))</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    buf <span class="op">=</span> io.StringIO()</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> contextlib.redirect_stdout(buf):</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>        yttoc_raw(<span class="st">'VID2'</span>, root<span class="op">=</span><span class="bu">str</span>(root))</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    meta <span class="op">=</span> json.loads((v <span class="op">/</span> <span class="st">'meta.json'</span>).read_text())</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> meta[<span class="st">'last_used_at'</span>] <span class="op">&gt;</span> <span class="st">'2000-01-01'</span>, <span class="st">'last_used_at should be updated'</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="7dacf6bc" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 11: yttoc_raw --section shows only that section's transcript</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID3'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:03,000</span><span class="ch">\n</span><span class="st">first segment</span><span class="ch">\n\n</span><span class="st">'</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'2</span><span class="ch">\n</span><span class="st">00:00:05,000 --&gt; 00:00:08,000</span><span class="ch">\n</span><span class="st">second segment</span><span class="ch">\n\n</span><span class="st">'</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">'3</span><span class="ch">\n</span><span class="st">00:00:10,000 --&gt; 00:00:13,000</span><span class="ch">\n</span><span class="st">third segment</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'VID3'</span>, <span class="st">'title'</span>: <span class="st">'T'</span>, <span class="st">'channel'</span>: <span class="st">'C'</span>,</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'duration'</span>: <span class="dv">15</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>,</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>}))</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'toc.json'</span>).write_text(json.dumps({<span class="st">'sections'</span>: [</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'path'</span>: <span class="st">'1'</span>, <span class="st">'title'</span>: <span class="st">'Intro'</span>, <span class="st">'start'</span>: <span class="dv">0</span>, <span class="st">'end'</span>: <span class="dv">5</span>},</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'path'</span>: <span class="st">'2'</span>, <span class="st">'title'</span>: <span class="st">'Main'</span>, <span class="st">'start'</span>: <span class="dv">5</span>, <span class="st">'end'</span>: <span class="dv">15</span>},</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    ]}))</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    buf <span class="op">=</span> io.StringIO()</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> contextlib.redirect_stdout(buf):</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>        yttoc_raw(<span class="st">'VID3'</span>, section<span class="op">=</span><span class="st">'2'</span>, root<span class="op">=</span><span class="bu">str</span>(root))</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> buf.getvalue()</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'## 2. Main (0:05 - 0:15)'</span> <span class="kw">in</span> out</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'[00:05] second segment'</span> <span class="kw">in</span> out</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'[00:10] third segment'</span> <span class="kw">in</span> out</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'first segment'</span> <span class="kw">not</span> <span class="kw">in</span> out  <span class="co"># section 1 excluded</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="3f2f04ea" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 12: yttoc_txt — outputs header + plain text joined, no timestamps</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID_TXT'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:03,000</span><span class="ch">\n</span><span class="st">first segment</span><span class="ch">\n\n</span><span class="st">'</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'2</span><span class="ch">\n</span><span class="st">00:00:05,000 --&gt; 00:00:08,000</span><span class="ch">\n</span><span class="st">second segment</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'VID_TXT'</span>, <span class="st">'title'</span>: <span class="st">'Test'</span>, <span class="st">'channel'</span>: <span class="st">'C'</span>,</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'duration'</span>: <span class="dv">10</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>,</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>}))</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    buf <span class="op">=</span> io.StringIO()</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> contextlib.redirect_stdout(buf):</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>        yttoc_txt(<span class="st">'VID_TXT'</span>, root<span class="op">=</span><span class="bu">str</span>(root))</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> buf.getvalue()</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'# Test'</span> <span class="kw">in</span> out</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'first segment second segment'</span> <span class="kw">in</span> out</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'[00:'</span> <span class="kw">not</span> <span class="kw">in</span> out  <span class="co"># no timestamps</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="53fd3bbe" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 13: yttoc_txt --section shows only that section's prose</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID_TXT2'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:03,000</span><span class="ch">\n</span><span class="st">first segment</span><span class="ch">\n\n</span><span class="st">'</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'2</span><span class="ch">\n</span><span class="st">00:00:05,000 --&gt; 00:00:08,000</span><span class="ch">\n</span><span class="st">second segment</span><span class="ch">\n\n</span><span class="st">'</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">'3</span><span class="ch">\n</span><span class="st">00:00:10,000 --&gt; 00:00:13,000</span><span class="ch">\n</span><span class="st">third segment</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'VID_TXT2'</span>, <span class="st">'title'</span>: <span class="st">'T'</span>, <span class="st">'channel'</span>: <span class="st">'C'</span>,</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'duration'</span>: <span class="dv">15</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>,</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>}))</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'toc.json'</span>).write_text(json.dumps({<span class="st">'sections'</span>: [</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'path'</span>: <span class="st">'1'</span>, <span class="st">'title'</span>: <span class="st">'Intro'</span>, <span class="st">'start'</span>: <span class="dv">0</span>, <span class="st">'end'</span>: <span class="dv">5</span>},</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'path'</span>: <span class="st">'2'</span>, <span class="st">'title'</span>: <span class="st">'Main'</span>, <span class="st">'start'</span>: <span class="dv">5</span>, <span class="st">'end'</span>: <span class="dv">15</span>},</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    ]}))</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    buf <span class="op">=</span> io.StringIO()</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> contextlib.redirect_stdout(buf):</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>        yttoc_txt(<span class="st">'VID_TXT2'</span>, section<span class="op">=</span><span class="st">'2'</span>, root<span class="op">=</span><span class="bu">str</span>(root))</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> buf.getvalue()</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'## 2. Main (0:05 - 0:15)'</span> <span class="kw">in</span> out</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'second segment third segment'</span> <span class="kw">in</span> out</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'first segment'</span> <span class="kw">not</span> <span class="kw">in</span> out  <span class="co"># section 1 excluded</span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'[00:'</span> <span class="kw">not</span> <span class="kw">in</span> out  <span class="co"># no timestamps</span></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="0d9b3892" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 14: get_xscript_range returns sliced segments matching parse_xscript output shape</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID_GXR'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:03,000</span><span class="ch">\n</span><span class="st">first</span><span class="ch">\n\n</span><span class="st">'</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'2</span><span class="ch">\n</span><span class="st">00:00:05,000 --&gt; 00:00:08,000</span><span class="ch">\n</span><span class="st">second</span><span class="ch">\n\n</span><span class="st">'</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">'3</span><span class="ch">\n</span><span class="st">00:00:10,000 --&gt; 00:00:13,000</span><span class="ch">\n</span><span class="st">third</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> get_xscript_range(<span class="st">'VID_GXR'</span>, <span class="dv">5</span>, <span class="dv">15</span>, root)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(result, <span class="bu">list</span>)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(result) <span class="op">==</span> <span class="dv">2</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result[<span class="dv">0</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'second'</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result[<span class="dv">1</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'third'</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(result[<span class="dv">0</span>][<span class="st">'start'</span>], <span class="bu">float</span>)</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(result[<span class="dv">0</span>][<span class="st">'end'</span>], <span class="bu">float</span>)</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'start'</span> <span class="kw">in</span> result[<span class="dv">0</span>] <span class="kw">and</span> <span class="st">'end'</span> <span class="kw">in</span> result[<span class="dv">0</span>] <span class="kw">and</span> <span class="st">'text'</span> <span class="kw">in</span> result[<span class="dv">0</span>]</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="369fffc8" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 15: get_xscript_range returns error dict when SRT missing</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> get_xscript_range(<span class="st">'NONEXIST'</span>, <span class="dv">0</span>, <span class="dv">100</span>, Path(d))</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'error'</span> <span class="kw">in</span> result</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="9ffc1b4f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 16: get_xscript_range with no matching segments returns empty list</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID_EMPTY'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:03,000</span><span class="ch">\n</span><span class="st">hello</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> get_xscript_range(<span class="st">'VID_EMPTY'</span>, <span class="dv">100</span>, <span class="dv">200</span>, root)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result <span class="op">==</span> []</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 

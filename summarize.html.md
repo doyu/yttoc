@@ -284,3 +284,57 @@ except ValueError as e:
     assert "'2'" in str(e)
 print('ok')
 ```
+
+## get_summaries
+
+------------------------------------------------------------------------
+
+<a
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L227"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### get_summaries
+
+``` python
+
+def get_summaries(
+    video_id:str, # Exact video_id
+    root:Path=None, # Root cache directory (default: ~/.cache/yttoc)
+)->dict: # summaries.json content verbatim, or {"error": "..."}
+
+```
+
+*Return summaries.json for a cached video. No transformation — file
+content returned as-is.*
+
+``` python
+# Test 9: get_summaries returns summaries.json verbatim
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID_GS'; v.mkdir()
+    fixture = {
+        'video': {'id': 'VID_GS', 'title': 'T', 'channel': 'C',
+                  'url': '', 'duration': 600, 'upload_date': '20260101'},
+        'sections': [
+            {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300,
+             'summary': 's', 'keywords': ['k'],
+             'evidence': {'text': 'e', 'at': 10}}
+        ],
+        'full': {'summary': 'full', 'keywords': ['fk'],
+                 'evidence': {'text': 'fe', 'at': 0}},
+    }
+    (v / 'summaries.json').write_text(json.dumps(fixture))
+
+    result = get_summaries('VID_GS', root)
+    assert result == fixture, 'must return file verbatim'
+    assert 'full' in result, 'must include full field'
+print('ok')
+```
+
+``` python
+# Test 10: get_summaries returns error dict when missing
+with TemporaryDirectory() as d:
+    result = get_summaries('NONEXIST', Path(d))
+    assert 'error' in result
+print('ok')
+```

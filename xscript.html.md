@@ -220,7 +220,26 @@ for d in cache.iterdir() if cache.exists() else []:
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L113"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L162"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### yttoc_txt
+
+``` python
+
+def yttoc_txt(
+    video_id:str, # Exact video_id
+    section:str='', # Section path (e.g. "3"); empty for full transcript
+    root:str=None, # Root cache directory (default: ~/.cache/yttoc)
+):
+
+```
+
+*Display transcript as plain prose with no timestamps.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L139"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_raw
@@ -236,6 +255,27 @@ def yttoc_raw(
 ```
 
 *Display transcript for a cached video (full or by section).*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L183"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### get_xscript_range
+
+``` python
+
+def get_xscript_range(
+    video_id:str, # Exact video_id
+    start:int | float, # Start time in seconds
+    end:int | float, # End time in seconds
+    root:str | pathlib.Path=None, # Root cache directory
+)->list[dict] | dict: # [{start, end, text}, ...] or {"error": "..."}
+
+```
+
+*Return parsed xscript segments within \[start, end). Raw
+parse_xscript + slice_segments output.*
 
 ``` python
 # Test 9: yttoc_raw — missing video_id raises SystemExit
@@ -325,5 +365,101 @@ with TemporaryDirectory() as d:
     assert '[00:05] second segment' in out
     assert '[00:10] third segment' in out
     assert 'first segment' not in out  # section 1 excluded
+print('ok')
+```
+
+``` python
+# Test 12: yttoc_txt — outputs header + plain text joined, no timestamps
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID_TXT'; v.mkdir()
+    (v / 'captions.en.srt').write_text(
+        '1\n00:00:00,000 --> 00:00:03,000\nfirst segment\n\n'
+        '2\n00:00:05,000 --> 00:00:08,000\nsecond segment\n')
+    (v / 'meta.json').write_text(json.dumps({
+        'id': 'VID_TXT', 'title': 'Test', 'channel': 'C',
+        'duration': 10, 'upload_date': '20260101',
+        'last_used_at': '2000-01-01T00:00:00+00:00'}))
+
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        yttoc_txt('VID_TXT', root=str(root))
+    out = buf.getvalue()
+
+    assert '# Test' in out
+    assert 'first segment second segment' in out
+    assert '[00:' not in out  # no timestamps
+print('ok')
+```
+
+``` python
+# Test 13: yttoc_txt --section shows only that section's prose
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID_TXT2'; v.mkdir()
+    (v / 'captions.en.srt').write_text(
+        '1\n00:00:00,000 --> 00:00:03,000\nfirst segment\n\n'
+        '2\n00:00:05,000 --> 00:00:08,000\nsecond segment\n\n'
+        '3\n00:00:10,000 --> 00:00:13,000\nthird segment\n')
+    (v / 'meta.json').write_text(json.dumps({
+        'id': 'VID_TXT2', 'title': 'T', 'channel': 'C',
+        'duration': 15, 'upload_date': '20260101',
+        'last_used_at': '2000-01-01T00:00:00+00:00'}))
+    (v / 'toc.json').write_text(json.dumps({'sections': [
+        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 5},
+        {'path': '2', 'title': 'Main', 'start': 5, 'end': 15},
+    ]}))
+
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        yttoc_txt('VID_TXT2', section='2', root=str(root))
+    out = buf.getvalue()
+
+    assert '## 2. Main (0:05 - 0:15)' in out
+    assert 'second segment third segment' in out
+    assert 'first segment' not in out  # section 1 excluded
+    assert '[00:' not in out  # no timestamps
+print('ok')
+```
+
+``` python
+# Test 14: get_xscript_range returns sliced segments matching parse_xscript output shape
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID_GXR'; v.mkdir()
+    (v / 'captions.en.srt').write_text(
+        '1\n00:00:00,000 --> 00:00:03,000\nfirst\n\n'
+        '2\n00:00:05,000 --> 00:00:08,000\nsecond\n\n'
+        '3\n00:00:10,000 --> 00:00:13,000\nthird\n')
+
+    result = get_xscript_range('VID_GXR', 5, 15, root)
+    assert isinstance(result, list)
+    assert len(result) == 2
+    assert result[0]['text'] == 'second'
+    assert result[1]['text'] == 'third'
+    assert isinstance(result[0]['start'], float)
+    assert isinstance(result[0]['end'], float)
+    assert 'start' in result[0] and 'end' in result[0] and 'text' in result[0]
+print('ok')
+```
+
+``` python
+# Test 15: get_xscript_range returns error dict when SRT missing
+with TemporaryDirectory() as d:
+    result = get_xscript_range('NONEXIST', 0, 100, Path(d))
+    assert 'error' in result
+print('ok')
+```
+
+``` python
+# Test 16: get_xscript_range with no matching segments returns empty list
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID_EMPTY'; v.mkdir()
+    (v / 'captions.en.srt').write_text(
+        '1\n00:00:00,000 --> 00:00:03,000\nhello\n')
+
+    result = get_xscript_range('VID_EMPTY', 100, 200, root)
+    assert result == []
 print('ok')
 ```
