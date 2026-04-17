@@ -5,15 +5,10 @@
 > via LLM. Converts video transcripts into searchable, hierarchical knowledge assets.
 
 <!-- BEGIN AUTO -->
-## Project
+## Files
 
-- [README.md](README.md): Auto-generated README with install instructions and nbdev dev guide
-- [CLAUDE.md](CLAUDE.md): Claude Code guidance — project overview, xscript terminology, nbdev conventions
-- [AGENTS.md](AGENTS.md): Repo-specific dev rules, notebook-module map, and build commands for nbdev workflow
-
-## Design & Data
-
-- [docs/implementation-plan.md](docs/implementation-plan.md): Phased roadmap from SRT parsing to RAG, with CLI design and module map
-- [docs/reference-tocs.md](docs/reference-tocs.md): Hand-curated ToCs for evaluating yttoc output quality
-- [docs/videos.md](docs/videos.md): Target video list — Jeremy Howard's Solveit series (~23 hours)
+- [README.md](README.md): Auto-generated from nbs/index.ipynb — install, CLI reference, course maps, and fzf search
+- [CLAUDE.md](CLAUDE.md): Claude Code guidance — project overview, xscript terminology, and nbdev conventions
+- [AGENTS.md](AGENTS.md): Repo-specific additions to global AGENTS.md — nbdev structure, build commands, and notebook→module map
+- [docs/implementation-plan.md](docs/implementation-plan.md): Phased roadmap from manual baseline through RAG, with prompt templates and module map
 <!-- END AUTO -->
