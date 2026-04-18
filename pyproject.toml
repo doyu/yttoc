@@ -12,7 +12,7 @@ license = {text = "Apache-2.0"}
 authors = [{name = "Hiroshi Doyu", email = "hiroshi.doyu@gmail.com"}]
 keywords = ['nbdev', 'jupyter', 'notebook', 'python', 'youtube', 'transcript', 'toc']
 classifiers = ["Natural Language :: English", "Intended Audience :: Developers", "Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Programming Language :: Python :: 3 :: Only"]
-dependencies = ["yt-dlp", "fastcore", "openai"]
+dependencies = ["yt-dlp", "fastcore", "openai", "pydantic>=2"]
 
 [project.urls]
 Repository = "https://github.com/doyu/yttoc"
