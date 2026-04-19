@@ -93,19 +93,22 @@ def Evidence(
 ## Tests
 
 ``` python
+from yttoc.core import Segment
 # Test 1: slice_segments returns segments within time range
 segs = [
-    {'start': 0, 'end': 5, 'text': 'a'},
-    {'start': 5, 'end': 10, 'text': 'b'},
-    {'start': 10, 'end': 15, 'text': 'c'},
-    {'start': 15, 'end': 20, 'text': 'd'},
+    Segment(start=0, end=5, text='a'),
+    Segment(start=5, end=10, text='b'),
+    Segment(start=10, end=15, text='c'),
+    Segment(start=15, end=20, text='d'),
 ]
 sliced = slice_segments(segs, start=5, end=15)
 assert len(sliced) == 2
-assert sliced[0]['text'] == 'b'
-assert sliced[1]['text'] == 'c'
+assert sliced[0].text == 'b'
+assert sliced[1].text == 'c'
 print('ok')
 ```
+
+    ok
 
 ``` python
 # Test 2: slice_segments with no matching segments returns empty
@@ -115,10 +118,11 @@ print('ok')
 ```
 
 ``` python
+from yttoc.core import Segment
 # Test 3: _build_summary_prompt includes section titles and transcript
 segments = [
-    {'start': 0, 'end': 5, 'text': 'hello world'},
-    {'start': 5, 'end': 10, 'text': 'second part'},
+    Segment(start=0, end=5, text='hello world'),
+    Segment(start=5, end=10, text='second part'),
 ]
 sections = [
     {'path': '1', 'title': 'Intro', 'start': 0, 'end': 5},
@@ -133,6 +137,8 @@ assert 'hello world' in prompt
 assert 'second part' in prompt
 print('ok')
 ```
+
+    ok
 
 ## CLI
 

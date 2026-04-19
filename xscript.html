@@ -270,7 +270,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse_xscript(</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    path:<span class="bu">str</span> <span class="op">|</span> pathlib.Path, <span class="co"># Path to SRT file</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>: <span class="co"># List of {start, end, text} segments</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>: <span class="co"># List of Segment objects</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Parse SRT file into normalized xscript segments (dedup rolling-window overlap).</em></p>
 </section>
@@ -295,9 +295,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>segs <span class="op">=</span> parse_xscript(_write_srt(srt))</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(segs) <span class="op">==</span> <span class="dv">1</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>][<span class="st">'start'</span>] <span class="op">==</span> <span class="fl">0.08</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>][<span class="st">'end'</span>] <span class="op">==</span> <span class="fl">4.88</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'hello world'</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>].start <span class="op">==</span> <span class="fl">0.08</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>].end <span class="op">==</span> <span class="fl">4.88</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>].text <span class="op">==</span> <span class="st">'hello world'</span></span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="a1000010" class="cell">
@@ -309,7 +309,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>segs <span class="op">=</span> parse_xscript(_write_srt(srt))</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(segs) <span class="op">==</span> <span class="dv">1</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'first line second line'</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>].text <span class="op">==</span> <span class="st">'first line second line'</span></span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="a1000011" class="cell">
@@ -324,9 +324,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>segs <span class="op">=</span> parse_xscript(_write_srt(srt))</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(segs) <span class="op">==</span> <span class="dv">2</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">"code's not even the right verb anymore"</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'to my agents'</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>][<span class="st">'start'</span>] <span class="op">==</span> <span class="fl">5.0</span>  <span class="co"># bumped from 2.0 to prev.end</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>].text <span class="op">==</span> <span class="st">"code's not even the right verb anymore"</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>].text <span class="op">==</span> <span class="st">'to my agents'</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>].start <span class="op">==</span> <span class="fl">5.0</span>  <span class="co"># bumped from 2.0 to prev.end</span></span>
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="a1000012" class="cell">
@@ -341,9 +341,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>segs <span class="op">=</span> parse_xscript(_write_srt(srt))</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(segs) <span class="op">==</span> <span class="dv">2</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'first sentence'</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'completely different'</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>][<span class="st">'start'</span>] <span class="op">==</span> <span class="fl">5.0</span>  <span class="co"># no bump, original</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>].text <span class="op">==</span> <span class="st">'first sentence'</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>].text <span class="op">==</span> <span class="st">'completely different'</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>].start <span class="op">==</span> <span class="fl">5.0</span>  <span class="co"># no bump, original</span></span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="a1000013" class="cell">
@@ -358,7 +358,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>segs <span class="op">=</span> parse_xscript(_write_srt(srt))</span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(segs) <span class="op">==</span> <span class="dv">1</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'hello world'</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>].text <span class="op">==</span> <span class="st">'hello world'</span></span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="a806b72b" class="cell">
@@ -373,11 +373,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>segs <span class="op">=</span> parse_xscript(_write_srt(srt))</span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(segs) <span class="op">==</span> <span class="dv">2</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'hello'</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'world'</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>][<span class="st">'start'</span>] <span class="op">==</span> <span class="fl">10.0</span>  <span class="co"># bumped to prev.end</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>][<span class="st">'end'</span>] <span class="op">==</span> <span class="fl">10.0</span>  <span class="co"># clamped (original was 9.0)</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>][<span class="st">'start'</span>] <span class="op">&lt;=</span> segs[<span class="dv">1</span>][<span class="st">'end'</span>]  <span class="co"># invariant</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>].text <span class="op">==</span> <span class="st">'hello'</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>].text <span class="op">==</span> <span class="st">'world'</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>].start <span class="op">==</span> <span class="fl">10.0</span>  <span class="co"># bumped to prev.end</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>].end <span class="op">==</span> <span class="fl">10.0</span>  <span class="co"># clamped (original was 9.0)</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>].start <span class="op">&lt;=</span> segs[<span class="dv">1</span>].end  <span class="co"># invariant</span></span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="40c07205" class="cell">
@@ -394,8 +394,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>segs <span class="op">=</span> parse_xscript(_write_srt(srt))</span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(segs) <span class="op">==</span> <span class="dv">2</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'Here we go. Hello everybody.'</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'next cue'</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">0</span>].text <span class="op">==</span> <span class="st">'Here we go. Hello everybody.'</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> segs[<span class="dv">1</span>].text <span class="op">==</span> <span class="st">'next cue'</span></span>
 <span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="b4e5c1e7" class="cell">
@@ -474,7 +474,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    start:<span class="bu">int</span> <span class="op">|</span> <span class="bu">float</span>, <span class="co"># Start time in seconds</span></span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    end:<span class="bu">int</span> <span class="op">|</span> <span class="bu">float</span>, <span class="co"># End time in seconds</span></span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>[<span class="bu">dict</span>] <span class="op">|</span> <span class="bu">dict</span>: <span class="co"># [{start, end, text}, ...] or {"error": "..."}</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>[yttoc.core.Segment] <span class="op">|</span> <span class="bu">dict</span>: <span class="co"># List of Segment or {"error": "..."}</span></span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Return parsed xscript segments within [start, end). Raw parse_xscript + slice_segments output.</em></p>
 <div id="fcc9b5a9" class="cell">
@@ -630,11 +630,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> get_xscript_range(<span class="st">'VID_GXR'</span>, <span class="dv">5</span>, <span class="dv">15</span>, root)</span>
 <span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(result, <span class="bu">list</span>)</span>
 <span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(result) <span class="op">==</span> <span class="dv">2</span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result[<span class="dv">0</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'second'</span></span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result[<span class="dv">1</span>][<span class="st">'text'</span>] <span class="op">==</span> <span class="st">'third'</span></span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(result[<span class="dv">0</span>][<span class="st">'start'</span>], <span class="bu">float</span>)</span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(result[<span class="dv">0</span>][<span class="st">'end'</span>], <span class="bu">float</span>)</span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'start'</span> <span class="kw">in</span> result[<span class="dv">0</span>] <span class="kw">and</span> <span class="st">'end'</span> <span class="kw">in</span> result[<span class="dv">0</span>] <span class="kw">and</span> <span class="st">'text'</span> <span class="kw">in</span> result[<span class="dv">0</span>]</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result[<span class="dv">0</span>].text <span class="op">==</span> <span class="st">'second'</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result[<span class="dv">1</span>].text <span class="op">==</span> <span class="st">'third'</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(result[<span class="dv">0</span>].start, <span class="bu">float</span>)</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(result[<span class="dv">0</span>].end, <span class="bu">float</span>)</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">hasattr</span>(result[<span class="dv">0</span>], <span class="st">'start'</span>) <span class="kw">and</span> <span class="bu">hasattr</span>(result[<span class="dv">0</span>], <span class="st">'end'</span>) <span class="kw">and</span> <span class="bu">hasattr</span>(result[<span class="dv">0</span>], <span class="st">'text'</span>)</span>
 <span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="369fffc8" class="cell">

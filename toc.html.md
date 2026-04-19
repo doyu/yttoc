@@ -21,7 +21,7 @@ path/end, sort, dedup, validate 4. Write `toc.json` to cache dir
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L82"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L83"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### TocLLMResult
@@ -38,7 +38,7 @@ def TocLLMResult(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L77"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L78"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### RawTocSection
@@ -105,10 +105,11 @@ print('ok')
 ```
 
 ``` python
+from yttoc.core import Segment
 # Test 6: _build_toc_prompt includes transcript and meta context
 segments = [
-    {'start': 0.0, 'end': 5.0, 'text': 'hello world'},
-    {'start': 5.0, 'end': 10.0, 'text': 'second segment'},
+    Segment(start=0.0, end=5.0, text='hello world'),
+    Segment(start=5.0, end=10.0, text='second segment'),
 ]
 meta = {'title': 'Test Video', 'channel': 'Ch', 'description': 'A test video'}
 prompt = _build_toc_prompt(segments, meta)
@@ -119,11 +120,13 @@ assert '[00:00]' in prompt  # timestamps formatted
 print('ok')
 ```
 
+    ok
+
 ## CLI
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L149"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L150"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_toc
@@ -142,7 +145,7 @@ def yttoc_toc(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L112"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L113"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_toc

@@ -31,14 +31,14 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ``` python
 
 def slice_segments(
-    segments:list, # [{start, end, text}, ...]
+    segments:list, # List of Segment
     start:int, # Section start in seconds
     end:int, # Section end in seconds
 )->list: # Segments within [start, end)
 
 ```
 
-*Return segments that fall within the given time range.*
+*Return segments with start time inside \[start, end).*
 
 ------------------------------------------------------------------------
 

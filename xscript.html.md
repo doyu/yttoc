@@ -39,7 +39,7 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 
 def parse_xscript(
     path:str | pathlib.Path, # Path to SRT file
-)->list: # List of {start, end, text} segments
+)->list: # List of Segment objects
 
 ```
 
@@ -67,9 +67,9 @@ hello world
 """
 segs = parse_xscript(_write_srt(srt))
 assert len(segs) == 1
-assert segs[0]['start'] == 0.08
-assert segs[0]['end'] == 4.88
-assert segs[0]['text'] == 'hello world'
+assert segs[0].start == 0.08
+assert segs[0].end == 4.88
+assert segs[0].text == 'hello world'
 print('ok')
 ```
 
@@ -82,7 +82,7 @@ second line
 """
 segs = parse_xscript(_write_srt(srt))
 assert len(segs) == 1
-assert segs[0]['text'] == 'first line second line'
+assert segs[0].text == 'first line second line'
 print('ok')
 ```
 
@@ -98,9 +98,9 @@ the right verb anymore to my agents
 """
 segs = parse_xscript(_write_srt(srt))
 assert len(segs) == 2
-assert segs[0]['text'] == "code's not even the right verb anymore"
-assert segs[1]['text'] == 'to my agents'
-assert segs[1]['start'] == 5.0  # bumped from 2.0 to prev.end
+assert segs[0].text == "code's not even the right verb anymore"
+assert segs[1].text == 'to my agents'
+assert segs[1].start == 5.0  # bumped from 2.0 to prev.end
 print('ok')
 ```
 
@@ -116,9 +116,9 @@ completely different
 """
 segs = parse_xscript(_write_srt(srt))
 assert len(segs) == 2
-assert segs[0]['text'] == 'first sentence'
-assert segs[1]['text'] == 'completely different'
-assert segs[1]['start'] == 5.0  # no bump, original
+assert segs[0].text == 'first sentence'
+assert segs[1].text == 'completely different'
+assert segs[1].start == 5.0  # no bump, original
 print('ok')
 ```
 
@@ -134,7 +134,7 @@ hello world
 """
 segs = parse_xscript(_write_srt(srt))
 assert len(segs) == 1
-assert segs[0]['text'] == 'hello world'
+assert segs[0].text == 'hello world'
 print('ok')
 ```
 
@@ -150,11 +150,11 @@ hello world
 """
 segs = parse_xscript(_write_srt(srt))
 assert len(segs) == 2
-assert segs[0]['text'] == 'hello'
-assert segs[1]['text'] == 'world'
-assert segs[1]['start'] == 10.0  # bumped to prev.end
-assert segs[1]['end'] == 10.0  # clamped (original was 9.0)
-assert segs[1]['start'] <= segs[1]['end']  # invariant
+assert segs[0].text == 'hello'
+assert segs[1].text == 'world'
+assert segs[1].start == 10.0  # bumped to prev.end
+assert segs[1].end == 10.0  # clamped (original was 9.0)
+assert segs[1].start <= segs[1].end  # invariant
 print('ok')
 ```
 
@@ -172,8 +172,8 @@ next cue
 """
 segs = parse_xscript(_write_srt(srt))
 assert len(segs) == 2
-assert segs[0]['text'] == 'Here we go. Hello everybody.'
-assert segs[1]['text'] == 'next cue'
+assert segs[0].text == 'Here we go. Hello everybody.'
+assert segs[1].text == 'next cue'
 print('ok')
 ```
 
@@ -270,7 +270,7 @@ def get_xscript_range(
     start:int | float, # Start time in seconds
     end:int | float, # End time in seconds
     root:str | pathlib.Path=None, # Root cache directory
-)->list[dict] | dict: # [{start, end, text}, ...] or {"error": "..."}
+)->list[yttoc.core.Segment] | dict: # List of Segment or {"error": "..."}
 
 ```
 
@@ -435,11 +435,11 @@ with TemporaryDirectory() as d:
     result = get_xscript_range('VID_GXR', 5, 15, root)
     assert isinstance(result, list)
     assert len(result) == 2
-    assert result[0]['text'] == 'second'
-    assert result[1]['text'] == 'third'
-    assert isinstance(result[0]['start'], float)
-    assert isinstance(result[0]['end'], float)
-    assert 'start' in result[0] and 'end' in result[0] and 'text' in result[0]
+    assert result[0].text == 'second'
+    assert result[1].text == 'third'
+    assert isinstance(result[0].start, float)
+    assert isinstance(result[0].end, float)
+    assert hasattr(result[0], 'start') and hasattr(result[0], 'end') and hasattr(result[0], 'text')
 print('ok')
 ```
 

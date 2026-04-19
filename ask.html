@@ -268,7 +268,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><code>yttoc-ask</code> is a read-only reasoning shell. It exposes 2 thin tools (<a href="https://doyu.github.io/yttoc/summarize.html#get_summaries"><code>get_summaries</code></a>, <a href="https://doyu.github.io/yttoc/xscript.html#get_xscript_range"><code>get_xscript_range</code></a>) to an LLM via the OpenAI Responses API. The LLM decides what to fetch. Python only formats output.</p>
 <p>See <code>docs/superpowers/specs/2026-04-16-yttoc-ask-design.md</code> for full design rationale.</p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L73" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L80" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="dispatch_tool" class="level3">
 <h3 class="anchored" data-anchor-id="dispatch_tool">dispatch_tool</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -455,7 +455,7 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 <section id="format_citations" class="level2">
 <h2 class="anchored" data-anchor-id="format_citations">format_citations</h2>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L123" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L130" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="build_registry" class="level3">
 <h3 class="anchored" data-anchor-id="build_registry">build_registry</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -465,7 +465,7 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Build the tool registry with handlers bound to the given cache root.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L100" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L107" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="format_citations-1" class="level3">
 <h3 class="anchored" data-anchor-id="format_citations-1">format_citations</h3>
@@ -570,48 +570,114 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 <pre><code>ok</code></pre>
 </div>
 </div>
+<div id="3f435f79" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: _to_jsonable handles BaseModel, list[BaseModel], nested dict, passthrough</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.ask <span class="im">import</span> _to_jsonable</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.core <span class="im">import</span> Segment</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> Segment(start<span class="op">=</span><span class="fl">1.0</span>, end<span class="op">=</span><span class="fl">2.0</span>, text<span class="op">=</span><span class="st">'hi'</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Single BaseModel → dict</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> _to_jsonable(s) <span class="op">==</span> {<span class="st">'start'</span>: <span class="fl">1.0</span>, <span class="st">'end'</span>: <span class="fl">2.0</span>, <span class="st">'text'</span>: <span class="st">'hi'</span>}</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co"># list[BaseModel] → list[dict]</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> _to_jsonable([s, s]) <span class="op">==</span> [</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'start'</span>: <span class="fl">1.0</span>, <span class="st">'end'</span>: <span class="fl">2.0</span>, <span class="st">'text'</span>: <span class="st">'hi'</span>},</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'start'</span>: <span class="fl">1.0</span>, <span class="st">'end'</span>: <span class="fl">2.0</span>, <span class="st">'text'</span>: <span class="st">'hi'</span>},</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Nested: dict containing a BaseModel</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> _to_jsonable({<span class="st">'a'</span>: s, <span class="st">'b'</span>: <span class="dv">1</span>}) <span class="op">==</span> {<span class="st">'a'</span>: {<span class="st">'start'</span>: <span class="fl">1.0</span>, <span class="st">'end'</span>: <span class="fl">2.0</span>, <span class="st">'text'</span>: <span class="st">'hi'</span>}, <span class="st">'b'</span>: <span class="dv">1</span>}</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Nested: dict containing list[BaseModel]</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> _to_jsonable({<span class="st">'items'</span>: [s]}) <span class="op">==</span> {<span class="st">'items'</span>: [{<span class="st">'start'</span>: <span class="fl">1.0</span>, <span class="st">'end'</span>: <span class="fl">2.0</span>, <span class="st">'text'</span>: <span class="st">'hi'</span>}]}</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Passthrough for scalars</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> _to_jsonable(<span class="dv">42</span>) <span class="op">==</span> <span class="dv">42</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> _to_jsonable(<span class="st">'abc'</span>) <span class="op">==</span> <span class="st">'abc'</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> _to_jsonable(<span class="va">None</span>) <span class="kw">is</span> <span class="va">None</span></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Passthrough for plain dict / list (idempotent)</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> _to_jsonable({<span class="st">'x'</span>: <span class="dv">1</span>, <span class="st">'y'</span>: [<span class="dv">2</span>, <span class="dv">3</span>]}) <span class="op">==</span> {<span class="st">'x'</span>: <span class="dv">1</span>, <span class="st">'y'</span>: [<span class="dv">2</span>, <span class="dv">3</span>]}</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ok</code></pre>
+</div>
+</div>
+<div id="f0d702a1" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: dispatch_tool serializes list[Segment] handler result as list of {start,end,text} dicts</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.ask <span class="im">import</span> dispatch_tool, build_registry</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID_BND'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:03,000</span><span class="ch">\n</span><span class="st">alpha</span><span class="ch">\n\n</span><span class="st">'</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">'2</span><span class="ch">\n</span><span class="st">00:00:05,000 --&gt; 00:00:08,000</span><span class="ch">\n</span><span class="st">beta</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    registry <span class="op">=</span> build_registry(root)</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    raw <span class="op">=</span> dispatch_tool(registry, <span class="st">'get_xscript_range'</span>,</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'{"video_id":"VID_BND","start":0,"end":10}'</span>)</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>    parsed <span class="op">=</span> json.loads(raw)</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(parsed, <span class="bu">list</span>), <span class="ss">f'expected list, got </span><span class="sc">{</span><span class="bu">type</span>(parsed)<span class="sc">}</span><span class="ss">'</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(parsed) <span class="op">==</span> <span class="dv">2</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> item <span class="kw">in</span> parsed:</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="bu">isinstance</span>(item, <span class="bu">dict</span>)</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="bu">set</span>(item.keys()) <span class="op">==</span> {<span class="st">'start'</span>, <span class="st">'end'</span>, <span class="st">'text'</span>}</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="bu">isinstance</span>(item[<span class="st">'start'</span>], <span class="bu">float</span>)</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="bu">isinstance</span>(item[<span class="st">'end'</span>], <span class="bu">float</span>)</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="bu">isinstance</span>(item[<span class="st">'text'</span>], <span class="bu">str</span>)</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ok</code></pre>
+</div>
+</div>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L143" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L150" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="ask" class="level3">
 <h3 class="anchored" data-anchor-id="ask">ask</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ask(</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    question:<span class="bu">str</span>, <span class="co"># Natural-language query</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    video_ids:<span class="bu">list</span>, <span class="co"># Cached video IDs</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    model:<span class="bu">str</span><span class="op">=</span><span class="st">'gpt-4o'</span>, <span class="co"># LLM model</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    max_iterations:<span class="bu">int</span><span class="op">=</span><span class="dv">20</span>, <span class="co"># Safety cap on tool-use loop</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    root:Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root directory</span></span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    verbose:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># Print tool calls to stderr</span></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>AskResponse:</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ask(</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    question:<span class="bu">str</span>, <span class="co"># Natural-language query</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    video_ids:<span class="bu">list</span>, <span class="co"># Cached video IDs</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    model:<span class="bu">str</span><span class="op">=</span><span class="st">'gpt-4o'</span>, <span class="co"># LLM model</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    max_iterations:<span class="bu">int</span><span class="op">=</span><span class="dv">20</span>, <span class="co"># Safety cap on tool-use loop</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    root:Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root directory</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    verbose:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># Print tool calls to stderr</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>AskResponse:</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Run a tool-use loop to answer a question about a video course.</em></p>
 <div id="f15978b5" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Integration test: ask() returns AskResponse with a real cached video</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.fetch <span class="im">import</span> _DEFAULT_ROOT</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> ask(<span class="st">'What is this course about?'</span>, [<span class="st">'7T83srD0Mu4'</span>], root<span class="op">=</span>_DEFAULT_ROOT)</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">isinstance</span>(result, AskResponse)</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Answer: </span><span class="sc">{</span>result<span class="sc">.</span>answer[:<span class="dv">200</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Citations: </span><span class="sc">{</span>result<span class="sc">.</span>citations<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Integration test: ask() returns AskResponse with a real cached video</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.fetch <span class="im">import</span> _DEFAULT_ROOT</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> ask(<span class="st">'What is this course about?'</span>, [<span class="st">'7T83srD0Mu4'</span>], root<span class="op">=</span>_DEFAULT_ROOT)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">isinstance</span>(result, AskResponse)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Answer: </span><span class="sc">{</span>result<span class="sc">.</span>answer[:<span class="dv">200</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Citations: </span><span class="sc">{</span>result<span class="sc">.</span>citations<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
 <section id="cli" class="level2">
 <h2 class="anchored" data-anchor-id="cli">CLI</h2>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L203" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L210" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="yttoc_ask" class="level3">
 <h3 class="anchored" data-anchor-id="yttoc_ask">yttoc_ask</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> yttoc_ask(</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    question:<span class="bu">str</span>, <span class="co"># Natural-language query</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    ids:<span class="bu">str</span> <span class="op">&lt;</span>Cached video IDs (<span class="dv">1</span><span class="op">+</span> required)<span class="op">&gt;</span>, <span class="co"># Video IDs</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    model:<span class="bu">str</span><span class="op">=</span><span class="st">'gpt-4o'</span>, <span class="co"># LLM model</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    max_iterations:<span class="bu">int</span><span class="op">=</span><span class="dv">20</span>, <span class="co"># Safety cap on tool-use loop</span></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory</span></span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    verbose:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># Show tool-use trace on stderr</span></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>):</span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> yttoc_ask(</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    question:<span class="bu">str</span>, <span class="co"># Natural-language query</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    ids:<span class="bu">str</span> <span class="op">&lt;</span>Cached video IDs (<span class="dv">1</span><span class="op">+</span> required)<span class="op">&gt;</span>, <span class="co"># Video IDs</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    model:<span class="bu">str</span><span class="op">=</span><span class="st">'gpt-4o'</span>, <span class="co"># LLM model</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    max_iterations:<span class="bu">int</span><span class="op">=</span><span class="dv">20</span>, <span class="co"># Safety cap on tool-use loop</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    verbose:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># Show tool-use trace on stderr</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Answer a question about a video course using LLM tool use.</em></p>
 
 

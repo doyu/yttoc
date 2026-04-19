@@ -16,7 +16,7 @@ design rationale.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L73"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L80"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### dispatch_tool
@@ -274,7 +274,7 @@ of the model. **signature**: The synthesized `__init__`
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L123"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L130"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### build_registry
@@ -291,7 +291,7 @@ def build_registry(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L100"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L107"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_citations
@@ -400,9 +400,75 @@ print('ok')
 
     ok
 
+``` python
+# Test: _to_jsonable handles BaseModel, list[BaseModel], nested dict, passthrough
+from yttoc.ask import _to_jsonable
+from yttoc.core import Segment
+
+s = Segment(start=1.0, end=2.0, text='hi')
+
+# Single BaseModel → dict
+assert _to_jsonable(s) == {'start': 1.0, 'end': 2.0, 'text': 'hi'}
+
+# list[BaseModel] → list[dict]
+assert _to_jsonable([s, s]) == [
+    {'start': 1.0, 'end': 2.0, 'text': 'hi'},
+    {'start': 1.0, 'end': 2.0, 'text': 'hi'},
+]
+
+# Nested: dict containing a BaseModel
+assert _to_jsonable({'a': s, 'b': 1}) == {'a': {'start': 1.0, 'end': 2.0, 'text': 'hi'}, 'b': 1}
+
+# Nested: dict containing list[BaseModel]
+assert _to_jsonable({'items': [s]}) == {'items': [{'start': 1.0, 'end': 2.0, 'text': 'hi'}]}
+
+# Passthrough for scalars
+assert _to_jsonable(42) == 42
+assert _to_jsonable('abc') == 'abc'
+assert _to_jsonable(None) is None
+
+# Passthrough for plain dict / list (idempotent)
+assert _to_jsonable({'x': 1, 'y': [2, 3]}) == {'x': 1, 'y': [2, 3]}
+
+print('ok')
+```
+
+    ok
+
+``` python
+# Test: dispatch_tool serializes list[Segment] handler result as list of {start,end,text} dicts
+import json
+from tempfile import TemporaryDirectory
+from pathlib import Path
+from yttoc.ask import dispatch_tool, build_registry
+
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID_BND'; v.mkdir()
+    (v / 'captions.en.srt').write_text(
+        '1\n00:00:00,000 --> 00:00:03,000\nalpha\n\n'
+        '2\n00:00:05,000 --> 00:00:08,000\nbeta\n')
+
+    registry = build_registry(root)
+    raw = dispatch_tool(registry, 'get_xscript_range',
+                        '{"video_id":"VID_BND","start":0,"end":10}')
+    parsed = json.loads(raw)
+    assert isinstance(parsed, list), f'expected list, got {type(parsed)}'
+    assert len(parsed) == 2
+    for item in parsed:
+        assert isinstance(item, dict)
+        assert set(item.keys()) == {'start', 'end', 'text'}
+        assert isinstance(item['start'], float)
+        assert isinstance(item['end'], float)
+        assert isinstance(item['text'], str)
+print('ok')
+```
+
+    ok
+
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L143"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L150"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### ask
@@ -436,7 +502,7 @@ print(f"Citations: {result.citations}")
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L203"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L210"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_ask
