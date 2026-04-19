@@ -93,14 +93,14 @@ def dispatch_tool(registry: dict[str, ToolEntry], name: str, raw_args: str) -> s
         return json.dumps({'error': f'Serialization failed: {e}'}, ensure_ascii=False)
 
 # %% ../nbs/06_ask.ipynb #d2cf5745
-from .summarize import get_summaries as _read_summaries
+from .summarize import get_summaries as _read_summaries, AssembledSection
 from .xscript import get_xscript_range as _read_xscript_range
 from .core import fmt_duration
 
-def _find_section(sections: list[dict], seconds: int) -> dict | None:
+def _find_section(sections: list[AssembledSection], seconds: int) -> AssembledSection | None:
     "Find the section containing the given timestamp. Returns None if no match."
     for s in sections:
-        if s['start'] <= seconds < s['end']:
+        if s.start <= seconds < s.end:
             return s
     return None
 
@@ -116,13 +116,13 @@ def format_citations(citations: list[Citation], # List of Citation objects
         url = f'https://youtu.be/{vid}?t={sec}'
         ts = fmt_duration(sec)
         sums = _read_summaries(vid, root)
-        if 'error' in sums:
+        if isinstance(sums, dict):  # error branch: {'error': '...'}
             lines.append(f'  [{i}] {vid} @ {ts}\n      {url}')
             continue
-        title = sums['video'].get('title', vid)
-        section = _find_section(sums['sections'], sec)
+        title = sums.video.title
+        section = _find_section(sums.sections, sec)
         if section:
-            lines.append(f'  [{i}] {title} \u00a7{section["path"]} "{section["title"]}" @ {ts}\n      {url}')
+            lines.append(f'  [{i}] {title} \u00a7{section.path} "{section.title}" @ {ts}\n      {url}')
         else:
             lines.append(f'  [{i}] {title} @ {ts}\n      {url}')
     return lines
@@ -143,6 +143,7 @@ def build_registry(root: Path) -> dict[str, ToolEntry]:
             handler=lambda video_id, start, end: _read_xscript_range(video_id, start, end, root),
         ),
     }
+
 
 # %% ../nbs/06_ask.ipynb #ae69b791
 import openai
