@@ -180,16 +180,27 @@ def yttoc_txt(video_id: str, # Exact video_id
 
 
 # %% ../nbs/02_xscript.ipynb #db2334f5
+def _get_xscript_range_strict(video_id: str, # Exact video_id
+                              start: int | float, # Start time in seconds
+                              end: int | float, # End time in seconds
+                              root: str | Path = None # Root cache directory
+                             ) -> list[Segment]: # List of Segment
+    "Return parsed xscript segments within [start, end) or raise if captions are missing."
+    root = Path(root) if root else _DEFAULT_ROOT
+    d = root / video_id
+    srt_files = _glob_srt(d)
+    if not srt_files:
+        raise FileNotFoundError(f'No captions found for {video_id}')
+    segments = parse_xscript(srt_files[0])
+    return slice_segments(segments, start, end)
+
 def get_xscript_range(video_id: str, # Exact video_id
                       start: int | float, # Start time in seconds
                       end: int | float, # End time in seconds
                       root: str | Path = None # Root cache directory
                      ) -> list[Segment] | dict: # List of Segment or {"error": "..."}
-    "Return parsed xscript segments within [start, end). Raw parse_xscript + slice_segments output."
-    root = Path(root) if root else _DEFAULT_ROOT
-    d = root / video_id
-    srt_files = _glob_srt(d)
-    if not srt_files:
-        return {'error': f'No captions found for {video_id}'}
-    segments = parse_xscript(srt_files[0])
-    return slice_segments(segments, start, end)
+    "Compatibility wrapper around _get_xscript_range_strict for tool consumers expecting {'error': ...}."
+    try:
+        return _get_xscript_range_strict(video_id, start, end, root)
+    except FileNotFoundError as e:
+        return {'error': str(e)}

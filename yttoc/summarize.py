@@ -213,16 +213,24 @@ def yttoc_sum(video_id: str, # Exact video_id
 
 
 # %% ../nbs/04_summarize.ipynb #73e522f6
-def get_summaries(video_id: str, # Exact video_id
-                  root: Path = None # Root cache directory (default: ~/.cache/yttoc)
-                 ) -> AssembledSummaries | dict: # Parsed AssembledSummaries or {"error": "..."}
-    "Return summaries.json for a cached video. Validates via AssembledSummaries; error branch returns {'error': ...}."
-    from pydantic import ValidationError
+def _get_summaries_strict(video_id: str, # Exact video_id
+                          root: Path = None # Root cache directory (default: ~/.cache/yttoc)
+                         ) -> AssembledSummaries: # Parsed AssembledSummaries
+    "Return validated summaries.json or raise on missing/invalid data."
     root = root or _DEFAULT_ROOT
     sum_path = root / video_id / 'summaries.json'
     if not sum_path.exists():
-        return {'error': f'summaries.json not found for {video_id}'}
+        raise FileNotFoundError(f'summaries.json not found for {video_id}')
+    return AssembledSummaries.model_validate_json(sum_path.read_text(encoding='utf-8'))
+
+def get_summaries(video_id: str, # Exact video_id
+                  root: Path = None # Root cache directory (default: ~/.cache/yttoc)
+                 ) -> AssembledSummaries | dict: # Parsed AssembledSummaries or {"error": "..."}
+    "Compatibility wrapper around _get_summaries_strict for tool/CLI consumers expecting {'error': ...}."
+    from pydantic import ValidationError
     try:
-        return AssembledSummaries.model_validate_json(sum_path.read_text(encoding='utf-8'))
+        return _get_summaries_strict(video_id, root)
+    except FileNotFoundError as e:
+        return {'error': str(e)}
     except ValidationError as e:
         return {'error': f'Invalid summaries.json for {video_id}: {e}'}

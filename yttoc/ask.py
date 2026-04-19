@@ -93,8 +93,9 @@ def dispatch_tool(registry: dict[str, ToolEntry], name: str, raw_args: str) -> s
         return json.dumps({'error': f'Serialization failed: {e}'}, ensure_ascii=False)
 
 # %% ../nbs/06_ask.ipynb #d2cf5745
-from .summarize import get_summaries as _read_summaries, AssembledSection
-from .xscript import get_xscript_range as _read_xscript_range
+from pydantic import ValidationError
+from .summarize import _get_summaries_strict as _read_summaries, AssembledSection
+from .xscript import _get_xscript_range_strict as _read_xscript_range
 from .core import fmt_duration
 
 def _find_section(sections: list[AssembledSection], seconds: int) -> AssembledSection | None:
@@ -115,8 +116,9 @@ def format_citations(citations: list[Citation], # List of Citation objects
         vid, sec = c.video_id, c.seconds
         url = f'https://youtu.be/{vid}?t={sec}'
         ts = fmt_duration(sec)
-        sums = _read_summaries(vid, root)
-        if isinstance(sums, dict):  # error branch: {'error': '...'}
+        try:
+            sums = _read_summaries(vid, root)
+        except (FileNotFoundError, ValidationError):
             lines.append(f'  [{i}] {vid} @ {ts}\n      {url}')
             continue
         title = sums.video.title
