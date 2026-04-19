@@ -167,5 +167,5 @@ def yttoc_toc(video_id: str, # Exact video_id
     print()
     url = meta.webpage_url
     for s in sections:
-        print(format_toc_line(s.model_dump(), url))
+        print(format_toc_line(s, url))
 

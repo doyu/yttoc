@@ -44,13 +44,9 @@ def fmt_duration(seconds: int # Duration in seconds
     m, s = divmod(rem, 60)
     return f'{h}:{m:02d}:{s:02d}' if h else f'{m}:{s:02d}'
 
-def format_header(meta: Meta | dict # Parsed Meta instance or summaries.json video dict
+def format_header(meta: "Meta | VideoBlock" # Meta or VideoBlock (both have title/channel/duration/upload_date)
                  ) -> str: # Formatted header string
     "Shared header for toc/sum/raw CLI commands."
-    if isinstance(meta, dict):
-        d = meta
-        dur = fmt_duration(d.get('duration', 0))
-        return f'# {d.get("title", "")}\nChannel: {d.get("channel", "")} | Duration: {dur} | {d.get("upload_date", "")}'
     dur = fmt_duration(meta.duration)
     return f'# {meta.title}\nChannel: {meta.channel} | Duration: {dur} | {meta.upload_date}'
 
@@ -61,13 +57,13 @@ def slice_segments(segments: list[Segment], # List of Segment
     "Return segments with start time inside [start, end)."
     return [s for s in segments if s.start >= start and s.start < end]
 
-def format_toc_line(section: dict, # {path, title, start, end}
+def format_toc_line(section: NormalizedSection, # NormalizedSection or subclass (AssembledSection, FlattenedSection)
                     url: str = '' # webpage_url for &t= deep link (omit when empty)
-                   ) -> str: # Single-line TOC entry
-    "Format a TOC section as 'N. title H:MM:SS-H:MM:SS (span) URL&t=N'."
-    s_start = fmt_duration(section['start'])
-    s_end = fmt_duration(section['end'])
-    span = fmt_duration(section['end'] - section['start'])
-    suffix = f" {url}&t={section['start']}" if url else ''
-    return f"{section['path']}. {section['title']} {s_start}-{s_end} ({span}){suffix}"
+                   ) -> str: # Formatted line
+    "Single-line TOC row for a section, optionally with deep-link URL."
+    s_start = fmt_duration(section.start)
+    s_end = fmt_duration(section.end)
+    span = fmt_duration(section.end - section.start)
+    suffix = f" {url}&t={section.start}" if url else ''
+    return f"{section.path}. {section.title} {s_start}-{s_end} ({span}){suffix}"
 
