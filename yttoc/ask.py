@@ -70,6 +70,13 @@ def openai_tools(registry: dict[str, ToolEntry]) -> list[dict[str, Any]]:
     "Extract OpenAI tool schemas from a registry."
     return [tool.schema for tool in registry.values()]
 
+def _to_jsonable(o):
+    "Recursively convert Pydantic BaseModel instances to dicts for JSON serialization."
+    if isinstance(o, BaseModel): return o.model_dump()
+    if isinstance(o, list): return [_to_jsonable(x) for x in o]
+    if isinstance(o, dict): return {k: _to_jsonable(v) for k, v in o.items()}
+    return o
+
 def dispatch_tool(registry: dict[str, ToolEntry], name: str, raw_args: str) -> str:
     "Validate args via Pydantic, call handler, return JSON result."
     tool = registry.get(name)
@@ -81,7 +88,7 @@ def dispatch_tool(registry: dict[str, ToolEntry], name: str, raw_args: str) -> s
     except Exception as e:
         result = {'error': str(e)}
     try:
-        return json.dumps(result, ensure_ascii=False)
+        return json.dumps(_to_jsonable(result), ensure_ascii=False)
     except (TypeError, ValueError) as e:
         return json.dumps({'error': f'Serialization failed: {e}'}, ensure_ascii=False)
 

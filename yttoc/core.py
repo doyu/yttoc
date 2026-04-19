@@ -30,12 +30,12 @@ def format_header(meta: dict # meta.json content
     upload = meta.get('upload_date', '')
     return f'# {title}\nChannel: {channel} | Duration: {dur} | {upload}'
 
-def slice_segments(segments: list[dict], # [{start, end, text}, ...]
+def slice_segments(segments: list[Segment], # List of Segment
                    start: int, # Section start in seconds
                    end: int # Section end in seconds
-                  ) -> list[dict]: # Segments within [start, end)
-    "Return segments that fall within the given time range."
-    return [s for s in segments if s['start'] >= start and s['start'] < end]
+                  ) -> list[Segment]: # Segments within [start, end)
+    "Return segments with start time inside [start, end)."
+    return [s for s in segments if s.start >= start and s.start < end]
 
 def format_toc_line(section: dict, # {path, title, start, end}
                     url: str = '' # webpage_url for &t= deep link (omit when empty)

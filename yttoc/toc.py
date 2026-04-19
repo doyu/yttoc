@@ -9,6 +9,7 @@ __all__ = ['RawTocSection', 'TocLLMResult', 'generate_toc', 'yttoc_toc']
 import json
 from pathlib import Path
 from pydantic import BaseModel, Field
+from .core import Segment
 
 # %% ../nbs/03_toc.ipynb #b1000005
 def _normalize_sections(raw: list[dict], # [{title, start}, ...] from LLM
@@ -42,15 +43,15 @@ def _normalize_sections(raw: list[dict], # [{title, start}, ...] from LLM
     return result
 
 # %% ../nbs/03_toc.ipynb #d95b70ae
-def _build_toc_prompt(segments: list[dict], # [{start, end, text}, ...] from parse_xscript
+def _build_toc_prompt(segments: list[Segment], # List of Segment from parse_xscript
                       meta: dict # meta.json content
                      ) -> str: # Prompt for LLM
     "Build a prompt that asks the LLM to identify topic transitions and return section titles with start times."
     lines = []
     for s in segments:
-        mm = int(s['start'] // 60)
-        ss = int(s['start'] % 60)
-        lines.append(f"[{mm:02d}:{ss:02d}] {s['text']}")
+        mm = int(s.start // 60)
+        ss = int(s.start % 60)
+        lines.append(f"[{mm:02d}:{ss:02d}] {s.text}")
     transcript = '\n'.join(lines)
 
     title = meta.get('title', '')

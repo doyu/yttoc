@@ -66,7 +66,7 @@ def _find_overlap(prev: list[str], curr: list[str]) -> int:
     return 0
 
 def parse_xscript(path: str | Path # Path to SRT file
-                 ) -> list[dict]: # List of {start, end, text} segments
+                 ) -> list[Segment]: # List of Segment objects
     "Parse SRT file into normalized xscript segments (dedup rolling-window overlap)."
     content = Path(path).read_text(encoding='utf-8')
     raw_cues = _parse_srt(content)
@@ -99,7 +99,7 @@ def parse_xscript(path: str | Path # Path to SRT file
         if curr_tokens:
             segments.append(Segment(start=start, end=end, text=' '.join(curr_tokens)))
 
-    return [s.model_dump() for s in segments]
+    return segments
 
 # %% ../nbs/02_xscript.ipynb #bcd5731c
 import json
@@ -108,7 +108,7 @@ from .core import fmt_duration, format_header, slice_segments
 from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
 
 def _load_segments(video_id: str, section: str, root: str | None
-                  ) -> tuple[dict, list[dict], dict | None, Path]:
+                  ) -> tuple[dict, list[Segment], dict | None, Path]:
     "Load meta, parse xscript, optionally slice to section. Return (meta, segments, sec_info, meta_path)."
     root = Path(root) if root else _DEFAULT_ROOT
     d = root / video_id
@@ -150,9 +150,9 @@ def yttoc_raw(video_id: str, # Exact video_id
         print(f"## {section}. {sec_info['title']} ({s_start} - {s_end})")
 
     for s in segments:
-        mm = int(s['start'] // 60)
-        ss = int(s['start'] % 60)
-        print(f"[{mm:02d}:{ss:02d}] {s['text']}")
+        mm = int(s.start // 60)
+        ss = int(s.start % 60)
+        print(f"[{mm:02d}:{ss:02d}] {s.text}")
 
     _update_last_used(meta_path)
 
@@ -173,7 +173,7 @@ def yttoc_txt(video_id: str, # Exact video_id
         print(f"## {section}. {sec_info['title']} ({s_start} - {s_end})")
         print()
 
-    print(' '.join(s['text'] for s in segments))
+    print(' '.join(s.text for s in segments))
 
     _update_last_used(meta_path)
 
@@ -182,7 +182,7 @@ def get_xscript_range(video_id: str, # Exact video_id
                       start: int | float, # Start time in seconds
                       end: int | float, # End time in seconds
                       root: str | Path = None # Root cache directory
-                     ) -> list[dict] | dict: # [{start, end, text}, ...] or {"error": "..."}
+                     ) -> list[Segment] | dict: # List of Segment or {"error": "..."}
     "Return parsed xscript segments within [start, end). Raw parse_xscript + slice_segments output."
     root = Path(root) if root else _DEFAULT_ROOT
     d = root / video_id
