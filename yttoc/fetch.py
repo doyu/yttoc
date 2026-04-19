@@ -10,6 +10,7 @@ import json, os
 from datetime import datetime, timezone
 from pathlib import Path
 import yt_dlp
+from .core import Meta
 
 _DEFAULT_ROOT = Path(os.environ.get('XDG_CACHE_HOME', Path.home() / '.cache')) / 'yttoc'
 
@@ -43,17 +44,18 @@ def _build_meta(info: dict, # yt-dlp info dict
                 caption_type: str = 'auto' # 'manual' or 'auto'
                ) -> dict: # meta.json content
     "Extract fields for meta.json from yt-dlp info."
-    return {
-        'id': info['id'],
-        'title': info['title'],
-        'channel': info['channel'],
-        'duration': info['duration'],
-        'upload_date': info['upload_date'],
-        'webpage_url': info['webpage_url'],
-        'description': info.get('description', ''),
-        'captions': {lang: caption_type},
-        'last_used_at': datetime.now(timezone.utc).isoformat(),
-    }
+    meta = Meta(
+        id=info['id'],
+        title=info['title'],
+        channel=info['channel'],
+        duration=info['duration'],
+        upload_date=info['upload_date'],
+        webpage_url=info['webpage_url'],
+        description=info.get('description', ''),
+        captions={lang: caption_type},
+        last_used_at=datetime.now(timezone.utc),
+    )
+    return meta.model_dump(mode='json')
 
 def _download_srt(url: str, info: dict, out_dir: Path
                  ) -> tuple[Path, str, str]: # (srt_path, lang, caption_type)
