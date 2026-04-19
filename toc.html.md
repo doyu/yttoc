@@ -19,6 +19,40 @@ path/end, sort, dedup, validate 4. Write `toc.json` to cache dir
 {"sections": [{"path": "1", "title": "Introduction", "start": 0, "end": 750}]}
 ```
 
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L82"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### TocLLMResult
+
+``` python
+
+def TocLLMResult(
+    data:Any
+)->None:
+
+```
+
+*Structured output from the TOC generation LLM call.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L77"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### RawTocSection
+
+``` python
+
+def RawTocSection(
+    data:Any
+)->None:
+
+```
+
+*One section as returned by the TOC LLM — title + start time only.*
+
 ## Tests
 
 ``` python
@@ -89,7 +123,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L154"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L149"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_toc
@@ -108,7 +142,7 @@ def yttoc_toc(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L117"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L112"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_toc

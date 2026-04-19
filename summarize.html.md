@@ -39,6 +39,57 @@ called first internally. The LLM call returns
 [`_assemble_summaries`](https://doyu.github.io/yttoc/summarize.html#_assemble_summaries)
 merges it with `meta` and `toc_sections` into the canonical shape above.
 
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L68"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### SummaryLLMResult
+
+``` python
+
+def SummaryLLMResult(
+    data:Any
+)->None:
+
+```
+
+*Structured output from the summary generation LLM call.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L62"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### SectionSummaryPayload
+
+``` python
+
+def SectionSummaryPayload(
+    data:Any
+)->None:
+
+```
+
+*Summary payload for one section or the full video.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L57"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### Evidence
+
+``` python
+
+def Evidence(
+    data:Any
+)->None:
+
+```
+
+*A quoted phrase from the transcript with its timestamp.*
+
 ## Tests
 
 ``` python
@@ -88,7 +139,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L196"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L182"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_sum
@@ -109,7 +160,7 @@ def yttoc_sum(
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L148"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L134"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_summaries
@@ -290,7 +341,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L227"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L213"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_summaries

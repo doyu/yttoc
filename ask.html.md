@@ -16,7 +16,7 @@ design rationale.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L65"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L73"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### dispatch_tool
@@ -33,7 +33,7 @@ def dispatch_tool(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L61"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L69"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### openai_tools
@@ -50,7 +50,7 @@ def openai_tools(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L43"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L51"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### make_tool
@@ -59,15 +59,32 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 
 def make_tool(
     name:str, description:str, args_model:type, handler:Callable
-)->dict:
+)->ToolEntry:
 
 ```
 
-*Bundle a tool’s schema, arg model, and handler into one dict.*
+*Bundle a tool’s schema, arg model, and handler into a ToolEntry.*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L36"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L45"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### ToolEntry
+
+``` python
+
+def ToolEntry(
+    schema:dict, args_model:type, handler:Callable
+)->None:
+
+```
+
+*One tool in the registry — like a C struct bundling schema + handler.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L37"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### AskResponse
@@ -114,7 +131,7 @@ of the model. **signature**: The synthesized `__init__`
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L32"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L33"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### Citation
@@ -161,7 +178,7 @@ of the model. **signature**: The synthesized `__init__`
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L25"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L26"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### GetXscriptRangeArgs
@@ -208,7 +225,7 @@ of the model. **signature**: The synthesized `__init__`
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L22"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L23"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### GetSummariesArgs
@@ -257,7 +274,7 @@ of the model. **signature**: The synthesized `__init__`
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L112"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L123"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### build_registry
@@ -274,7 +291,7 @@ def build_registry(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L89"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L100"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_citations
@@ -385,7 +402,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L132"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L143"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### ask
@@ -398,7 +415,7 @@ def ask(
     model:str='gpt-4o', # LLM model
     max_iterations:int=20, # Safety cap on tool-use loop
     root:Path=None, # Cache root directory
-    verbose:bool=True, # Print tool calls to stderr
+    verbose:bool=False, # Print tool calls to stderr
 )->AskResponse:
 
 ```
@@ -419,7 +436,7 @@ print(f"Citations: {result.citations}")
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L191"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L203"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_ask
