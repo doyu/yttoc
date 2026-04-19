@@ -11,9 +11,9 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 # %% ../nbs/04_summarize.ipynb #c1000005
-from .core import slice_segments
+from .core import slice_segments, Segment
 
-def _build_summary_prompt(segments: list[dict], # Full xscript segments
+def _build_summary_prompt(segments: list[Segment], # Full xscript segments
                           sections: list[dict], # [{path, title, start, end}, ...] from toc.json
                           meta: dict # meta.json content
                          ) -> str: # Prompt for LLM
@@ -23,9 +23,9 @@ def _build_summary_prompt(segments: list[dict], # Full xscript segments
         sliced = slice_segments(segments, sec['start'], sec['end'])
         lines = []
         for s in sliced:
-            mm = int(s['start'] // 60)
-            ss = int(s['start'] % 60)
-            lines.append(f"[{mm:02d}:{ss:02d}] {s['text']}")
+            mm = int(s.start // 60)
+            ss = int(s.start % 60)
+            lines.append(f"[{mm:02d}:{ss:02d}] {s.text}")
         parts.append(f"### Section {sec['path']}: {sec['title']}\n" + '\n'.join(lines))
 
     transcript = '\n\n'.join(parts)
