@@ -39,8 +39,15 @@ Introduce `Segment` without changing the public API.
 **Files**
 | File | Change |
 |------|--------|
-| `nbs/02_xscript.ipynb` | Add `from pydantic import BaseModel, Field` to imports. Define `Segment` BaseModel. Inside `parse_xscript`, construct `Segment(...)` objects and return `[s.model_dump() for s in segments]`. |
-| `yttoc/xscript.py` | Regenerated via `nbdev-export`. |
+| `nbs/00_core.ipynb` | Add `from pydantic import BaseModel, Field` to imports. Define `Segment` BaseModel. |
+| `nbs/02_xscript.ipynb` | Import `Segment` from `.core`. Inside `parse_xscript`, construct `Segment(...)` objects and return `[s.model_dump() for s in segments]`. |
+| `yttoc/core.py`, `yttoc/xscript.py` | Regenerated via `nbdev-export`. |
+
+**Segment ownership rationale:** `core.py` is placed in the `core` module (not `xscript`) because:
+- `core.py` already owns `slice_segments`, the primary Segment consumer besides `parse_xscript`
+- `xscript.py` already imports from `core` (line 109); placing Segment in `xscript` and typing `core.slice_segments` as `list[Segment]` would create a circular import
+- AGENTS.md requires unidirectional module dependencies; `xscript → core` is the existing direction
+- A dedicated `types.py` module for one class violates YAGNI
 
 **Model definition**
 ```python
@@ -67,20 +74,24 @@ Flip the public API to `list[Segment]` and update all consumers.
 **Files**
 | File | Change |
 |------|--------|
-| `nbs/02_xscript.ipynb` | `parse_xscript` returns `list[Segment]` (drop `.model_dump()`). Migrate the 16 inline dict fixtures to `Segment(...)` constructors. |
+| `nbs/02_xscript.ipynb` | `parse_xscript` returns `list[Segment]` (drop `.model_dump()`). Migrate 16 inline dict fixtures to `Segment(...)`. Update `yttoc_raw` / `yttoc_txt` CLI display to attribute access. |
 | `nbs/00_core.ipynb` | `slice_segments(segments: list[Segment], start, end) -> list[Segment]`. Switch `s['start']` to `s.start`. |
-| `nbs/03_toc.ipynb` | `_build_toc_prompt(segments: list[Segment], meta)`: attribute access in loop. |
-| `nbs/04_summarize.ipynb` | `_build_summary_prompt`: attribute access. `slice_segments` call sites updated. |
+| `nbs/03_toc.ipynb` | `_build_toc_prompt(segments: list[Segment], meta)`: attribute access in loop. Migrate Test 6 fixture (cell `2b1e3214`, 2 segments) to `Segment(...)`. |
+| `nbs/04_summarize.ipynb` | `_build_summary_prompt`: attribute access. `slice_segments` call sites updated. Migrate Test 3 fixture (cell `c1000009`, 2 segments) to `Segment(...)`. |
 | `nbs/06_ask.ipynb` | `dispatch_tool`: add `_to_jsonable` helper; apply to `result` before `json.dumps`. `get_xscript_range` returns `list[Segment]` (via `parse_xscript`). |
-| `nbs/02_xscript.ipynb` (CLI) | `yttoc_raw` display loop (`yttoc/xscript.py:155-157`) and `yttoc_txt` (`yttoc/xscript.py:178`): `s['start']` / `s['text']` → `s.start` / `s.text`. |
 | Generated `yttoc/*.py` | Regenerated via `nbdev-export`. |
 
-**Exactly 5 xscript-segment consumer sites** to update (verified by grep — filtered out NormalizedSection / AssembledSummaries consumers which are out of scope):
+**Xscript-segment consumer sites** (5 code sites, verified by grep — filtered out NormalizedSection / AssembledSummaries consumers which are out of scope):
 1. `yttoc/core.py:32` — `slice_segments` filter
 2. `yttoc/toc.py:51-53` — `_build_toc_prompt` loop
 3. `yttoc/summarize.py:26-28` — `_build_summary_prompt` loop
 4. `yttoc/xscript.py:155-157` — `yttoc_raw` CLI print
 5. `yttoc/xscript.py:178` — `yttoc_txt` CLI print
+
+**Test fixture migration** (3 notebooks, 5 test cells, 20 segment-dict entries total):
+- `nbs/02_xscript.ipynb` — 16 entries across `parse_xscript` unit tests
+- `nbs/03_toc.ipynb` cell `2b1e3214` — 2 entries in `_build_toc_prompt` Test 6
+- `nbs/04_summarize.ipynb` cell `c1000009` — 2 entries in `_build_summary_prompt` Test 3
 
 **Tool-boundary helper**
 ```python
@@ -96,6 +107,7 @@ Applied inside `dispatch_tool` before `json.dumps`. This keeps the LLM tool cont
 **Tests**
 - All existing tests pass after fixture migration
 - `_to_jsonable` unit test: covers `BaseModel`, `list[BaseModel]`, nested dict containing `BaseModel`, passthrough for plain dict/list/str/int
+- `dispatch_tool` boundary contract test: invoke the tool via `dispatch_tool(registry, 'get_xscript_range', ...)` against a fixture cache, `json.loads` the return, assert the parsed value is a list whose elements have exactly the keys `{'start', 'end', 'text'}`. Verifies that the dict-shaped LLM contract survives the `Segment` → JSON round-trip, not just the helper in isolation.
 
 ## Validation Constraints
 
@@ -107,7 +119,7 @@ Minimal, following Phase 1 precedent:
 
 ## Test Fixture Strategy
 
-PR #2 rewrites the 16 segment fixtures in `nbs/02_xscript.ipynb` from:
+PR #2 rewrites 20 segment fixtures across 3 notebooks (02/03/04) from:
 ```python
 {"start": 0.08, "end": 4.88, "text": "hello world"}
 ```
@@ -116,7 +128,7 @@ to:
 Segment(start=0.08, end=4.88, text="hello world")
 ```
 
-Rationale: PR #2's theme is "Segment-as-type throughout". Keeping fixtures as dicts would force every assert to call `.model_dump()` or `Segment.model_validate(...)`, creating per-site noise. Full migration is ~16 lines of churn concentrated in one notebook.
+Rationale: PR #2's theme is "Segment-as-type throughout". Keeping fixtures as dicts would force every assert to call `.model_dump()` or `Segment.model_validate(...)`, creating per-site noise. Full migration is ~20 lines of churn concentrated in the three notebooks whose tests consume segments.
 
 ## Non-Goals
 
@@ -136,21 +148,23 @@ Rationale: PR #2's theme is "Segment-as-type throughout". Keeping fixtures as di
 ## Acceptance Criteria
 
 ### PR #1
-- [ ] `Segment` model defined with `ge=0` bounds
+- [ ] `Segment` model defined in `nbs/00_core.ipynb` with `ge=0` bounds
+- [ ] `nbs/02_xscript.ipynb` imports `Segment` from `.core`
 - [ ] `parse_xscript` uses `Segment` internally
 - [ ] Public return shape unchanged (`list[dict]`)
-- [ ] All `nbs/02_xscript.ipynb` existing tests pass
+- [ ] All existing tests pass
 - [ ] Negative-timestamp validation test added and passes (constructor-level, not parser-level — `_ts_to_sec` cannot produce negatives, so the test exercises the Pydantic constraint itself: `Segment(start=-1, ...)` raises `ValidationError`)
 - [ ] `nbdev-test` suite green
 
 ### PR #2
 - [ ] `parse_xscript` returns `list[Segment]`
-- [ ] All 16 test fixtures migrated to `Segment(...)`
+- [ ] All 20 segment-dict fixtures migrated to `Segment(...)` (16 in 02, 2 in 03, 2 in 04)
 - [ ] `slice_segments`, `_build_toc_prompt`, `_build_summary_prompt`, `get_xscript_range`, CLI display converted to attribute access
 - [ ] `_to_jsonable` helper added to `dispatch_tool`
 - [ ] `_to_jsonable` unit test passes
+- [ ] `dispatch_tool` boundary contract test passes (`get_xscript_range` round-trip yields dicts with `{start, end, text}` keys)
 - [ ] Full `nbdev-test` suite green (all notebooks)
-- [ ] No `s['start']` / `s['end']` / `s['text']` accesses remain in yttoc modules (verify via grep)
+- [ ] No `s['start']` / `s['end']` / `s['text']` accesses remain in yttoc modules targeting xscript segments (verify via grep — `_find_section` in ask.py operates on TOC sections, not xscript segments, and is out of scope)
 
 ## Follow-up work (separate specs)
 
