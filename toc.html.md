@@ -184,13 +184,19 @@ print('ok')
     ok
 
 ``` python
-from yttoc.core import Segment
+from yttoc.core import Segment, Meta
+from datetime import datetime, timezone
 # Test 6: _build_toc_prompt includes transcript and meta context
 segments = [
     Segment(start=0.0, end=5.0, text='hello world'),
     Segment(start=5.0, end=10.0, text='second segment'),
 ]
-meta = {'title': 'Test Video', 'channel': 'Ch', 'description': 'A test video'}
+meta = Meta(
+    id='T', title='Test Video', channel='Ch',
+    duration=600, upload_date='20260101',
+    webpage_url='https://youtube.com/watch?v=T',
+    description='A test video', captions={'en': 'auto'},
+    last_used_at=datetime(2026, 1, 1, tzinfo=timezone.utc))
 prompt = _build_toc_prompt(segments, meta)
 assert 'hello world' in prompt
 assert 'second segment' in prompt
@@ -253,7 +259,8 @@ with TemporaryDirectory() as d:
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID1', 'title': 'T', 'channel': 'C', 'duration': 600,
         'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID1',
-        'last_used_at': '2000-01-01T00:00:00'}))
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00'}))
     # Pre-write toc.json so LLM is never called
     (v / 'toc.json').write_text(json.dumps({'sections': [
         {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},
@@ -278,7 +285,8 @@ with TemporaryDirectory() as d:
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID2', 'title': 'Test Video', 'channel': 'Ch', 'duration': 900,
         'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID2',
-        'last_used_at': '2000-01-01T00:00:00'}))
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00'}))
     (v / 'toc.json').write_text(json.dumps({'sections': [
         {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},
         {'path': '2', 'title': 'Main', 'start': 300, 'end': 900},

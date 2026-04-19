@@ -304,7 +304,10 @@ with TemporaryDirectory() as d:
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID1', 'title': 'Test Video', 'channel': 'Ch',
         'duration': 120, 'upload_date': '20260101',
-        'last_used_at': '2026-01-01T00:00:00+00:00'}))
+        'webpage_url': 'https://youtube.com/watch?v=VID1',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2026-01-01T00:00:00+00:00',
+    }))
 
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
@@ -327,7 +330,10 @@ with TemporaryDirectory() as d:
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID2', 'title': 't', 'channel': 'c',
         'duration': 1, 'upload_date': '20260101',
-        'last_used_at': '2000-01-01T00:00:00+00:00'}))
+        'webpage_url': 'https://youtube.com/watch?v=VID2',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }))
 
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
@@ -350,7 +356,10 @@ with TemporaryDirectory() as d:
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID3', 'title': 'T', 'channel': 'C',
         'duration': 15, 'upload_date': '20260101',
-        'last_used_at': '2000-01-01T00:00:00+00:00'}))
+        'webpage_url': 'https://youtube.com/watch?v=VID3',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }))
     (v / 'toc.json').write_text(json.dumps({'sections': [
         {'path': '1', 'title': 'Intro', 'start': 0, 'end': 5},
         {'path': '2', 'title': 'Main', 'start': 5, 'end': 15},
@@ -379,7 +388,10 @@ with TemporaryDirectory() as d:
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID_TXT', 'title': 'Test', 'channel': 'C',
         'duration': 10, 'upload_date': '20260101',
-        'last_used_at': '2000-01-01T00:00:00+00:00'}))
+        'webpage_url': 'https://youtube.com/watch?v=VID_TXT',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }))
 
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
@@ -404,7 +416,10 @@ with TemporaryDirectory() as d:
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID_TXT2', 'title': 'T', 'channel': 'C',
         'duration': 15, 'upload_date': '20260101',
-        'last_used_at': '2000-01-01T00:00:00+00:00'}))
+        'webpage_url': 'https://youtube.com/watch?v=VID_TXT2',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }))
     (v / 'toc.json').write_text(json.dumps({'sections': [
         {'path': '1', 'title': 'Intro', 'start': 0, 'end': 5},
         {'path': '2', 'title': 'Main', 'start': 5, 'end': 15},

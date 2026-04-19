@@ -5,7 +5,7 @@
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L63"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L64"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_toc_line
@@ -23,7 +23,7 @@ def format_toc_line(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L56"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L57"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### slice_segments
@@ -50,7 +50,7 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ``` python
 
 def format_header(
-    meta:dict, # meta.json content
+    meta:__main__.Meta | dict, # Parsed Meta instance or summaries.json video dict
 )->str: # Formatted header string
 
 ```
@@ -138,17 +138,18 @@ print('ok')
 
 ``` python
 # Test: format_header
-hdr = format_header({
-    'title': 'Test Video', 'channel': 'Test Channel',
-    'duration': 3991, 'upload_date': '20260320'})
+from datetime import datetime, timezone
+hdr = format_header(Meta(
+    id='T', title='Test Video', channel='Test Channel',
+    duration=3991, upload_date='20260320',
+    webpage_url='https://youtube.com/watch?v=T',
+    description='', captions={'en': 'auto'},
+    last_used_at=datetime(2026, 1, 1, tzinfo=timezone.utc)))
 assert hdr == '# Test Video\nChannel: Test Channel | Duration: 1:06:31 | 20260320'
-
-# Missing fields default to empty
-hdr2 = format_header({'title': 'X'})
-assert '# X' in hdr2
-assert 'Duration: 0:00' in hdr2
 print('ok')
 ```
+
+    ok
 
 ``` python
 # Test: format_toc_line

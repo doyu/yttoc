@@ -118,7 +118,8 @@ print('ok')
 ```
 
 ``` python
-from yttoc.core import Segment
+from yttoc.core import Segment, Meta
+from datetime import datetime, timezone
 # Test 3: _build_summary_prompt includes section titles and transcript
 segments = [
     Segment(start=0, end=5, text='hello world'),
@@ -129,7 +130,12 @@ sections = [
     NormalizedSection(path='1', title='Intro', start=0, end=5),
     NormalizedSection(path='2', title='Main', start=5, end=10),
 ]
-meta = {'title': 'Test Video', 'channel': 'Ch'}
+meta = Meta(
+    id='T', title='Test Video', channel='Ch',
+    duration=600, upload_date='20260101',
+    webpage_url='https://youtube.com/watch?v=T',
+    description='', captions={'en': 'auto'},
+    last_used_at=datetime(2026, 1, 1, tzinfo=timezone.utc))
 prompt = _build_summary_prompt(segments, sections, meta)
 assert 'Test Video' in prompt
 assert 'Intro' in prompt
@@ -215,7 +221,10 @@ with TemporaryDirectory() as d:
     (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID1', 'title': 'T', 'channel': 'C', 'duration': 600,
-        'upload_date': '20260101', 'last_used_at': '2000-01-01T00:00:00'}))
+        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID1',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }))
     (v / 'summaries.json').write_text(json.dumps(_make_test_summaries('VID1')))
 
     result = generate_summaries('VID1', root)
@@ -236,7 +245,10 @@ with TemporaryDirectory() as d:
     (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID2', 'title': 'Test Video', 'channel': 'Ch', 'duration': 600,
-        'upload_date': '20260101', 'last_used_at': '2000-01-01T00:00:00'}))
+        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID2',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }))
     fixture = _make_test_summaries('VID2', url='https://youtube.com/watch?v=VID2')
     fixture['video']['title'] = 'Test Video'
     fixture['video']['channel'] = 'Ch'
@@ -267,7 +279,10 @@ with TemporaryDirectory() as d:
     (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID3', 'title': 'T', 'channel': 'C', 'duration': 600,
-        'upload_date': '20260101', 'last_used_at': '2000-01-01T00:00:00'}))
+        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID3',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }))
     (v / 'summaries.json').write_text(json.dumps(_make_test_summaries('VID3')))
 
     buf = io.StringIO()
@@ -292,7 +307,9 @@ with TemporaryDirectory() as d:
     (v / 'meta.json').write_text(json.dumps({
         'id': 'VID4', 'title': 'Old', 'channel': 'Ch', 'duration': 600,
         'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID4',
-        'last_used_at': '2000-01-01T00:00:00'}))
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }))
     (v / 'toc.json').write_text(json.dumps({'sections': [
         {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},
         {'path': '2', 'title': 'Main', 'start': 300, 'end': 600},

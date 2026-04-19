@@ -73,18 +73,27 @@ fake_info = {'id': 'X', 'title': 't', 'channel': 'c', 'duration': 1,
              'upload_date': '20260101', 'webpage_url': 'u',
              'description': 'desc', 'subtitles': {}, 'automatic_captions': {'en': []}}
 m = _build_meta(fake_info, lang='en', caption_type='auto')
-assert m['captions'] == {'en': 'auto'}
-assert m['description'] == 'desc'
+assert m.captions == {'en': 'auto'}
+assert m.description == 'desc'
 
 m_ja = _build_meta(fake_info, lang='ja', caption_type='manual')
-assert m_ja['captions'] == {'ja': 'manual'}
+assert m_ja.captions == {'ja': 'manual'}
 
 # Test: _update_last_used
 with TemporaryDirectory() as d:
     p = Path(d) / 'meta.json'
-    p.write_text('{"id":"X"}')
+    p.write_text(json.dumps({
+        'id': 'X', 'title': 't', 'channel': 'c', 'duration': 60,
+        'upload_date': '20260101', 'webpage_url': 'https://y.com/X',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }), encoding='utf-8')
     _update_last_used(p)
-    assert 'last_used_at' in json.loads(p.read_text())
+    updated = json.loads(p.read_text(encoding='utf-8'))
+    assert updated['id'] == 'X'
+    assert updated['last_used_at'] != '2000-01-01T00:00:00+00:00'
+    from datetime import datetime
+    assert datetime.fromisoformat(updated['last_used_at']).tzinfo is not None
 
 print('ok')
 ```
@@ -205,7 +214,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L127"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L125"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_fetch
@@ -232,7 +241,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L140"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L138"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_list
@@ -259,17 +268,21 @@ with TemporaryDirectory() as d:
     a.mkdir()
     (a / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
     (a / 'meta.json').write_text(json.dumps({
-        'id': 'AAAA', 'title': 'Old video', 'duration': 195,
-        'captions': {'en': 'auto'},
-        'last_used_at': '2026-01-01T00:00:00+00:00'}))
+        'id': 'AAAA', 'title': 'Old video', 'channel': 'Ch', 'duration': 195,
+        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=AAAA',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2026-01-01T00:00:00+00:00',
+    }))
     # Video B: newer, Japanese
     b = root / 'BBBB'
     b.mkdir()
     (b / 'captions.ja.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nこんにちは\n')
     (b / 'meta.json').write_text(json.dumps({
-        'id': 'BBBB', 'title': 'New video', 'duration': 3991,
-        'captions': {'ja': 'manual'},
-        'last_used_at': '2026-04-06T15:00:00+00:00'}))
+        'id': 'BBBB', 'title': 'New video', 'channel': 'Ch', 'duration': 3991,
+        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=BBBB',
+        'description': '', 'captions': {'ja': 'manual'},
+        'last_used_at': '2026-04-06T15:00:00+00:00',
+    }))
     # Video C: incomplete (no srt) — should be skipped
     c = root / 'CCCC'
     c.mkdir()
@@ -291,14 +304,17 @@ with TemporaryDirectory() as d:
     pos_a = out.index('AAAA')
     assert pos_b < pos_a, 'BBBB (newer) should appear before AAAA (older)'
 
-# Legacy: yttoc_list handles old meta.json with caption_type (no captions dict)
+# Legacy: yttoc_list handles meta.json with empty captions dict (falls back to filename detection)
 with TemporaryDirectory() as d:
     root = Path(d)
     v = root / 'LEGACY'; v.mkdir()
     (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
     (v / 'meta.json').write_text(json.dumps({
-        'id': 'LEGACY', 'title': 'Legacy video', 'duration': 60,
-        'caption_type': 'auto', 'last_used_at': '2026-01-01T00:00:00+00:00'}))
+        'id': 'LEGACY', 'title': 'Legacy video', 'channel': 'Ch', 'duration': 60,
+        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=LEGACY',
+        'description': '', 'captions': {},
+        'last_used_at': '2026-01-01T00:00:00+00:00',
+    }))
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
         yttoc_list(root=str(root))
@@ -306,6 +322,66 @@ with TemporaryDirectory() as d:
     assert 'LEGACY' in out, 'legacy video should appear'
     assert '[en]' in out, 'should detect language from filename'
 
+print('ok')
+```
+
+    ok
+
+``` python
+# Test: yttoc_list rejects a corrupted meta.json (invalid caption type)
+import io, contextlib
+from tempfile import TemporaryDirectory
+from pydantic import ValidationError
+
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'BAD1'; v.mkdir()
+    (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
+    (v / 'meta.json').write_text(json.dumps({
+        'id': 'BAD1', 'title': 'T', 'channel': 'C', 'duration': 60,
+        'upload_date': '20260101', 'webpage_url': 'https://y.com',
+        'description': '', 'captions': {'en': 'autop'},
+        'last_used_at': '2026-01-01T00:00:00+00:00'}))
+
+    try:
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            yttoc_list(root=str(root))
+    except ValidationError:
+        pass
+    else:
+        assert False, 'expected ValidationError for invalid caption type in meta.json'
+print('ok')
+```
+
+    ok
+
+``` python
+# Test: _update_last_used round-trip — bumps last_used_at monotonically, result is datetime-parseable
+import time
+from datetime import datetime
+from tempfile import TemporaryDirectory
+
+with TemporaryDirectory() as d:
+    p = Path(d) / 'meta.json'
+    p.write_text(json.dumps({
+        'id': 'RT1', 'title': 't', 'channel': 'c', 'duration': 60,
+        'upload_date': '20260101', 'webpage_url': 'https://y.com',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }), encoding='utf-8')
+
+    _update_last_used(p)
+    first = json.loads(p.read_text(encoding='utf-8'))['last_used_at']
+    assert first != '2000-01-01T00:00:00+00:00'
+    first_dt = datetime.fromisoformat(first)
+    assert first_dt.tzinfo is not None
+
+    time.sleep(0.001)
+    _update_last_used(p)
+    second = json.loads(p.read_text(encoding='utf-8'))['last_used_at']
+    second_dt = datetime.fromisoformat(second)
+    assert second_dt >= first_dt, f'{second} should be >= {first}'
 print('ok')
 ```
 
@@ -322,7 +398,12 @@ with TemporaryDirectory() as d:
     out_dir = Path(d) / 'TEST123'
     out_dir.mkdir()
     (out_dir / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\ntest\n')
-    (out_dir / 'meta.json').write_text('{"id":"TEST123"}')
+    (out_dir / 'meta.json').write_text(json.dumps({
+        'id': 'TEST123', 'title': 't', 'channel': 'c', 'duration': 60,
+        'upload_date': '20260101', 'webpage_url': 'https://example.com',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }))
     result = fetch_video('https://example.com', fake_info, root=d)
     assert result.name == 'TEST123'
     meta = json.loads((result / 'meta.json').read_text())
@@ -333,7 +414,12 @@ with TemporaryDirectory() as d:
     out_dir = Path(d) / 'TEST456'
     out_dir.mkdir()
     (out_dir / 'captions.ja.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nテスト\n')
-    (out_dir / 'meta.json').write_text('{"id":"TEST456","captions":{"ja":"manual"}}')
+    (out_dir / 'meta.json').write_text(json.dumps({
+        'id': 'TEST456', 'title': 't', 'channel': 'c', 'duration': 60,
+        'upload_date': '20260101', 'webpage_url': 'https://example.com',
+        'description': '', 'captions': {'ja': 'manual'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }))
     result = fetch_video('https://example.com',
         {'id': 'TEST456', 'title': 't', 'channel': 'c', 'duration': 60,
          'upload_date': '20260101', 'webpage_url': 'u', 'description': '',
