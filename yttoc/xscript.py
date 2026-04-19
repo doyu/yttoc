@@ -104,11 +104,12 @@ def parse_xscript(path: str | Path # Path to SRT file
 # %% ../nbs/02_xscript.ipynb #bcd5731c
 import json
 from fastcore.script import call_parse
-from .core import fmt_duration, format_header, slice_segments
+from .core import fmt_duration, format_header, slice_segments, NormalizedSection
 from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
+from .toc import TocFile
 
 def _load_segments(video_id: str, section: str, root: str | None
-                  ) -> tuple[dict, list[Segment], dict | None, Path]:
+                  ) -> tuple[dict, list[Segment], NormalizedSection | None, Path]:
     "Load meta, parse xscript, optionally slice to section. Return (meta, segments, sec_info, meta_path)."
     root = Path(root) if root else _DEFAULT_ROOT
     d = root / video_id
@@ -125,11 +126,11 @@ def _load_segments(video_id: str, section: str, root: str | None
         toc_path = d / 'toc.json'
         if not toc_path.exists():
             raise SystemExit(f"No toc.json for {video_id}. Run yttoc-toc first.")
-        toc = json.loads(toc_path.read_text(encoding='utf-8'))
-        sec_info = next((s for s in toc['sections'] if s['path'] == section), None)
+        toc = TocFile.model_validate_json(toc_path.read_text(encoding='utf-8'))
+        sec_info = next((s for s in toc.sections if s.path == section), None)
         if sec_info is None:
             raise SystemExit(f"Section {section} not found")
-        segments = slice_segments(segments, sec_info['start'], sec_info['end'])
+        segments = slice_segments(segments, sec_info.start, sec_info.end)
 
     return meta, segments, sec_info, meta_path
 
@@ -145,9 +146,9 @@ def yttoc_raw(video_id: str, # Exact video_id
     print()
 
     if sec_info is not None:
-        s_start = fmt_duration(sec_info['start'])
-        s_end = fmt_duration(sec_info['end'])
-        print(f"## {section}. {sec_info['title']} ({s_start} - {s_end})")
+        s_start = fmt_duration(sec_info.start)
+        s_end = fmt_duration(sec_info.end)
+        print(f"## {section}. {sec_info.title} ({s_start} - {s_end})")
 
     for s in segments:
         mm = int(s.start // 60)
@@ -168,14 +169,15 @@ def yttoc_txt(video_id: str, # Exact video_id
     print()
 
     if sec_info is not None:
-        s_start = fmt_duration(sec_info['start'])
-        s_end = fmt_duration(sec_info['end'])
-        print(f"## {section}. {sec_info['title']} ({s_start} - {s_end})")
+        s_start = fmt_duration(sec_info.start)
+        s_end = fmt_duration(sec_info.end)
+        print(f"## {section}. {sec_info.title} ({s_start} - {s_end})")
         print()
 
     print(' '.join(s.text for s in segments))
 
     _update_last_used(meta_path)
+
 
 # %% ../nbs/02_xscript.ipynb #db2334f5
 def get_xscript_range(video_id: str, # Exact video_id
