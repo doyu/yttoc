@@ -75,14 +75,15 @@ def RawTocSection(
 ``` python
 # Test 1: basic — adds path and computes end from next start; last end = duration
 from yttoc.toc import RawTocSection
+from yttoc.core import NormalizedSection
 raw = [RawTocSection(title='Intro', start=0),
        RawTocSection(title='Main', start=300),
        RawTocSection(title='Outro', start=600)]
 secs = _normalize_sections(raw, duration=900)
 assert len(secs) == 3
-assert secs[0] == {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300}
-assert secs[1] == {'path': '2', 'title': 'Main', 'start': 300, 'end': 600}
-assert secs[2] == {'path': '3', 'title': 'Outro', 'start': 600, 'end': 900}
+assert secs[0] == NormalizedSection(path='1', title='Intro', start=0, end=300)
+assert secs[1] == NormalizedSection(path='2', title='Main', start=300, end=600)
+assert secs[2] == NormalizedSection(path='3', title='Outro', start=600, end=900)
 print('ok')
 ```
 
@@ -93,8 +94,8 @@ print('ok')
 from yttoc.toc import RawTocSection
 raw = [RawTocSection(title='B', start=300), RawTocSection(title='A', start=0)]
 secs = _normalize_sections(raw, duration=600)
-assert secs[0]['title'] == 'A'
-assert secs[1]['title'] == 'B'
+assert secs[0].title == 'A'
+assert secs[1].title == 'B'
 print('ok')
 ```
 
@@ -108,8 +109,8 @@ raw = [RawTocSection(title='A', start=0),
        RawTocSection(title='B', start=300)]
 secs = _normalize_sections(raw, duration=600)
 assert len(secs) == 2
-assert secs[0]['title'] == 'A'
-assert secs[1]['title'] == 'B'
+assert secs[0].title == 'A'
+assert secs[1].title == 'B'
 print('ok')
 ```
 
@@ -120,8 +121,8 @@ print('ok')
 from yttoc.toc import RawTocSection
 raw = [RawTocSection(title='Late start', start=30), RawTocSection(title='Next', start=300)]
 secs = _normalize_sections(raw, duration=600)
-assert secs[0]['start'] == 0
-assert secs[0]['end'] == 300
+assert secs[0].start == 0
+assert secs[0].end == 300
 print('ok')
 ```
 
@@ -234,7 +235,7 @@ def generate_toc(
     video_id:str, # Exact video_id
     root:Path=None, # Root cache directory
     refresh:bool=False, # Delete cached toc/summaries and regenerate
-)->list: # Normalized sections
+)->list: # List of NormalizedSection
 
 ```
 
@@ -261,8 +262,8 @@ with TemporaryDirectory() as d:
 
     secs = generate_toc('VID1', root)
     assert len(secs) == 2
-    assert secs[0]['title'] == 'Intro'
-    assert secs[1]['title'] == 'Main'
+    assert secs[0].title == 'Intro'
+    assert secs[1].title == 'Main'
 print('ok')
 ```
 
@@ -295,3 +296,60 @@ with TemporaryDirectory() as d:
     assert '&t=300' in out  # deep link
 print('ok')
 ```
+
+``` python
+# Test 9: TocFile rejects a corrupted toc.json (negative start)
+from tempfile import TemporaryDirectory
+from pydantic import ValidationError
+
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID_BAD'; v.mkdir()
+    (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
+    (v / 'meta.json').write_text(json.dumps({
+        'id': 'VID_BAD', 'title': 'T', 'channel': 'C', 'duration': 600,
+        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID_BAD',
+        'last_used_at': '2000-01-01T00:00:00'}))
+    # Corrupted toc.json — negative start violates NormalizedSection(start ≥ 0)
+    (v / 'toc.json').write_text(json.dumps({'sections': [
+        {'path': '1', 'title': 'Intro', 'start': -1, 'end': 300},
+    ]}))
+
+    try:
+        generate_toc('VID_BAD', root)
+    except ValidationError:
+        pass
+    else:
+        assert False, 'expected ValidationError for negative start in toc.json'
+print('ok')
+```
+
+    ok
+
+``` python
+# Test 10: generate_toc cache-hit returns list[NormalizedSection] with typed fields
+from tempfile import TemporaryDirectory
+from yttoc.core import NormalizedSection
+
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID_OK'; v.mkdir()
+    (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
+    (v / 'meta.json').write_text(json.dumps({
+        'id': 'VID_OK', 'title': 'T', 'channel': 'C', 'duration': 600,
+        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID_OK',
+        'last_used_at': '2000-01-01T00:00:00'}))
+    (v / 'toc.json').write_text(json.dumps({'sections': [
+        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},
+        {'path': '2', 'title': 'Main', 'start': 300, 'end': 600},
+    ]}))
+
+    secs = generate_toc('VID_OK', root)
+    assert len(secs) == 2
+    assert all(isinstance(s, NormalizedSection) for s in secs)
+    assert secs[0].path == '1' and secs[0].title == 'Intro' and secs[0].start == 0 and secs[0].end == 300
+    assert secs[1].path == '2' and secs[1].title == 'Main' and secs[1].start == 300 and secs[1].end == 600
+print('ok')
+```
+
+    ok

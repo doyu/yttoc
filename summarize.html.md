@@ -41,7 +41,7 @@ merges it with `meta` and `toc_sections` into the canonical shape above.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L68"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L69"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### SummaryLLMResult
@@ -58,7 +58,7 @@ def SummaryLLMResult(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L62"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L63"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### SectionSummaryPayload
@@ -75,7 +75,7 @@ def SectionSummaryPayload(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L57"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L58"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### Evidence
@@ -124,9 +124,10 @@ segments = [
     Segment(start=0, end=5, text='hello world'),
     Segment(start=5, end=10, text='second part'),
 ]
+from yttoc.core import NormalizedSection
 sections = [
-    {'path': '1', 'title': 'Intro', 'start': 0, 'end': 5},
-    {'path': '2', 'title': 'Main', 'start': 5, 'end': 10},
+    NormalizedSection(path='1', title='Intro', start=0, end=5),
+    NormalizedSection(path='2', title='Main', start=5, end=10),
 ]
 meta = {'title': 'Test Video', 'channel': 'Ch'}
 prompt = _build_summary_prompt(segments, sections, meta)
@@ -145,7 +146,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L182"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L181"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_sum
@@ -166,7 +167,7 @@ def yttoc_sum(
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L134"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L133"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_summaries
@@ -323,9 +324,10 @@ print('ok')
 
 ``` python
 # Test 8: _assemble_summaries raises if LLM omits any toc section (no silent corruption)
+from yttoc.core import NormalizedSection
 toc = [
-    {'path': '1', 'title': 'A', 'start': 0, 'end': 100},
-    {'path': '2', 'title': 'B', 'start': 100, 'end': 200},
+    NormalizedSection(path='1', title='A', start=0, end=100),
+    NormalizedSection(path='2', title='B', start=100, end=200),
 ]
 llm_partial = {
     'full': {'summary': 'f', 'keywords': [], 'evidence': {'text': '', 'at': 0}},
@@ -341,6 +343,8 @@ except ValueError as e:
     assert "'2'" in str(e)
 print('ok')
 ```
+
+    ok
 
 ## get_summaries
 

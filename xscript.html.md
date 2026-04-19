@@ -220,7 +220,7 @@ for d in cache.iterdir() if cache.exists() else []:
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L160"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L161"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_txt
@@ -239,7 +239,7 @@ def yttoc_txt(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L137"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L138"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_raw
@@ -258,7 +258,7 @@ def yttoc_raw(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L181"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L183"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_xscript_range

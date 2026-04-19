@@ -296,15 +296,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="b1000007" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 1: basic — adds path and computes end from next start; last end = duration</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.toc <span class="im">import</span> RawTocSection</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> [RawTocSection(title<span class="op">=</span><span class="st">'Intro'</span>, start<span class="op">=</span><span class="dv">0</span>),</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>       RawTocSection(title<span class="op">=</span><span class="st">'Main'</span>, start<span class="op">=</span><span class="dv">300</span>),</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>       RawTocSection(title<span class="op">=</span><span class="st">'Outro'</span>, start<span class="op">=</span><span class="dv">600</span>)]</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>secs <span class="op">=</span> _normalize_sections(raw, duration<span class="op">=</span><span class="dv">900</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(secs) <span class="op">==</span> <span class="dv">3</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">0</span>] <span class="op">==</span> {<span class="st">'path'</span>: <span class="st">'1'</span>, <span class="st">'title'</span>: <span class="st">'Intro'</span>, <span class="st">'start'</span>: <span class="dv">0</span>, <span class="st">'end'</span>: <span class="dv">300</span>}</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">1</span>] <span class="op">==</span> {<span class="st">'path'</span>: <span class="st">'2'</span>, <span class="st">'title'</span>: <span class="st">'Main'</span>, <span class="st">'start'</span>: <span class="dv">300</span>, <span class="st">'end'</span>: <span class="dv">600</span>}</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">2</span>] <span class="op">==</span> {<span class="st">'path'</span>: <span class="st">'3'</span>, <span class="st">'title'</span>: <span class="st">'Outro'</span>, <span class="st">'start'</span>: <span class="dv">600</span>, <span class="st">'end'</span>: <span class="dv">900</span>}</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.core <span class="im">import</span> NormalizedSection</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> [RawTocSection(title<span class="op">=</span><span class="st">'Intro'</span>, start<span class="op">=</span><span class="dv">0</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>       RawTocSection(title<span class="op">=</span><span class="st">'Main'</span>, start<span class="op">=</span><span class="dv">300</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>       RawTocSection(title<span class="op">=</span><span class="st">'Outro'</span>, start<span class="op">=</span><span class="dv">600</span>)]</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>secs <span class="op">=</span> _normalize_sections(raw, duration<span class="op">=</span><span class="dv">900</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(secs) <span class="op">==</span> <span class="dv">3</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">0</span>] <span class="op">==</span> NormalizedSection(path<span class="op">=</span><span class="st">'1'</span>, title<span class="op">=</span><span class="st">'Intro'</span>, start<span class="op">=</span><span class="dv">0</span>, end<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">1</span>] <span class="op">==</span> NormalizedSection(path<span class="op">=</span><span class="st">'2'</span>, title<span class="op">=</span><span class="st">'Main'</span>, start<span class="op">=</span><span class="dv">300</span>, end<span class="op">=</span><span class="dv">600</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">2</span>] <span class="op">==</span> NormalizedSection(path<span class="op">=</span><span class="st">'3'</span>, title<span class="op">=</span><span class="st">'Outro'</span>, start<span class="op">=</span><span class="dv">600</span>, end<span class="op">=</span><span class="dv">900</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ok</code></pre>
 </div>
@@ -314,8 +315,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.toc <span class="im">import</span> RawTocSection</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> [RawTocSection(title<span class="op">=</span><span class="st">'B'</span>, start<span class="op">=</span><span class="dv">300</span>), RawTocSection(title<span class="op">=</span><span class="st">'A'</span>, start<span class="op">=</span><span class="dv">0</span>)]</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>secs <span class="op">=</span> _normalize_sections(raw, duration<span class="op">=</span><span class="dv">600</span>)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">0</span>][<span class="st">'title'</span>] <span class="op">==</span> <span class="st">'A'</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">1</span>][<span class="st">'title'</span>] <span class="op">==</span> <span class="st">'B'</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">0</span>].title <span class="op">==</span> <span class="st">'A'</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">1</span>].title <span class="op">==</span> <span class="st">'B'</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ok</code></pre>
@@ -329,8 +330,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>       RawTocSection(title<span class="op">=</span><span class="st">'B'</span>, start<span class="op">=</span><span class="dv">300</span>)]</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>secs <span class="op">=</span> _normalize_sections(raw, duration<span class="op">=</span><span class="dv">600</span>)</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(secs) <span class="op">==</span> <span class="dv">2</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">0</span>][<span class="st">'title'</span>] <span class="op">==</span> <span class="st">'A'</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">1</span>][<span class="st">'title'</span>] <span class="op">==</span> <span class="st">'B'</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">0</span>].title <span class="op">==</span> <span class="st">'A'</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">1</span>].title <span class="op">==</span> <span class="st">'B'</span></span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ok</code></pre>
@@ -341,8 +342,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.toc <span class="im">import</span> RawTocSection</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> [RawTocSection(title<span class="op">=</span><span class="st">'Late start'</span>, start<span class="op">=</span><span class="dv">30</span>), RawTocSection(title<span class="op">=</span><span class="st">'Next'</span>, start<span class="op">=</span><span class="dv">300</span>)]</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>secs <span class="op">=</span> _normalize_sections(raw, duration<span class="op">=</span><span class="dv">600</span>)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">0</span>][<span class="st">'start'</span>] <span class="op">==</span> <span class="dv">0</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">0</span>][<span class="st">'end'</span>] <span class="op">==</span> <span class="dv">300</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">0</span>].start <span class="op">==</span> <span class="dv">0</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> secs[<span class="dv">0</span>].end <span class="op">==</span> <span class="dv">300</span></span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ok</code></pre>
@@ -445,7 +446,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    root:Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory</span></span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    refresh:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># Delete cached toc/summaries and regenerate</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>: <span class="co"># Normalized sections</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>: <span class="co"># List of NormalizedSection</span></span>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Generate toc.json for a cached video. Returns sections list.</em></p>
 <div id="971d3b0c" class="cell">
@@ -469,8 +470,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    secs <span class="op">=</span> generate_toc(<span class="st">'VID1'</span>, root)</span>
 <span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(secs) <span class="op">==</span> <span class="dv">2</span></span>
-<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> secs[<span class="dv">0</span>][<span class="st">'title'</span>] <span class="op">==</span> <span class="st">'Intro'</span></span>
-<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> secs[<span class="dv">1</span>][<span class="st">'title'</span>] <span class="op">==</span> <span class="st">'Main'</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> secs[<span class="dv">0</span>].title <span class="op">==</span> <span class="st">'Intro'</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> secs[<span class="dv">1</span>].title <span class="op">==</span> <span class="st">'Main'</span></span>
 <span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ok</code></pre>
@@ -502,6 +503,63 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'(5:00)'</span> <span class="kw">in</span> out  <span class="co"># span duration</span></span>
 <span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'&amp;t=300'</span> <span class="kw">in</span> out  <span class="co"># deep link</span></span>
 <span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="a1b2c3d4" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 9: TocFile rejects a corrupted toc.json (negative start)</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> ValidationError</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID_BAD'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(<span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:01,000</span><span class="ch">\n</span><span class="st">hi</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'VID_BAD'</span>, <span class="st">'title'</span>: <span class="st">'T'</span>, <span class="st">'channel'</span>: <span class="st">'C'</span>, <span class="st">'duration'</span>: <span class="dv">600</span>,</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'https://youtube.com/watch?v=VID_BAD'</span>,</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00'</span>}))</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Corrupted toc.json — negative start violates NormalizedSection(start ≥ 0)</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'toc.json'</span>).write_text(json.dumps({<span class="st">'sections'</span>: [</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'path'</span>: <span class="st">'1'</span>, <span class="st">'title'</span>: <span class="st">'Intro'</span>, <span class="st">'start'</span>: <span class="op">-</span><span class="dv">1</span>, <span class="st">'end'</span>: <span class="dv">300</span>},</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    ]}))</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>        generate_toc(<span class="st">'VID_BAD'</span>, root)</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> ValidationError:</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">pass</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="va">False</span>, <span class="st">'expected ValidationError for negative start in toc.json'</span></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ok</code></pre>
+</div>
+</div>
+<div id="e5f6a7b8" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 10: generate_toc cache-hit returns list[NormalizedSection] with typed fields</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.core <span class="im">import</span> NormalizedSection</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID_OK'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(<span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:01,000</span><span class="ch">\n</span><span class="st">hi</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'VID_OK'</span>, <span class="st">'title'</span>: <span class="st">'T'</span>, <span class="st">'channel'</span>: <span class="st">'C'</span>, <span class="st">'duration'</span>: <span class="dv">600</span>,</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'https://youtube.com/watch?v=VID_OK'</span>,</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00'</span>}))</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'toc.json'</span>).write_text(json.dumps({<span class="st">'sections'</span>: [</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'path'</span>: <span class="st">'1'</span>, <span class="st">'title'</span>: <span class="st">'Intro'</span>, <span class="st">'start'</span>: <span class="dv">0</span>, <span class="st">'end'</span>: <span class="dv">300</span>},</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'path'</span>: <span class="st">'2'</span>, <span class="st">'title'</span>: <span class="st">'Main'</span>, <span class="st">'start'</span>: <span class="dv">300</span>, <span class="st">'end'</span>: <span class="dv">600</span>},</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>    ]}))</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    secs <span class="op">=</span> generate_toc(<span class="st">'VID_OK'</span>, root)</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(secs) <span class="op">==</span> <span class="dv">2</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">all</span>(<span class="bu">isinstance</span>(s, NormalizedSection) <span class="cf">for</span> s <span class="kw">in</span> secs)</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> secs[<span class="dv">0</span>].path <span class="op">==</span> <span class="st">'1'</span> <span class="kw">and</span> secs[<span class="dv">0</span>].title <span class="op">==</span> <span class="st">'Intro'</span> <span class="kw">and</span> secs[<span class="dv">0</span>].start <span class="op">==</span> <span class="dv">0</span> <span class="kw">and</span> secs[<span class="dv">0</span>].end <span class="op">==</span> <span class="dv">300</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> secs[<span class="dv">1</span>].path <span class="op">==</span> <span class="st">'2'</span> <span class="kw">and</span> secs[<span class="dv">1</span>].title <span class="op">==</span> <span class="st">'Main'</span> <span class="kw">and</span> secs[<span class="dv">1</span>].start <span class="op">==</span> <span class="dv">300</span> <span class="kw">and</span> secs[<span class="dv">1</span>].end <span class="op">==</span> <span class="dv">600</span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ok</code></pre>
+</div>
 </div>
 
 
