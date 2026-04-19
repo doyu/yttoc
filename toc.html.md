@@ -21,7 +21,24 @@ path/end, sort, dedup, validate 4. Write `toc.json` to cache dir
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L83"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L84"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### TocFile
+
+``` python
+
+def TocFile(
+    data:Any
+)->None:
+
+```
+
+*On-disk shape of toc.json.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L79"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### TocLLMResult
@@ -38,7 +55,7 @@ def TocLLMResult(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L78"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L74"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### RawTocSection
@@ -57,7 +74,10 @@ def RawTocSection(
 
 ``` python
 # Test 1: basic — adds path and computes end from next start; last end = duration
-raw = [{'title': 'Intro', 'start': 0}, {'title': 'Main', 'start': 300}, {'title': 'Outro', 'start': 600}]
+from yttoc.toc import RawTocSection
+raw = [RawTocSection(title='Intro', start=0),
+       RawTocSection(title='Main', start=300),
+       RawTocSection(title='Outro', start=600)]
 secs = _normalize_sections(raw, duration=900)
 assert len(secs) == 3
 assert secs[0] == {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300}
@@ -66,18 +86,26 @@ assert secs[2] == {'path': '3', 'title': 'Outro', 'start': 600, 'end': 900}
 print('ok')
 ```
 
+    ok
+
 ``` python
 # Test 2: sorts by start ascending
-raw = [{'title': 'B', 'start': 300}, {'title': 'A', 'start': 0}]
+from yttoc.toc import RawTocSection
+raw = [RawTocSection(title='B', start=300), RawTocSection(title='A', start=0)]
 secs = _normalize_sections(raw, duration=600)
 assert secs[0]['title'] == 'A'
 assert secs[1]['title'] == 'B'
 print('ok')
 ```
 
+    ok
+
 ``` python
 # Test 3: removes duplicate starts (keeps first occurrence after sort)
-raw = [{'title': 'A', 'start': 0}, {'title': 'A-dup', 'start': 0}, {'title': 'B', 'start': 300}]
+from yttoc.toc import RawTocSection
+raw = [RawTocSection(title='A', start=0),
+       RawTocSection(title='A-dup', start=0),
+       RawTocSection(title='B', start=300)]
 secs = _normalize_sections(raw, duration=600)
 assert len(secs) == 2
 assert secs[0]['title'] == 'A'
@@ -85,14 +113,19 @@ assert secs[1]['title'] == 'B'
 print('ok')
 ```
 
+    ok
+
 ``` python
 # Test 4: fixes first section start to 0 if not already
-raw = [{'title': 'Late start', 'start': 30}, {'title': 'Next', 'start': 300}]
+from yttoc.toc import RawTocSection
+raw = [RawTocSection(title='Late start', start=30), RawTocSection(title='Next', start=300)]
 secs = _normalize_sections(raw, duration=600)
 assert secs[0]['start'] == 0
 assert secs[0]['end'] == 300
 print('ok')
 ```
+
+    ok
 
 ``` python
 # Test 5: empty input raises ValueError
@@ -103,6 +136,51 @@ except ValueError:
     pass
 print('ok')
 ```
+
+``` python
+# Test: TocFile validates envelope shape and element types
+from yttoc.toc import TocFile
+from pydantic import ValidationError
+
+# Valid
+toc = TocFile.model_validate_json(
+    '{"sections": [{"path":"1","title":"Intro","start":0,"end":300}]}'
+)
+assert len(toc.sections) == 1
+assert toc.sections[0].title == 'Intro'
+
+# Missing 'sections' key rejected
+try:
+    TocFile.model_validate_json('{"section": []}')  # typo
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for missing sections key'
+
+# Bad element shape (missing 'end') rejected
+try:
+    TocFile.model_validate_json(
+        '{"sections": [{"path":"1","title":"x","start":0}]}'
+    )
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for missing end field'
+
+# Negative timestamp rejected via NormalizedSection constraint
+try:
+    TocFile.model_validate_json(
+        '{"sections": [{"path":"1","title":"x","start":-1,"end":10}]}'
+    )
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for negative start'
+
+print('ok')
+```
+
+    ok
 
 ``` python
 from yttoc.core import Segment
@@ -126,7 +204,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L150"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L152"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_toc
@@ -145,7 +223,7 @@ def yttoc_toc(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L113"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L115"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_toc

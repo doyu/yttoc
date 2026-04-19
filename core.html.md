@@ -5,7 +5,7 @@
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L40"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L48"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_toc_line
@@ -23,7 +23,7 @@ def format_toc_line(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L33"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L41"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### slice_segments
@@ -42,7 +42,7 @@ def slice_segments(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L24"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L32"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_header
@@ -59,7 +59,7 @@ def format_header(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L17"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L25"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### fmt_duration
@@ -73,6 +73,24 @@ def fmt_duration(
 ```
 
 *Format seconds as human-readable duration.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L18"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### NormalizedSection
+
+``` python
+
+def NormalizedSection(
+    data:Any
+)->None:
+
+```
+
+*One TOC section after normalization (path and end added to raw LLM
+output).*
 
 ------------------------------------------------------------------------
 
@@ -153,6 +171,44 @@ except ValidationError:
     pass
 else:
     assert False, 'expected ValidationError for negative end'
+
+print('ok')
+```
+
+    ok
+
+``` python
+# Test: NormalizedSection validates required fields and non-negative bounds
+from yttoc.core import NormalizedSection
+from pydantic import ValidationError
+
+# Valid construction succeeds
+s = NormalizedSection(path='1', title='Intro', start=0, end=300)
+assert s.path == '1' and s.title == 'Intro' and s.start == 0 and s.end == 300
+
+# Negative start rejected
+try:
+    NormalizedSection(path='1', title='x', start=-1, end=10)
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for negative start'
+
+# Negative end rejected
+try:
+    NormalizedSection(path='1', title='x', start=0, end=-1)
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for negative end'
+
+# Missing required field rejected
+try:
+    NormalizedSection(path='1', title='x', start=0)  # no end
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for missing end'
 
 print('ok')
 ```
