@@ -260,7 +260,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L205"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L186"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_sum
@@ -281,7 +281,7 @@ def yttoc_sum(
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L157"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L147"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_summaries
@@ -292,12 +292,12 @@ def generate_summaries(
     video_id:str, # Exact video_id
     root:Path=None, # Root cache directory
     refresh:bool=False, # Delete cached summaries and regenerate
-)->dict: # Self-contained summaries dict
+)->AssembledSummaries: # Parsed AssembledSummaries instance
 
 ```
 
-*Generate summaries.json for a cached video. Returns summaries dict
-(auto-migrating old shape).*
+*Generate summaries.json for a cached video. Returns parsed
+AssembledSummaries.*
 
 ``` python
 # Test 4: generate_summaries returns cached summaries.json without LLM call
@@ -336,10 +336,11 @@ with TemporaryDirectory() as d:
     (v / 'summaries.json').write_text(json.dumps(_make_test_summaries('VID1')))
 
     result = generate_summaries('VID1', root)
-    assert result['full']['summary'] == 'Full video about testing.'
-    assert result['video']['id'] == 'VID1'
-    assert len(result['sections']) == 2
-    assert {s['path'] for s in result['sections']} == {'1', '2'}
+    assert result.full.summary == 'Full video about testing.'
+    assert result.video.id == 'VID1'
+    assert isinstance(result.sections, list)
+    assert len(result.sections) == 2
+    assert {s.path for s in result.sections} == {'1', '2'}
 print('ok')
 ```
 
@@ -407,47 +408,6 @@ print('ok')
 ```
 
 ``` python
-# Test 7: legacy summaries.json (no 'video' key) is auto-migrated in place — no LLM call
-with TemporaryDirectory() as d:
-    root = Path(d)
-    v = root / 'VID4'; v.mkdir()
-    (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
-    (v / 'meta.json').write_text(json.dumps({
-        'id': 'VID4', 'title': 'Old', 'channel': 'Ch', 'duration': 600,
-        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID4',
-        'description': '', 'captions': {'en': 'auto'},
-        'last_used_at': '2000-01-01T00:00:00+00:00',
-    }))
-    (v / 'toc.json').write_text(json.dumps({'sections': [
-        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 300},
-        {'path': '2', 'title': 'Main', 'start': 300, 'end': 600},
-    ]}))
-    # Legacy shape: dict-keyed sections, no 'video' block
-    legacy = {
-        'full': {'summary': 'old full', 'keywords': ['k'], 'evidence': {'text': 'q', 'at': 5}},
-        'sections': {
-            '1': {'summary': 's1', 'keywords': ['kw1'], 'evidence': {'text': 'e1', 'at': 1}},
-            '2': {'summary': 's2', 'keywords': ['kw2'], 'evidence': {'text': 'e2', 'at': 2}},
-        },
-    }
-    sum_path = v / 'summaries.json'
-    sum_path.write_text(json.dumps(legacy))
-
-    result = generate_summaries('VID4', root)
-    assert 'video' in result
-    assert result['video']['id'] == 'VID4'
-    assert result['video']['url'] == 'https://youtube.com/watch?v=VID4'
-    assert isinstance(result['sections'], list)
-    assert len(result['sections']) == 2
-    assert result['sections'][0]['title'] == 'Intro'    # from toc
-    assert result['sections'][0]['summary'] == 's1'     # from legacy LLM payload
-    # On disk has been rewritten in new shape:
-    on_disk = json.loads(sum_path.read_text())
-    assert 'video' in on_disk
-print('ok')
-```
-
-``` python
 # Test 8: _assemble_summaries raises if LLM omits any toc section (no silent corruption)
 from yttoc.core import NormalizedSection
 toc = [
@@ -476,7 +436,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L237"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L218"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_summaries
@@ -486,15 +446,15 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 def get_summaries(
     video_id:str, # Exact video_id
     root:Path=None, # Root cache directory (default: ~/.cache/yttoc)
-)->dict: # summaries.json content verbatim, or {"error": "..."}
+)->yttoc.summarize.AssembledSummaries | dict: # Parsed AssembledSummaries or {"error": "..."}
 
 ```
 
-*Return summaries.json for a cached video. No transformation — file
-content returned as-is.*
+*Return summaries.json for a cached video. Validates via
+AssembledSummaries; error branch returns {‘error’: …}.*
 
 ``` python
-# Test 9: get_summaries returns summaries.json verbatim
+# Test 9: get_summaries returns AssembledSummaries
 with TemporaryDirectory() as d:
     root = Path(d)
     v = root / 'VID_GS'; v.mkdir()
@@ -512,10 +472,15 @@ with TemporaryDirectory() as d:
     (v / 'summaries.json').write_text(json.dumps(fixture))
 
     result = get_summaries('VID_GS', root)
-    assert result == fixture, 'must return file verbatim'
-    assert 'full' in result, 'must include full field'
+    from yttoc.summarize import AssembledSummaries
+    assert isinstance(result, AssembledSummaries)
+    assert result.video.id == 'VID_GS'
+    assert result.sections[0].title == 'Intro'
+    assert result.full.summary == 'full'
 print('ok')
 ```
+
+    ok
 
 ``` python
 # Test 10: get_summaries returns error dict when missing
@@ -524,3 +489,53 @@ with TemporaryDirectory() as d:
     assert 'error' in result
 print('ok')
 ```
+
+``` python
+# Test: get_summaries rejects a corrupted summaries.json (missing evidence field)
+from tempfile import TemporaryDirectory
+
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'BAD_SUM'; v.mkdir()
+    # Bad shape: section is missing `evidence`
+    (v / 'summaries.json').write_text(json.dumps({
+        'video': {'id': 'BAD_SUM', 'title': 'T', 'channel': 'C',
+                  'url': '', 'duration': 60, 'upload_date': '20260101'},
+        'sections': [
+            {'path': '1', 'title': 'I', 'start': 0, 'end': 10,
+             'summary': 's', 'keywords': ['k']}  # no 'evidence'
+        ],
+        'full': {'summary': 'f', 'keywords': ['fk'], 'evidence': {'text': 'fe', 'at': 0}},
+    }))
+
+    result = get_summaries('BAD_SUM', root)
+    assert isinstance(result, dict)
+    assert 'error' in result
+    assert 'BAD_SUM' in result['error']
+print('ok')
+```
+
+    ok
+
+``` python
+# Test: AssembledSummaries round-trip preserves fields through model_dump_json -> model_validate_json
+from yttoc.summarize import AssembledSummaries, VideoBlock, AssembledSection
+
+original = AssembledSummaries(
+    video=VideoBlock(id='R', title='T', channel='C', url='u',
+                     duration=60, upload_date='20260101'),
+    sections=[
+        AssembledSection(path='1', title='I', start=0, end=30,
+                         summary='s', keywords=['k'],
+                         evidence={'text': 'e', 'at': 5}),
+    ],
+    full={'summary': 'f', 'keywords': ['fk'], 'evidence': {'text': 'fe', 'at': 0}},
+)
+serialized = original.model_dump_json(indent=2)
+reparsed = AssembledSummaries.model_validate_json(serialized)
+assert reparsed == original, 'round-trip mismatch'
+assert reparsed.sections[0].evidence.at == 5
+print('ok')
+```
+
+    ok

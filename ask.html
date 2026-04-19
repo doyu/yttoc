@@ -542,30 +542,34 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID_DT'</span><span class="op">;</span> v.mkdir()</span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'summaries.json'</span>).write_text(json.dumps({</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">'video'</span>: {<span class="st">'id'</span>: <span class="st">'VID_DT'</span>}, <span class="st">'sections'</span>: [], <span class="st">'full'</span>: {}}))</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(</span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:03,000</span><span class="ch">\n</span><span class="st">hello</span><span class="ch">\n</span><span class="st">'</span>)</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    registry <span class="op">=</span> build_registry(root)</span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    r1 <span class="op">=</span> json.loads(dispatch_tool(registry, <span class="st">'get_summaries'</span>, <span class="st">'{"video_id": "VID_DT"}'</span>))</span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> r1[<span class="st">'video'</span>][<span class="st">'id'</span>] <span class="op">==</span> <span class="st">'VID_DT'</span></span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    r2 <span class="op">=</span> json.loads(dispatch_tool(registry, <span class="st">'get_xscript_range'</span>,</span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">'{"video_id": "VID_DT", "start": 0, "end": 10}'</span>))</span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(r2, <span class="bu">list</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">'video'</span>: {<span class="st">'id'</span>: <span class="st">'VID_DT'</span>, <span class="st">'title'</span>: <span class="st">'T'</span>, <span class="st">'channel'</span>: <span class="st">'C'</span>,</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>                  <span class="st">'url'</span>: <span class="st">''</span>, <span class="st">'duration'</span>: <span class="dv">60</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>},</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'sections'</span>: [],</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'full'</span>: {<span class="st">'summary'</span>: <span class="st">'f'</span>, <span class="st">'keywords'</span>: [<span class="st">'fk'</span>], <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">'fe'</span>, <span class="st">'at'</span>: <span class="dv">0</span>}},</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    }))</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:03,000</span><span class="ch">\n</span><span class="st">hello</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    registry <span class="op">=</span> build_registry(root)</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>    r1 <span class="op">=</span> json.loads(dispatch_tool(registry, <span class="st">'get_summaries'</span>, <span class="st">'{"video_id": "VID_DT"}'</span>))</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> r1[<span class="st">'video'</span>][<span class="st">'id'</span>] <span class="op">==</span> <span class="st">'VID_DT'</span></span>
 <span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    r3 <span class="op">=</span> json.loads(dispatch_tool(registry, <span class="st">'get_summaries'</span>, <span class="st">'{"video_id": "NOPE"}'</span>))</span>
-<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'error'</span> <span class="kw">in</span> r3</span>
-<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    r4 <span class="op">=</span> json.loads(dispatch_tool(registry, <span class="st">'bad_tool'</span>, <span class="st">'</span><span class="sc">{}</span><span class="st">'</span>))</span>
-<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'error'</span> <span class="kw">in</span> r4</span>
-<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Pydantic validation catches bad types</span></span>
-<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    r5 <span class="op">=</span> json.loads(dispatch_tool(registry, <span class="st">'get_xscript_range'</span>,</span>
-<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">'{"video_id": 123, "start": "bad", "end": 10}'</span>))</span>
-<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'error'</span> <span class="kw">in</span> r5</span>
-<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    r2 <span class="op">=</span> json.loads(dispatch_tool(registry, <span class="st">'get_xscript_range'</span>,</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">'{"video_id": "VID_DT", "start": 0, "end": 10}'</span>))</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(r2, <span class="bu">list</span>)</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    r3 <span class="op">=</span> json.loads(dispatch_tool(registry, <span class="st">'get_summaries'</span>, <span class="st">'{"video_id": "NOPE"}'</span>))</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'error'</span> <span class="kw">in</span> r3</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    r4 <span class="op">=</span> json.loads(dispatch_tool(registry, <span class="st">'bad_tool'</span>, <span class="st">'</span><span class="sc">{}</span><span class="st">'</span>))</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'error'</span> <span class="kw">in</span> r4</span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Pydantic validation catches bad types</span></span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>    r5 <span class="op">=</span> json.loads(dispatch_tool(registry, <span class="st">'get_xscript_range'</span>,</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">'{"video_id": 123, "start": "bad", "end": 10}'</span>))</span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'error'</span> <span class="kw">in</span> r5</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ok</code></pre>
 </div>
@@ -637,7 +641,7 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 </div>
 </div>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L150" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L151" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="ask" class="level3">
 <h3 class="anchored" data-anchor-id="ask">ask</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -665,7 +669,7 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 <section id="cli" class="level2">
 <h2 class="anchored" data-anchor-id="cli">CLI</h2>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L210" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L211" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="yttoc_ask" class="level3">
 <h3 class="anchored" data-anchor-id="yttoc_ask">yttoc_ask</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a></span>

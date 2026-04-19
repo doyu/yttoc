@@ -461,7 +461,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="cli" class="level2">
 <h2 class="anchored" data-anchor-id="cli">CLI</h2>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L205" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L186" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="yttoc_sum" class="level3">
 <h3 class="anchored" data-anchor-id="yttoc_sum">yttoc_sum</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -474,7 +474,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Display summaries for a cached video.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L157" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L147" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="generate_summaries" class="level3">
 <h3 class="anchored" data-anchor-id="generate_summaries">generate_summaries</h3>
@@ -483,9 +483,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    root:Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory</span></span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    refresh:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># Delete cached summaries and regenerate</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">dict</span>: <span class="co"># Self-contained summaries dict</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>AssembledSummaries: <span class="co"># Parsed AssembledSummaries instance</span></span>
 <span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><em>Generate summaries.json for a cached video. Returns summaries dict (auto-migrating old shape).</em></p>
+<p><em>Generate summaries.json for a cached video. Returns parsed AssembledSummaries.</em></p>
 <div id="aa6db3d2" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 4: generate_summaries returns cached summaries.json without LLM call</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
@@ -523,11 +523,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'summaries.json'</span>).write_text(json.dumps(_make_test_summaries(<span class="st">'VID1'</span>)))</span>
 <span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> generate_summaries(<span class="st">'VID1'</span>, root)</span>
-<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result[<span class="st">'full'</span>][<span class="st">'summary'</span>] <span class="op">==</span> <span class="st">'Full video about testing.'</span></span>
-<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result[<span class="st">'video'</span>][<span class="st">'id'</span>] <span class="op">==</span> <span class="st">'VID1'</span></span>
-<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(result[<span class="st">'sections'</span>]) <span class="op">==</span> <span class="dv">2</span></span>
-<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> {s[<span class="st">'path'</span>] <span class="cf">for</span> s <span class="kw">in</span> result[<span class="st">'sections'</span>]} <span class="op">==</span> {<span class="st">'1'</span>, <span class="st">'2'</span>}</span>
-<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result.full.summary <span class="op">==</span> <span class="st">'Full video about testing.'</span></span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result.video.<span class="bu">id</span> <span class="op">==</span> <span class="st">'VID1'</span></span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(result.sections, <span class="bu">list</span>)</span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(result.sections) <span class="op">==</span> <span class="dv">2</span></span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> {s.path <span class="cf">for</span> s <span class="kw">in</span> result.sections} <span class="op">==</span> {<span class="st">'1'</span>, <span class="st">'2'</span>}</span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ok</code></pre>
 </div>
@@ -591,66 +592,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'## Full Summary'</span> <span class="kw">not</span> <span class="kw">in</span> out</span>
 <span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="11e566da" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 7: legacy summaries.json (no 'video' key) is auto-migrated in place — no LLM call</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID4'</span><span class="op">;</span> v.mkdir()</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(<span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:01,000</span><span class="ch">\n</span><span class="st">hi</span><span class="ch">\n</span><span class="st">'</span>)</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'VID4'</span>, <span class="st">'title'</span>: <span class="st">'Old'</span>, <span class="st">'channel'</span>: <span class="st">'Ch'</span>, <span class="st">'duration'</span>: <span class="dv">600</span>,</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'https://youtube.com/watch?v=VID4'</span>,</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">'description'</span>: <span class="st">''</span>, <span class="st">'captions'</span>: {<span class="st">'en'</span>: <span class="st">'auto'</span>},</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>,</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    }))</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'toc.json'</span>).write_text(json.dumps({<span class="st">'sections'</span>: [</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'path'</span>: <span class="st">'1'</span>, <span class="st">'title'</span>: <span class="st">'Intro'</span>, <span class="st">'start'</span>: <span class="dv">0</span>, <span class="st">'end'</span>: <span class="dv">300</span>},</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'path'</span>: <span class="st">'2'</span>, <span class="st">'title'</span>: <span class="st">'Main'</span>, <span class="st">'start'</span>: <span class="dv">300</span>, <span class="st">'end'</span>: <span class="dv">600</span>},</span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    ]}))</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Legacy shape: dict-keyed sections, no 'video' block</span></span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    legacy <span class="op">=</span> {</span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">'full'</span>: {<span class="st">'summary'</span>: <span class="st">'old full'</span>, <span class="st">'keywords'</span>: [<span class="st">'k'</span>], <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">'q'</span>, <span class="st">'at'</span>: <span class="dv">5</span>}},</span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">'sections'</span>: {</span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>            <span class="st">'1'</span>: {<span class="st">'summary'</span>: <span class="st">'s1'</span>, <span class="st">'keywords'</span>: [<span class="st">'kw1'</span>], <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">'e1'</span>, <span class="st">'at'</span>: <span class="dv">1</span>}},</span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>            <span class="st">'2'</span>: {<span class="st">'summary'</span>: <span class="st">'s2'</span>, <span class="st">'keywords'</span>: [<span class="st">'kw2'</span>], <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">'e2'</span>, <span class="st">'at'</span>: <span class="dv">2</span>}},</span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>        },</span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    sum_path <span class="op">=</span> v <span class="op">/</span> <span class="st">'summaries.json'</span></span>
-<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    sum_path.write_text(json.dumps(legacy))</span>
-<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> generate_summaries(<span class="st">'VID4'</span>, root)</span>
-<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'video'</span> <span class="kw">in</span> result</span>
-<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result[<span class="st">'video'</span>][<span class="st">'id'</span>] <span class="op">==</span> <span class="st">'VID4'</span></span>
-<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result[<span class="st">'video'</span>][<span class="st">'url'</span>] <span class="op">==</span> <span class="st">'https://youtube.com/watch?v=VID4'</span></span>
-<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(result[<span class="st">'sections'</span>], <span class="bu">list</span>)</span>
-<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(result[<span class="st">'sections'</span>]) <span class="op">==</span> <span class="dv">2</span></span>
-<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result[<span class="st">'sections'</span>][<span class="dv">0</span>][<span class="st">'title'</span>] <span class="op">==</span> <span class="st">'Intro'</span>    <span class="co"># from toc</span></span>
-<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result[<span class="st">'sections'</span>][<span class="dv">0</span>][<span class="st">'summary'</span>] <span class="op">==</span> <span class="st">'s1'</span>     <span class="co"># from legacy LLM payload</span></span>
-<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># On disk has been rewritten in new shape:</span></span>
-<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>    on_disk <span class="op">=</span> json.loads(sum_path.read_text())</span>
-<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'video'</span> <span class="kw">in</span> on_disk</span>
-<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 <div id="0d91d92b" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 8: _assemble_summaries raises if LLM omits any toc section (no silent corruption)</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.core <span class="im">import</span> NormalizedSection</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>toc <span class="op">=</span> [</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    NormalizedSection(path<span class="op">=</span><span class="st">'1'</span>, title<span class="op">=</span><span class="st">'A'</span>, start<span class="op">=</span><span class="dv">0</span>, end<span class="op">=</span><span class="dv">100</span>),</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    NormalizedSection(path<span class="op">=</span><span class="st">'2'</span>, title<span class="op">=</span><span class="st">'B'</span>, start<span class="op">=</span><span class="dv">100</span>, end<span class="op">=</span><span class="dv">200</span>),</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>llm_partial <span class="op">=</span> {</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'full'</span>: {<span class="st">'summary'</span>: <span class="st">'f'</span>, <span class="st">'keywords'</span>: [], <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">''</span>, <span class="st">'at'</span>: <span class="dv">0</span>}},</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'sections'</span>: {</span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1'</span>: {<span class="st">'summary'</span>: <span class="st">'s1'</span>, <span class="st">'keywords'</span>: [], <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">''</span>, <span class="st">'at'</span>: <span class="dv">0</span>}},</span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># '2' is missing</span></span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    },</span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    _assemble_summaries({<span class="st">'id'</span>: <span class="st">'X'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>}, toc, llm_partial)</span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="va">False</span>, <span class="st">'should have raised'</span></span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ValueError</span> <span class="im">as</span> e:</span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">"'2'"</span> <span class="kw">in</span> <span class="bu">str</span>(e)</span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 8: _assemble_summaries raises if LLM omits any toc section (no silent corruption)</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.core <span class="im">import</span> NormalizedSection</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>toc <span class="op">=</span> [</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    NormalizedSection(path<span class="op">=</span><span class="st">'1'</span>, title<span class="op">=</span><span class="st">'A'</span>, start<span class="op">=</span><span class="dv">0</span>, end<span class="op">=</span><span class="dv">100</span>),</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    NormalizedSection(path<span class="op">=</span><span class="st">'2'</span>, title<span class="op">=</span><span class="st">'B'</span>, start<span class="op">=</span><span class="dv">100</span>, end<span class="op">=</span><span class="dv">200</span>),</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>llm_partial <span class="op">=</span> {</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'full'</span>: {<span class="st">'summary'</span>: <span class="st">'f'</span>, <span class="st">'keywords'</span>: [], <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">''</span>, <span class="st">'at'</span>: <span class="dv">0</span>}},</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'sections'</span>: {</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'1'</span>: {<span class="st">'summary'</span>: <span class="st">'s1'</span>, <span class="st">'keywords'</span>: [], <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">''</span>, <span class="st">'at'</span>: <span class="dv">0</span>}},</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># '2' is missing</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    _assemble_summaries({<span class="st">'id'</span>: <span class="st">'X'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>}, toc, llm_partial)</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="va">False</span>, <span class="st">'should have raised'</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ValueError</span> <span class="im">as</span> e:</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">"'2'"</span> <span class="kw">in</span> <span class="bu">str</span>(e)</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ok</code></pre>
 </div>
@@ -660,38 +621,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="get_summaries" class="level2">
 <h2 class="anchored" data-anchor-id="get_summaries">get_summaries</h2>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L237" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L218" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="get_summaries-1" class="level3">
 <h3 class="anchored" data-anchor-id="get_summaries-1">get_summaries</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_summaries(</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    root:Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory (default: ~/.cache/yttoc)</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">dict</span>: <span class="co"># summaries.json content verbatim, or {"error": "..."}</span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><em>Return summaries.json for a cached video. No transformation — file content returned as-is.</em></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_summaries(</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    root:Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory (default: ~/.cache/yttoc)</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>yttoc.summarize.AssembledSummaries <span class="op">|</span> <span class="bu">dict</span>: <span class="co"># Parsed AssembledSummaries or {"error": "..."}</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Return summaries.json for a cached video. Validates via AssembledSummaries; error branch returns {‘error’: …}.</em></p>
 <div id="a37b70d6" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 9: get_summaries returns summaries.json verbatim</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID_GS'</span><span class="op">;</span> v.mkdir()</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    fixture <span class="op">=</span> {</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'video'</span>: {<span class="st">'id'</span>: <span class="st">'VID_GS'</span>, <span class="st">'title'</span>: <span class="st">'T'</span>, <span class="st">'channel'</span>: <span class="st">'C'</span>,</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>                  <span class="st">'url'</span>: <span class="st">''</span>, <span class="st">'duration'</span>: <span class="dv">600</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>},</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">'sections'</span>: [</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>            {<span class="st">'path'</span>: <span class="st">'1'</span>, <span class="st">'title'</span>: <span class="st">'Intro'</span>, <span class="st">'start'</span>: <span class="dv">0</span>, <span class="st">'end'</span>: <span class="dv">300</span>,</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>             <span class="st">'summary'</span>: <span class="st">'s'</span>, <span class="st">'keywords'</span>: [<span class="st">'k'</span>],</span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>             <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">'e'</span>, <span class="st">'at'</span>: <span class="dv">10</span>}}</span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>        ],</span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">'full'</span>: {<span class="st">'summary'</span>: <span class="st">'full'</span>, <span class="st">'keywords'</span>: [<span class="st">'fk'</span>],</span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">'fe'</span>, <span class="st">'at'</span>: <span class="dv">0</span>}},</span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'summaries.json'</span>).write_text(json.dumps(fixture))</span>
-<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> get_summaries(<span class="st">'VID_GS'</span>, root)</span>
-<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result <span class="op">==</span> fixture, <span class="st">'must return file verbatim'</span></span>
-<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'full'</span> <span class="kw">in</span> result, <span class="st">'must include full field'</span></span>
-<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 9: get_summaries returns AssembledSummaries</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID_GS'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    fixture <span class="op">=</span> {</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'video'</span>: {<span class="st">'id'</span>: <span class="st">'VID_GS'</span>, <span class="st">'title'</span>: <span class="st">'T'</span>, <span class="st">'channel'</span>: <span class="st">'C'</span>,</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>                  <span class="st">'url'</span>: <span class="st">''</span>, <span class="st">'duration'</span>: <span class="dv">600</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>},</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">'sections'</span>: [</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>            {<span class="st">'path'</span>: <span class="st">'1'</span>, <span class="st">'title'</span>: <span class="st">'Intro'</span>, <span class="st">'start'</span>: <span class="dv">0</span>, <span class="st">'end'</span>: <span class="dv">300</span>,</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>             <span class="st">'summary'</span>: <span class="st">'s'</span>, <span class="st">'keywords'</span>: [<span class="st">'k'</span>],</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>             <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">'e'</span>, <span class="st">'at'</span>: <span class="dv">10</span>}}</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>        ],</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">'full'</span>: {<span class="st">'summary'</span>: <span class="st">'full'</span>, <span class="st">'keywords'</span>: [<span class="st">'fk'</span>],</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">'fe'</span>, <span class="st">'at'</span>: <span class="dv">0</span>}},</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'summaries.json'</span>).write_text(json.dumps(fixture))</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> get_summaries(<span class="st">'VID_GS'</span>, root)</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>    <span class="im">from</span> yttoc.summarize <span class="im">import</span> AssembledSummaries</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(result, AssembledSummaries)</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result.video.<span class="bu">id</span> <span class="op">==</span> <span class="st">'VID_GS'</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result.sections[<span class="dv">0</span>].title <span class="op">==</span> <span class="st">'Intro'</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result.full.summary <span class="op">==</span> <span class="st">'full'</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ok</code></pre>
+</div>
 </div>
 <div id="766973e1" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 10: get_summaries returns error dict when missing</span></span>
@@ -699,6 +666,56 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> get_summaries(<span class="st">'NONEXIST'</span>, Path(d))</span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'error'</span> <span class="kw">in</span> result</span>
 <span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="4197e7b5" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: get_summaries rejects a corrupted summaries.json (missing evidence field)</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'BAD_SUM'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Bad shape: section is missing `evidence`</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'summaries.json'</span>).write_text(json.dumps({</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">'video'</span>: {<span class="st">'id'</span>: <span class="st">'BAD_SUM'</span>, <span class="st">'title'</span>: <span class="st">'T'</span>, <span class="st">'channel'</span>: <span class="st">'C'</span>,</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>                  <span class="st">'url'</span>: <span class="st">''</span>, <span class="st">'duration'</span>: <span class="dv">60</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>},</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'sections'</span>: [</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>            {<span class="st">'path'</span>: <span class="st">'1'</span>, <span class="st">'title'</span>: <span class="st">'I'</span>, <span class="st">'start'</span>: <span class="dv">0</span>, <span class="st">'end'</span>: <span class="dv">10</span>,</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>             <span class="st">'summary'</span>: <span class="st">'s'</span>, <span class="st">'keywords'</span>: [<span class="st">'k'</span>]}  <span class="co"># no 'evidence'</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>        ],</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">'full'</span>: {<span class="st">'summary'</span>: <span class="st">'f'</span>, <span class="st">'keywords'</span>: [<span class="st">'fk'</span>], <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">'fe'</span>, <span class="st">'at'</span>: <span class="dv">0</span>}},</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>    }))</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> get_summaries(<span class="st">'BAD_SUM'</span>, root)</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">isinstance</span>(result, <span class="bu">dict</span>)</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'error'</span> <span class="kw">in</span> result</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'BAD_SUM'</span> <span class="kw">in</span> result[<span class="st">'error'</span>]</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ok</code></pre>
+</div>
+</div>
+<div id="07074025" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: AssembledSummaries round-trip preserves fields through model_dump_json -&gt; model_validate_json</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.summarize <span class="im">import</span> AssembledSummaries, VideoBlock, AssembledSection</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>original <span class="op">=</span> AssembledSummaries(</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    video<span class="op">=</span>VideoBlock(<span class="bu">id</span><span class="op">=</span><span class="st">'R'</span>, title<span class="op">=</span><span class="st">'T'</span>, channel<span class="op">=</span><span class="st">'C'</span>, url<span class="op">=</span><span class="st">'u'</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>                     duration<span class="op">=</span><span class="dv">60</span>, upload_date<span class="op">=</span><span class="st">'20260101'</span>),</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    sections<span class="op">=</span>[</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>        AssembledSection(path<span class="op">=</span><span class="st">'1'</span>, title<span class="op">=</span><span class="st">'I'</span>, start<span class="op">=</span><span class="dv">0</span>, end<span class="op">=</span><span class="dv">30</span>,</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>                         summary<span class="op">=</span><span class="st">'s'</span>, keywords<span class="op">=</span>[<span class="st">'k'</span>],</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>                         evidence<span class="op">=</span>{<span class="st">'text'</span>: <span class="st">'e'</span>, <span class="st">'at'</span>: <span class="dv">5</span>}),</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    full<span class="op">=</span>{<span class="st">'summary'</span>: <span class="st">'f'</span>, <span class="st">'keywords'</span>: [<span class="st">'fk'</span>], <span class="st">'evidence'</span>: {<span class="st">'text'</span>: <span class="st">'fe'</span>, <span class="st">'at'</span>: <span class="dv">0</span>}},</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>serialized <span class="op">=</span> original.model_dump_json(indent<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>reparsed <span class="op">=</span> AssembledSummaries.model_validate_json(serialized)</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> reparsed <span class="op">==</span> original, <span class="st">'round-trip mismatch'</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> reparsed.sections[<span class="dv">0</span>].evidence.at <span class="op">==</span> <span class="dv">5</span></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ok</code></pre>
+</div>
 </div>
 
 

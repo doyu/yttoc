@@ -372,7 +372,11 @@ with TemporaryDirectory() as d:
     root = Path(d)
     v = root / 'VID_DT'; v.mkdir()
     (v / 'summaries.json').write_text(json.dumps({
-        'video': {'id': 'VID_DT'}, 'sections': [], 'full': {}}))
+        'video': {'id': 'VID_DT', 'title': 'T', 'channel': 'C',
+                  'url': '', 'duration': 60, 'upload_date': '20260101'},
+        'sections': [],
+        'full': {'summary': 'f', 'keywords': ['fk'], 'evidence': {'text': 'fe', 'at': 0}},
+    }))
     (v / 'captions.en.srt').write_text(
         '1\n00:00:00,000 --> 00:00:03,000\nhello\n')
 
@@ -468,7 +472,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L150"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L151"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### ask
@@ -502,7 +506,7 @@ print(f"Citations: {result.citations}")
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L210"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L211"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_ask
