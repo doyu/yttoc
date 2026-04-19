@@ -41,7 +41,58 @@ merges it with `meta` and `toc_sections` into the canonical shape above.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L69"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L92"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### AssembledSummaries
+
+``` python
+
+def AssembledSummaries(
+    data:Any
+)->None:
+
+```
+
+*On-disk shape of summaries.json.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L86"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### AssembledSection
+
+``` python
+
+def AssembledSection(
+    data:Any
+)->None:
+
+```
+
+*TOC section with LLM-generated summary payload.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L77"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### VideoBlock
+
+``` python
+
+def VideoBlock(
+    data:Any
+)->None:
+
+```
+
+*Video header subset persisted inside summaries.json.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L71"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### SummaryLLMResult
@@ -58,7 +109,7 @@ def SummaryLLMResult(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L63"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L65"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### SectionSummaryPayload
@@ -75,7 +126,7 @@ def SectionSummaryPayload(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L58"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L60"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### Evidence
@@ -147,12 +198,69 @@ print('ok')
 
     ok
 
+``` python
+# Test: VideoBlock, AssembledSection, AssembledSummaries validate required fields and inheritance
+from yttoc.summarize import VideoBlock, AssembledSection, AssembledSummaries
+from yttoc.core import NormalizedSection
+from pydantic import ValidationError
+
+# VideoBlock valid
+vb = VideoBlock(id='x', title='t', channel='c', url='u', duration=60, upload_date='20260101')
+assert vb.id == 'x' and vb.duration == 60
+
+# VideoBlock rejects missing required field
+try:
+    VideoBlock(id='x', title='t', channel='c', url='u', duration=60)
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for missing upload_date'
+
+# AssembledSection inherits NormalizedSection
+assert issubclass(AssembledSection, NormalizedSection)
+as_ = AssembledSection(path='1', title='Intro', start=0, end=300,
+                       summary='s', keywords=['k'],
+                       evidence={'text': 'e', 'at': 0})
+assert isinstance(as_, NormalizedSection)
+assert as_.path == '1' and as_.summary == 's' and as_.evidence.at == 0
+
+# AssembledSection rejects missing summary
+try:
+    AssembledSection(path='1', title='t', start=0, end=10,
+                     keywords=[], evidence={'text': '', 'at': 0})
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for missing summary'
+
+# AssembledSummaries envelope validates via model_validate_json
+doc = '{"video": {"id": "X", "title": "T", "channel": "C", "url": "u", "duration": 60, "upload_date": "20260101"},'
+doc += '"sections": [{"path": "1", "title": "I", "start": 0, "end": 30, "summary": "s", "keywords": ["k"], "evidence": {"text": "e", "at": 0}}],'
+doc += '"full": {"summary": "f", "keywords": ["fk"], "evidence": {"text": "fe", "at": 0}}}'
+doc_model = AssembledSummaries.model_validate_json(doc)
+assert doc_model.video.id == 'X'
+assert len(doc_model.sections) == 1
+assert doc_model.sections[0].title == 'I'
+
+# AssembledSummaries rejects missing top-level envelope key
+try:
+    AssembledSummaries.model_validate_json('{"sections": [], "full": {"summary": "s", "keywords": [], "evidence": {"text": "", "at": 0}}}')
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for missing video key'
+
+print('ok')
+```
+
+    ok
+
 ## CLI
 
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L181"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L205"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_sum
@@ -173,7 +281,7 @@ def yttoc_sum(
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L133"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L157"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_summaries
@@ -368,7 +476,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L213"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L237"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_summaries
