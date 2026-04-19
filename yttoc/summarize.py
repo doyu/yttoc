@@ -176,8 +176,7 @@ def generate_summaries(video_id: str, # Exact video_id
 
 def _print_section_summary(s: AssembledSection, url: str):
     "Render one section as a TOC-style header followed by summary/keywords/evidence."
-    # format_toc_line still dict-typed until Phase 2d PR-C; adapt here
-    print(f"## {format_toc_line(s.model_dump(), url)}")
+    print(f"## {format_toc_line(s, url)}")
     print(s.summary)
     print(f"**Keywords:** {', '.join(s.keywords)}")
     print(f"**Evidence:** \"{s.evidence.text}\" [{fmt_duration(s.evidence.at)}]")
@@ -193,8 +192,7 @@ def yttoc_sum(video_id: str, # Exact video_id
     sums = generate_summaries(video_id, root, refresh=refresh)
     url = sums.video.url or ''
 
-    # format_header accepts Meta | dict until Phase 2d PR-C; adapt VideoBlock here
-    print(format_header(sums.video.model_dump()))
+    print(format_header(sums.video))
     print()
 
     if section:
