@@ -11,11 +11,11 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 # %% ../nbs/04_summarize.ipynb #c1000005
-from .core import slice_segments, Segment, NormalizedSection
+from .core import slice_segments, Segment, NormalizedSection, Meta
 
 def _build_summary_prompt(segments: list[Segment], # Full xscript segments
                           sections: list[NormalizedSection], # List of NormalizedSection from toc.json
-                          meta: dict # meta.json content
+                          meta: Meta # Parsed Meta instance
                          ) -> str: # Prompt for LLM
     "Build prompt asking LLM to summarize each section and the full video."
     parts = []
@@ -29,9 +29,9 @@ def _build_summary_prompt(segments: list[Segment], # Full xscript segments
         parts.append(f"### Section {sec.path}: {sec.title}\n" + '\n'.join(lines))
 
     transcript = '\n\n'.join(parts)
-    title = meta.get('title', '')
-    channel = meta.get('channel', '')
-    desc = meta.get('description', '')
+    title = meta.title
+    channel = meta.channel
+    desc = meta.description
 
     return f"""You are a structural editor for YouTube video transcripts.
 
@@ -92,12 +92,12 @@ def _call_summary_llm(prompt: str) -> dict:
 
 # %% ../nbs/04_summarize.ipynb #d286018a
 from fastcore.script import call_parse
-from .core import fmt_duration, format_header, format_toc_line, NormalizedSection
+from .core import fmt_duration, format_header, format_toc_line, NormalizedSection, Meta
 from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
 from .xscript import parse_xscript
 from .toc import generate_toc
 
-def _assemble_summaries(meta: dict, # meta.json content
+def _assemble_summaries(meta: Meta, # Parsed Meta instance
                         toc_sections: list[NormalizedSection], # List of NormalizedSection from toc.json
                         llm_result: dict # {full, sections: {path: {...}}}
                        ) -> dict: # Self-contained summaries.json payload
@@ -107,12 +107,12 @@ def _assemble_summaries(meta: dict, # meta.json content
         raise ValueError(f"LLM omitted summaries for sections: {missing}")
     return {
         'video': {
-            'id': meta.get('id'),
-            'title': meta.get('title'),
-            'channel': meta.get('channel'),
-            'url': meta.get('webpage_url'),
-            'duration': meta.get('duration'),
-            'upload_date': meta.get('upload_date'),
+            'id': meta.id,
+            'title': meta.title,
+            'channel': meta.channel,
+            'url': meta.webpage_url,
+            'duration': meta.duration,
+            'upload_date': meta.upload_date,
         },
         'sections': [
             {**sec.model_dump(), **llm_result['sections'][sec.path]}
@@ -126,7 +126,7 @@ def _migrate_old_summaries(cached: dict, # Old-format summaries dict {full, sect
                           ) -> dict: # New-format summaries dict
     "Rebuild a self-contained summaries.json from the legacy {full, sections: {...}} shape."
     meta_path = root / video_id / 'meta.json'
-    meta = json.loads(meta_path.read_text(encoding='utf-8'))
+    meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
     toc_sections = generate_toc(video_id, root)  # cached toc.json hit; no LLM call
     return _assemble_summaries(meta, toc_sections, cached)
 
@@ -158,7 +158,7 @@ def generate_summaries(video_id: str, # Exact video_id
         return result
 
     toc_sections = generate_toc(video_id, root)
-    meta = json.loads(meta_path.read_text(encoding='utf-8'))
+    meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
     segments = parse_xscript(srt_files[0])
     prompt = _build_summary_prompt(segments, toc_sections, meta)
     llm_result = _call_summary_llm(prompt)

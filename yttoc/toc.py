@@ -9,7 +9,7 @@ __all__ = ['RawTocSection', 'TocLLMResult', 'TocFile', 'generate_toc', 'yttoc_to
 import json
 from pathlib import Path
 from pydantic import BaseModel, Field
-from .core import Segment, NormalizedSection
+from .core import Segment, NormalizedSection, Meta
 
 # %% ../nbs/03_toc.ipynb #b1000005
 def _normalize_sections(raw: 'list[RawTocSection]', # [RawTocSection, ...] from LLM
@@ -40,7 +40,7 @@ def _normalize_sections(raw: 'list[RawTocSection]', # [RawTocSection, ...] from 
 
 # %% ../nbs/03_toc.ipynb #d95b70ae
 def _build_toc_prompt(segments: list[Segment], # List of Segment from parse_xscript
-                      meta: dict # meta.json content
+                      meta: Meta # Parsed Meta instance
                      ) -> str: # Prompt for LLM
     "Build a prompt that asks the LLM to identify topic transitions and return section titles with start times."
     lines = []
@@ -50,9 +50,9 @@ def _build_toc_prompt(segments: list[Segment], # List of Segment from parse_xscr
         lines.append(f"[{mm:02d}:{ss:02d}] {s.text}")
     transcript = '\n'.join(lines)
 
-    title = meta.get('title', '')
-    channel = meta.get('channel', '')
-    desc = meta.get('description', '')
+    title = meta.title
+    channel = meta.channel
+    desc = meta.description
 
     return f"""You are a structural editor for YouTube video transcripts.
 
@@ -108,7 +108,7 @@ def _call_llm(prompt: str # Full prompt
 # %% ../nbs/03_toc.ipynb #795bea0d
 import sys
 from fastcore.script import call_parse
-from .core import format_header, format_toc_line
+from .core import format_header, format_toc_line, Meta
 from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
 from .xscript import parse_xscript
 
@@ -136,11 +136,11 @@ def generate_toc(video_id: str, # Exact video_id
     if toc_path.exists():
         return TocFile.model_validate_json(toc_path.read_text(encoding='utf-8')).sections
 
-    meta = json.loads(meta_path.read_text(encoding='utf-8'))
+    meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
     segments = parse_xscript(srt_files[0])
     prompt = _build_toc_prompt(segments, meta)
     raw = _call_llm(prompt)
-    sections = _normalize_sections(raw, meta.get('duration', 0))
+    sections = _normalize_sections(raw, meta.duration)
 
     toc_path.write_text(
         TocFile(sections=sections).model_dump_json(indent=2),
@@ -160,12 +160,12 @@ def yttoc_toc(video_id: str, # Exact video_id
     if not meta_path.exists():
         raise SystemExit(f"Not cached: {video_id}")
 
-    meta = json.loads(meta_path.read_text(encoding='utf-8'))
+    meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
     sections = generate_toc(video_id, root, refresh=refresh)
 
     print(format_header(meta))
     print()
-    url = meta.get('webpage_url', '')
+    url = meta.webpage_url
     for s in sections:
         print(format_toc_line(s.model_dump(), url))
 

@@ -104,12 +104,12 @@ def parse_xscript(path: str | Path # Path to SRT file
 # %% ../nbs/02_xscript.ipynb #bcd5731c
 import json
 from fastcore.script import call_parse
-from .core import fmt_duration, format_header, slice_segments, NormalizedSection
+from .core import fmt_duration, format_header, slice_segments, NormalizedSection, Meta
 from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
 from .toc import TocFile
 
 def _load_segments(video_id: str, section: str, root: str | None
-                  ) -> tuple[dict, list[Segment], NormalizedSection | None, Path]:
+                  ) -> tuple[Meta, list[Segment], NormalizedSection | None, Path]:
     "Load meta, parse xscript, optionally slice to section. Return (meta, segments, sec_info, meta_path)."
     root = Path(root) if root else _DEFAULT_ROOT
     d = root / video_id
@@ -118,7 +118,7 @@ def _load_segments(video_id: str, section: str, root: str | None
     if not (meta_path.exists() and srt_files):
         raise SystemExit(f"Not cached: {video_id}")
 
-    meta = json.loads(meta_path.read_text(encoding='utf-8'))
+    meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
     segments = parse_xscript(srt_files[0])
     sec_info = None
 
