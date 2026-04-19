@@ -11,22 +11,22 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 # %% ../nbs/04_summarize.ipynb #c1000005
-from .core import slice_segments, Segment
+from .core import slice_segments, Segment, NormalizedSection
 
 def _build_summary_prompt(segments: list[Segment], # Full xscript segments
-                          sections: list[dict], # [{path, title, start, end}, ...] from toc.json
+                          sections: list[NormalizedSection], # List of NormalizedSection from toc.json
                           meta: dict # meta.json content
                          ) -> str: # Prompt for LLM
     "Build prompt asking LLM to summarize each section and the full video."
     parts = []
     for sec in sections:
-        sliced = slice_segments(segments, sec['start'], sec['end'])
+        sliced = slice_segments(segments, sec.start, sec.end)
         lines = []
         for s in sliced:
             mm = int(s.start // 60)
             ss = int(s.start % 60)
             lines.append(f"[{mm:02d}:{ss:02d}] {s.text}")
-        parts.append(f"### Section {sec['path']}: {sec['title']}\n" + '\n'.join(lines))
+        parts.append(f"### Section {sec.path}: {sec.title}\n" + '\n'.join(lines))
 
     transcript = '\n\n'.join(parts)
     title = meta.get('title', '')
@@ -52,6 +52,7 @@ For each section AND for the full video, provide:
 Return a JSON object with:
 - "full": {{summary, keywords, evidence: {{text, at}}}}
 - "sections": {{"1": {{summary, keywords, evidence: {{text, at}}}}, "2": ...}}"""
+
 
 # %% ../nbs/04_summarize.ipynb #404ff620
 class Evidence(BaseModel):
@@ -91,17 +92,17 @@ def _call_summary_llm(prompt: str) -> dict:
 
 # %% ../nbs/04_summarize.ipynb #d286018a
 from fastcore.script import call_parse
-from .core import fmt_duration, format_header, format_toc_line
+from .core import fmt_duration, format_header, format_toc_line, NormalizedSection
 from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
 from .xscript import parse_xscript
 from .toc import generate_toc
 
 def _assemble_summaries(meta: dict, # meta.json content
-                        toc_sections: list[dict], # [{path, title, start, end}, ...] from toc.json
+                        toc_sections: list[NormalizedSection], # List of NormalizedSection from toc.json
                         llm_result: dict # {full, sections: {path: {...}}}
                        ) -> dict: # Self-contained summaries.json payload
     "Merge meta + toc + LLM output into the canonical summaries.json shape. Raise if LLM omitted any section."
-    missing = [sec['path'] for sec in toc_sections if sec['path'] not in llm_result['sections']]
+    missing = [sec.path for sec in toc_sections if sec.path not in llm_result['sections']]
     if missing:
         raise ValueError(f"LLM omitted summaries for sections: {missing}")
     return {
@@ -114,9 +115,7 @@ def _assemble_summaries(meta: dict, # meta.json content
             'upload_date': meta.get('upload_date'),
         },
         'sections': [
-            {'path': sec['path'], 'title': sec['title'],
-             'start': sec['start'], 'end': sec['end'],
-             **llm_result['sections'][sec['path']]}
+            {**sec.model_dump(), **llm_result['sections'][sec.path]}
             for sec in toc_sections
         ],
         'full': llm_result['full'],
@@ -208,6 +207,7 @@ def yttoc_sum(video_id: str, # Exact video_id
         print(f"**Keywords:** {', '.join(sums['full']['keywords'])}")
         print(f"**Evidence:** \"{sums['full']['evidence']['text']}\" [{fmt_duration(sums['full']['evidence']['at'])}]")
         if url: print(url)
+
 
 # %% ../nbs/04_summarize.ipynb #73e522f6
 def get_summaries(video_id: str, # Exact video_id

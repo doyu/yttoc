@@ -14,7 +14,7 @@ from .core import Segment, NormalizedSection
 # %% ../nbs/03_toc.ipynb #b1000005
 def _normalize_sections(raw: 'list[RawTocSection]', # [RawTocSection, ...] from LLM
                         duration: int # Video duration in seconds
-                       ) -> list[dict]: # [{path, title, start, end}, ...]
+                       ) -> list[NormalizedSection]: # List of NormalizedSection
     "Add path/end, sort by start, dedup, validate. Raise on broken coverage."
     if not raw:
         raise ValueError("No sections returned from LLM")
@@ -35,7 +35,7 @@ def _normalize_sections(raw: 'list[RawTocSection]', # [RawTocSection, ...] from 
     for i, s in enumerate(sections):
         end = sections[i+1].start if i+1 < len(sections) else duration
         result.append(NormalizedSection(path=str(i+1), title=s.title, start=s.start, end=end))
-    return [ns.model_dump() for ns in result]
+    return result
 
 
 # %% ../nbs/03_toc.ipynb #d95b70ae
@@ -115,7 +115,7 @@ from .xscript import parse_xscript
 def generate_toc(video_id: str, # Exact video_id
                  root: Path = None, # Root cache directory
                  refresh: bool = False, # Delete cached toc/summaries and regenerate
-                ) -> list[dict]: # Normalized sections
+                ) -> list[NormalizedSection]: # List of NormalizedSection
     "Generate toc.json for a cached video. Returns sections list."
     root = root or _DEFAULT_ROOT
     d = root / video_id
@@ -134,7 +134,7 @@ def generate_toc(video_id: str, # Exact video_id
 
     # Return cached toc if exists
     if toc_path.exists():
-        return json.loads(toc_path.read_text(encoding='utf-8'))['sections']
+        return TocFile.model_validate_json(toc_path.read_text(encoding='utf-8')).sections
 
     meta = json.loads(meta_path.read_text(encoding='utf-8'))
     segments = parse_xscript(srt_files[0])
@@ -143,7 +143,7 @@ def generate_toc(video_id: str, # Exact video_id
     sections = _normalize_sections(raw, meta.get('duration', 0))
 
     toc_path.write_text(
-        json.dumps({'sections': sections}, indent=2, ensure_ascii=False),
+        TocFile(sections=sections).model_dump_json(indent=2),
         encoding='utf-8')
     _update_last_used(meta_path)
     return sections
@@ -167,4 +167,5 @@ def yttoc_toc(video_id: str, # Exact video_id
     print()
     url = meta.get('webpage_url', '')
     for s in sections:
-        print(format_toc_line(s, url))
+        print(format_toc_line(s.model_dump(), url))
+
