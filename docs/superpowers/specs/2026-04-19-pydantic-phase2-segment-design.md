@@ -74,11 +74,11 @@ Flip the public API to `list[Segment]` and update all consumers.
 **Files**
 | File | Change |
 |------|--------|
-| `nbs/02_xscript.ipynb` | `parse_xscript` returns `list[Segment]` (drop `.model_dump()`). Migrate 16 inline dict fixtures to `Segment(...)`. Update `yttoc_raw` / `yttoc_txt` CLI display to attribute access. |
+| `nbs/02_xscript.ipynb` | `parse_xscript` returns `list[Segment]` (drop `.model_dump()`). Migrate `segs[i]['k']` / `result[i]['k']` assertions in Tests 1-7 and Test 14 to attribute access. Update `yttoc_raw` / `yttoc_txt` / `get_xscript_range` display and body to attribute access. |
 | `nbs/00_core.ipynb` | `slice_segments(segments: list[Segment], start, end) -> list[Segment]`. Switch `s['start']` to `s.start`. |
-| `nbs/03_toc.ipynb` | `_build_toc_prompt(segments: list[Segment], meta)`: attribute access in loop. Migrate Test 6 fixture (cell `2b1e3214`, 2 segments) to `Segment(...)`. |
-| `nbs/04_summarize.ipynb` | `_build_summary_prompt`: attribute access. `slice_segments` call sites updated. Migrate Test 3 fixture (cell `c1000009`, 2 segments) to `Segment(...)`. |
-| `nbs/06_ask.ipynb` | `dispatch_tool`: add `_to_jsonable` helper; apply to `result` before `json.dumps`. `get_xscript_range` returns `list[Segment]` (via `parse_xscript`). |
+| `nbs/03_toc.ipynb` | `_build_toc_prompt(segments: list[Segment], meta)`: attribute access in loop. Migrate Test 6 fixture (cell `2b1e3214`, 2 dict literals) to `Segment(...)`. |
+| `nbs/04_summarize.ipynb` | `_build_summary_prompt`: attribute access. `slice_segments` call sites updated. Migrate Test 1 fixture (cell `c1000007`, 4 dict literals) and Test 3 fixture (cell `c1000009`, 2 dict literals) to `Segment(...)`. Test 2 (cell `c1000008`) reuses Test 1's scope and needs no new fixture, but its `sliced == []` assertion remains valid. |
+| `nbs/06_ask.ipynb` | `dispatch_tool`: add `_to_jsonable` helper; apply to `result` before `json.dumps`. Note: `get_xscript_range` is defined in `nbs/02_xscript.ipynb`, not `nbs/06`; after PR #2 its return is `list[Segment]`, which `_to_jsonable` converts at the LLM boundary. |
 | Generated `yttoc/*.py` | Regenerated via `nbdev-export`. |
 
 **Xscript-segment consumer sites** (5 code sites, verified by grep — filtered out NormalizedSection / AssembledSummaries consumers which are out of scope):
@@ -88,10 +88,26 @@ Flip the public API to `list[Segment]` and update all consumers.
 4. `yttoc/xscript.py:155-157` — `yttoc_raw` CLI print
 5. `yttoc/xscript.py:178` — `yttoc_txt` CLI print
 
-**Test fixture migration** (3 notebooks, 5 test cells, 20 segment-dict entries total):
-- `nbs/02_xscript.ipynb` — 16 entries across `parse_xscript` unit tests
-- `nbs/03_toc.ipynb` cell `2b1e3214` — 2 entries in `_build_toc_prompt` Test 6
-- `nbs/04_summarize.ipynb` cell `c1000009` — 2 entries in `_build_summary_prompt` Test 3
+**Test migration — corrected scope**
+
+Two distinct patterns require separate treatment:
+
+*Dict-literal fixtures to rewrite as `Segment(...)` constructors:*
+| Notebook | Cell | Count | Location |
+|---|---|---|---|
+| `nbs/03_toc.ipynb` | `2b1e3214` | 2 | Test 6 — `_build_toc_prompt` |
+| `nbs/04_summarize.ipynb` | `c1000007` | 4 | Test 1 — `slice_segments` |
+| `nbs/04_summarize.ipynb` | `c1000009` | 2 | Test 3 — `_build_summary_prompt` |
+
+Total: **3 cells, 8 dict literals**.
+
+*Dict-access assertions on `parse_xscript` / `get_xscript_range` return to rewrite as attribute access (`segs[i]['k']` → `segs[i].k`):*
+| Notebook | Cell range | Approx. count | Scope |
+|---|---|---|---|
+| `nbs/02_xscript.ipynb` | `a1000009`…`40c07205` (Tests 1-7) | ~17 | `parse_xscript` assertions |
+| `nbs/02_xscript.ipynb` | `0d9b3892` (Test 14) | ~4 | `get_xscript_range` assertions |
+
+Total: **8 cells, ~21 subscript rewrites**. Test 8 (`b4e5c1e7`), Tests 9-13 (CLI tests), Test 15 (error-dict branch), and Test 16 (empty-list branch) need no assertion changes.
 
 **Tool-boundary helper**
 ```python
@@ -119,16 +135,25 @@ Minimal, following Phase 1 precedent:
 
 ## Test Fixture Strategy
 
-PR #2 rewrites 20 segment fixtures across 3 notebooks (02/03/04) from:
+PR #2 performs two kinds of test migration:
+
+**(a) Dict-literal fixtures → `Segment(...)` constructors** (3 cells, 8 dict literals, in `nbs/03` and `nbs/04`):
 ```python
+# before
 {"start": 0.08, "end": 4.88, "text": "hello world"}
-```
-to:
-```python
+# after
 Segment(start=0.08, end=4.88, text="hello world")
 ```
 
-Rationale: PR #2's theme is "Segment-as-type throughout". Keeping fixtures as dicts would force every assert to call `.model_dump()` or `Segment.model_validate(...)`, creating per-site noise. Full migration is ~20 lines of churn concentrated in the three notebooks whose tests consume segments.
+**(b) Subscript assertions → attribute access** (8 cells, ~21 subscripts, in `nbs/02`):
+```python
+# before
+assert segs[0]['start'] == 0.08
+# after
+assert segs[0].start == 0.08
+```
+
+Rationale: `nbs/02` tests parse an SRT string then assert on the output, so migration is mechanical subscript → attribute. `nbs/03` / `nbs/04` tests construct fixtures inline and pass them to consumers, so migration changes the literal form. Both together concentrate the churn in the three notebooks whose tests touch xscript segments.
 
 ## Non-Goals
 
@@ -158,7 +183,8 @@ Rationale: PR #2's theme is "Segment-as-type throughout". Keeping fixtures as di
 
 ### PR #2
 - [ ] `parse_xscript` returns `list[Segment]`
-- [ ] All 20 segment-dict fixtures migrated to `Segment(...)` (16 in 02, 2 in 03, 2 in 04)
+- [ ] 8 dict-literal fixtures rewritten as `Segment(...)` (2 in `nbs/03` Test 6, 4 in `nbs/04` Test 1, 2 in `nbs/04` Test 3)
+- [ ] ~21 subscript assertions rewritten as attribute access in `nbs/02` (Tests 1-7 for `parse_xscript`, Test 14 for `get_xscript_range`)
 - [ ] `slice_segments`, `_build_toc_prompt`, `_build_summary_prompt`, `get_xscript_range`, CLI display converted to attribute access
 - [ ] `_to_jsonable` helper added to `dispatch_tool`
 - [ ] `_to_jsonable` unit test passes
