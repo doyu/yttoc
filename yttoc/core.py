@@ -44,14 +44,15 @@ def fmt_duration(seconds: int # Duration in seconds
     m, s = divmod(rem, 60)
     return f'{h}:{m:02d}:{s:02d}' if h else f'{m}:{s:02d}'
 
-def format_header(meta: dict # meta.json content
+def format_header(meta: Meta | dict # Parsed Meta instance or summaries.json video dict
                  ) -> str: # Formatted header string
     "Shared header for toc/sum/raw CLI commands."
-    title = meta.get('title', '')
-    channel = meta.get('channel', '')
-    dur = fmt_duration(meta.get('duration', 0))
-    upload = meta.get('upload_date', '')
-    return f'# {title}\nChannel: {channel} | Duration: {dur} | {upload}'
+    if isinstance(meta, dict):
+        d = meta
+        dur = fmt_duration(d.get('duration', 0))
+        return f'# {d.get("title", "")}\nChannel: {d.get("channel", "")} | Duration: {dur} | {d.get("upload_date", "")}'
+    dur = fmt_duration(meta.duration)
+    return f'# {meta.title}\nChannel: {meta.channel} | Duration: {dur} | {meta.upload_date}'
 
 def slice_segments(segments: list[Segment], # List of Segment
                    start: int, # Section start in seconds

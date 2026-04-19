@@ -35,14 +35,14 @@ def _glob_srt(out_dir: str | Path, # Directory to search
 def _update_last_used(meta_path: Path # Path to meta.json
                      ) -> None:
     "Update last_used_at timestamp in meta.json."
-    meta = json.loads(meta_path.read_text(encoding='utf-8'))
-    meta['last_used_at'] = datetime.now(timezone.utc).isoformat()
-    meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding='utf-8')
+    meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
+    meta.last_used_at = datetime.now(timezone.utc)
+    meta_path.write_text(meta.model_dump_json(indent=2), encoding='utf-8')
 
 def _build_meta(info: dict, # yt-dlp info dict
                 lang: str = 'en', # Language that was fetched
                 caption_type: str = 'auto' # 'manual' or 'auto'
-               ) -> dict: # meta.json content
+               ) -> Meta: # Parsed Meta instance
     "Extract fields for meta.json from yt-dlp info."
     meta = Meta(
         id=info['id'],
@@ -55,7 +55,7 @@ def _build_meta(info: dict, # yt-dlp info dict
         captions={lang: caption_type},
         last_used_at=datetime.now(timezone.utc),
     )
-    return meta.model_dump(mode='json')
+    return meta
 
 def _download_srt(url: str, info: dict, out_dir: Path
                  ) -> tuple[Path, str, str]: # (srt_path, lang, caption_type)
@@ -114,10 +114,8 @@ def fetch_video(url: str, # YouTube video URL
         return out_dir
 
     _srt_path, lang, caption_type = _download_srt(url, info, out_dir)
-    meta_path.write_text(
-        json.dumps(_build_meta(info, lang=lang, caption_type=caption_type),
-                   indent=2, ensure_ascii=False),
-        encoding='utf-8')
+    meta = _build_meta(info, lang=lang, caption_type=caption_type)
+    meta_path.write_text(meta.model_dump_json(indent=2), encoding='utf-8')
     return out_dir
 
 # %% ../nbs/01_fetch.ipynb #56af6a8c
@@ -143,22 +141,20 @@ def yttoc_list(root: str = None, # Root directory (default: ~/.cache/yttoc)
     root = Path(root) if root else _DEFAULT_ROOT
     if not root.exists(): return
 
-    videos = []
+    items = []  # list of (meta: Meta, langs: str)
     for d in root.iterdir():
         if not d.is_dir(): continue
         meta_path = d / 'meta.json'
         srt_files = _glob_srt(d)
         if not (meta_path.exists() and srt_files): continue
-        meta = json.loads(meta_path.read_text(encoding='utf-8'))
-        captions = meta.get('captions', {})
-        if not captions:
-            captions = {p.stem.split('.', 1)[1]: '?' for p in srt_files}
-        meta['_langs'] = ','.join(sorted(captions.keys()))
-        videos.append(meta)
+        meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
+        captions = meta.captions or {p.stem.split('.', 1)[1]: '?' for p in srt_files}
+        langs = ','.join(sorted(captions.keys()))
+        items.append((meta, langs))
 
-    videos.sort(key=lambda m: m.get('last_used_at', ''), reverse=True)
-    for m in videos:
-        ts = m.get('last_used_at', '')[:16].replace('T', ' ')
-        dur = _fmt_duration(m.get('duration', 0))
-        langs = m.get('_langs', '')
-        print(f"{m['id']}  {ts}  {dur:>8}  [{langs}]  {m.get('title', '')}")
+    items.sort(key=lambda x: x[0].last_used_at, reverse=True)
+    for meta, langs in items:
+        ts = meta.last_used_at.isoformat()[:16].replace('T', ' ')
+        dur = _fmt_duration(meta.duration)
+        print(f"{meta.id}  {ts}  {dur:>8}  [{langs}]  {meta.title}")
+
