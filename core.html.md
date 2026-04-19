@@ -5,7 +5,7 @@
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L48"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L63"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_toc_line
@@ -23,7 +23,7 @@ def format_toc_line(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L41"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L56"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### slice_segments
@@ -42,7 +42,7 @@ def slice_segments(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L32"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L47"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_header
@@ -59,7 +59,7 @@ def format_header(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L25"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L40"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### fmt_duration
@@ -76,7 +76,24 @@ def fmt_duration(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L18"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L27"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### Meta
+
+``` python
+
+def Meta(
+    data:Any
+)->None:
+
+```
+
+*Cached video metadata (one per cached video; persisted as meta.json).*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L20"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### NormalizedSection
@@ -94,7 +111,7 @@ output).*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L11"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L13"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### Segment
@@ -209,6 +226,76 @@ except ValidationError:
     pass
 else:
     assert False, 'expected ValidationError for missing end'
+
+print('ok')
+```
+
+    ok
+
+``` python
+# Test: Meta validates required fields, captions Literal, last_used_at datetime
+from yttoc.core import Meta
+from pydantic import ValidationError
+from datetime import datetime, timezone
+
+# Valid construction succeeds (all 9 fields)
+m = Meta(id='vid1', title='T', channel='Ch', duration=600,
+         upload_date='20260101', webpage_url='https://youtube.com/watch?v=vid1',
+         captions={'en': 'auto'},
+         last_used_at=datetime(2026, 4, 16, 15, 13, 50, 653895, tzinfo=timezone.utc))
+assert m.id == 'vid1'
+assert m.description == ''
+assert isinstance(m.last_used_at, datetime)
+
+# Missing required field rejected (no channel)
+try:
+    Meta(id='x', title='t', duration=60, upload_date='20260101',
+         webpage_url='u', captions={'en': 'auto'},
+         last_used_at=datetime.now(timezone.utc))
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for missing channel'
+
+# Negative duration rejected
+try:
+    Meta(id='x', title='t', channel='c', duration=-1, upload_date='20260101',
+         webpage_url='u', captions={'en': 'auto'},
+         last_used_at=datetime.now(timezone.utc))
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for negative duration'
+
+# Invalid captions value rejected
+try:
+    Meta(id='x', title='t', channel='c', duration=60, upload_date='20260101',
+         webpage_url='u', captions={'en': 'autop'},
+         last_used_at=datetime.now(timezone.utc))
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for invalid caption type'
+
+# Invalid last_used_at string rejected
+try:
+    Meta.model_validate_json(
+        '{"id":"x","title":"t","channel":"c","duration":60,"upload_date":"20260101",'
+        '"webpage_url":"u","captions":{"en":"auto"},"last_used_at":"yesterday"}'
+    )
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for invalid last_used_at'
+
+# Valid ISO last_used_at parses to datetime
+m2 = Meta.model_validate_json(
+    '{"id":"x","title":"t","channel":"c","duration":60,"upload_date":"20260101",'
+    '"webpage_url":"u","captions":{"en":"auto"},'
+    '"last_used_at":"2026-04-16T15:13:50.653895+00:00"}'
+)
+assert isinstance(m2.last_used_at, datetime)
+assert m2.last_used_at.tzinfo is not None
 
 print('ok')
 ```

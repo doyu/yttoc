@@ -136,7 +136,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L93"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L95"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_video_info
@@ -162,7 +162,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L100"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L102"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### fetch_video
@@ -205,7 +205,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L125"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L127"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_fetch
@@ -232,7 +232,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L138"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L140"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_list
