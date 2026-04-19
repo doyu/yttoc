@@ -123,12 +123,12 @@ from .toc import generate_toc
 def _assemble_summaries(meta: Meta, # Parsed Meta instance
                         toc_sections: list[NormalizedSection], # List of NormalizedSection from toc.json
                         llm_result: dict # {full, sections: {path: {...}}}
-                       ) -> dict: # Self-contained summaries.json payload
+                       ) -> AssembledSummaries: # Parsed AssembledSummaries instance
     "Merge meta + toc + LLM output into the canonical summaries.json shape. Raise if LLM omitted any section."
     missing = [sec.path for sec in toc_sections if sec.path not in llm_result['sections']]
     if missing:
         raise ValueError(f"LLM omitted summaries for sections: {missing}")
-    result = AssembledSummaries(
+    return AssembledSummaries(
         video=VideoBlock(
             id=meta.id,
             title=meta.title,
@@ -143,22 +143,12 @@ def _assemble_summaries(meta: Meta, # Parsed Meta instance
         ],
         full=llm_result['full'],
     )
-    return result.model_dump(mode='json')
-
-def _migrate_old_summaries(cached: dict, # Old-format summaries dict {full, sections: {path: {...}}}
-                           video_id: str, root: Path
-                          ) -> dict: # New-format summaries dict
-    "Rebuild a self-contained summaries.json from the legacy {full, sections: {...}} shape."
-    meta_path = root / video_id / 'meta.json'
-    meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
-    toc_sections = generate_toc(video_id, root)  # cached toc.json hit; no LLM call
-    return _assemble_summaries(meta, toc_sections, cached)
 
 def generate_summaries(video_id: str, # Exact video_id
                        root: Path = None, # Root cache directory
                        refresh: bool = False, # Delete cached summaries and regenerate
-                      ) -> dict: # Self-contained summaries dict
-    "Generate summaries.json for a cached video. Returns summaries dict (auto-migrating old shape)."
+                      ) -> AssembledSummaries: # Parsed AssembledSummaries instance
+    "Generate summaries.json for a cached video. Returns parsed AssembledSummaries."
     root = root or _DEFAULT_ROOT
     d = root / video_id
     meta_path = d / 'meta.json'
@@ -171,15 +161,7 @@ def generate_summaries(video_id: str, # Exact video_id
         sum_path.unlink()
 
     if sum_path.exists():
-        cached = json.loads(sum_path.read_text(encoding='utf-8'))
-        if 'video' in cached:
-            return cached
-        # Legacy shape: rebuild in place (no LLM call)
-        result = _migrate_old_summaries(cached, video_id, root)
-        sum_path.write_text(
-            json.dumps(result, indent=2, ensure_ascii=False),
-            encoding='utf-8')
-        return result
+        return AssembledSummaries.model_validate_json(sum_path.read_text(encoding='utf-8'))
 
     toc_sections = generate_toc(video_id, root)
     meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
@@ -188,18 +170,17 @@ def generate_summaries(video_id: str, # Exact video_id
     llm_result = _call_summary_llm(prompt)
     result = _assemble_summaries(meta, toc_sections, llm_result)
 
-    sum_path.write_text(
-        json.dumps(result, indent=2, ensure_ascii=False),
-        encoding='utf-8')
+    sum_path.write_text(result.model_dump_json(indent=2), encoding='utf-8')
     _update_last_used(meta_path)
     return result
 
-def _print_section_summary(s: dict, url: str):
+def _print_section_summary(s: AssembledSection, url: str):
     "Render one section as a TOC-style header followed by summary/keywords/evidence."
-    print(f"## {format_toc_line(s, url)}")
-    print(s['summary'])
-    print(f"**Keywords:** {', '.join(s['keywords'])}")
-    print(f"**Evidence:** \"{s['evidence']['text']}\" [{fmt_duration(s['evidence']['at'])}]")
+    # format_toc_line still dict-typed until Phase 2d PR-C; adapt here
+    print(f"## {format_toc_line(s.model_dump(), url)}")
+    print(s.summary)
+    print(f"**Keywords:** {', '.join(s.keywords)}")
+    print(f"**Evidence:** \"{s.evidence.text}\" [{fmt_duration(s.evidence.at)}]")
 
 @call_parse
 def yttoc_sum(video_id: str, # Exact video_id
@@ -210,36 +191,40 @@ def yttoc_sum(video_id: str, # Exact video_id
     "Display summaries for a cached video."
     root = Path(root) if root else _DEFAULT_ROOT
     sums = generate_summaries(video_id, root, refresh=refresh)
-    video = sums['video']
-    url = video.get('url') or ''
+    url = sums.video.url or ''
 
-    print(format_header(video))
+    # format_header accepts Meta | dict until Phase 2d PR-C; adapt VideoBlock here
+    print(format_header(sums.video.model_dump()))
     print()
 
     if section:
-        s = next((sec for sec in sums['sections'] if sec['path'] == section), None)
+        s = next((sec for sec in sums.sections if sec.path == section), None)
         if s is None:
             raise SystemExit(f"Section {section} not found")
         _print_section_summary(s, url)
     else:
-        for s in sums['sections']:
+        for s in sums.sections:
             _print_section_summary(s, url)
             print()
 
         print("## Full Summary")
-        print(sums['full']['summary'])
-        print(f"**Keywords:** {', '.join(sums['full']['keywords'])}")
-        print(f"**Evidence:** \"{sums['full']['evidence']['text']}\" [{fmt_duration(sums['full']['evidence']['at'])}]")
+        print(sums.full.summary)
+        print(f"**Keywords:** {', '.join(sums.full.keywords)}")
+        print(f"**Evidence:** \"{sums.full.evidence.text}\" [{fmt_duration(sums.full.evidence.at)}]")
         if url: print(url)
 
 
 # %% ../nbs/04_summarize.ipynb #73e522f6
 def get_summaries(video_id: str, # Exact video_id
                   root: Path = None # Root cache directory (default: ~/.cache/yttoc)
-                 ) -> dict: # summaries.json content verbatim, or {"error": "..."}
-    "Return summaries.json for a cached video. No transformation — file content returned as-is."
+                 ) -> AssembledSummaries | dict: # Parsed AssembledSummaries or {"error": "..."}
+    "Return summaries.json for a cached video. Validates via AssembledSummaries; error branch returns {'error': ...}."
+    from pydantic import ValidationError
     root = root or _DEFAULT_ROOT
     sum_path = root / video_id / 'summaries.json'
     if not sum_path.exists():
         return {'error': f'summaries.json not found for {video_id}'}
-    return json.loads(sum_path.read_text(encoding='utf-8'))
+    try:
+        return AssembledSummaries.model_validate_json(sum_path.read_text(encoding='utf-8'))
+    except ValidationError as e:
+        return {'error': f'Invalid summaries.json for {video_id}: {e}'}
