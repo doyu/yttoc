@@ -8,6 +8,8 @@ __all__ = ['parse_xscript', 'yttoc_raw', 'yttoc_txt', 'get_xscript_range']
 # %% ../nbs/02_xscript.ipynb #a1000004
 import re
 from pathlib import Path
+from .core import Segment
+
 
 # %% ../nbs/02_xscript.ipynb #a1000006
 _TIME_RE = re.compile(r'(\d+):(\d+):(\d+),(\d+)\s*-->\s*(\d+):(\d+):(\d+),(\d+)')
@@ -95,13 +97,9 @@ def parse_xscript(path: str | Path # Path to SRT file
         prev_end = end
 
         if curr_tokens:
-            segments.append({
-                'start': start,
-                'end': end,
-                'text': ' '.join(curr_tokens),
-            })
+            segments.append(Segment(start=start, end=end, text=' '.join(curr_tokens)))
 
-    return segments
+    return [s.model_dump() for s in segments]
 
 # %% ../nbs/02_xscript.ipynb #bcd5731c
 import json
