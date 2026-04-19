@@ -5,7 +5,7 @@
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L34"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L40"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_toc_line
@@ -23,7 +23,7 @@ def format_toc_line(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L27"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L33"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### slice_segments
@@ -42,7 +42,7 @@ def slice_segments(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L18"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L24"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_header
@@ -59,7 +59,7 @@ def format_header(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L11"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L17"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### fmt_duration
@@ -76,20 +76,20 @@ def fmt_duration(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L9"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L11"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
-### foo
+### Segment
 
 ``` python
 
-def foo(
-    
-):
+def Segment(
+    data:Any
+)->None:
 
 ```
 
-*Call self as a function.*
+*One parsed xscript segment (in-memory).*
 
 ``` python
 # Test: fmt_duration
@@ -128,3 +128,33 @@ assert format_toc_line(sec2, url) == '3. Deep dive 10:00-1:09:51 (59:51) https:/
 assert format_toc_line(sec) == '1. Intro 0:00-2:17 (2:17)'
 print('ok')
 ```
+
+``` python
+# Test: Segment validates non-negative timestamps
+from yttoc.core import Segment
+from pydantic import ValidationError
+
+# Valid construction succeeds
+s = Segment(start=0.0, end=1.5, text='x')
+assert s.start == 0.0 and s.end == 1.5 and s.text == 'x'
+
+# Negative start rejected
+try:
+    Segment(start=-0.001, end=0.0, text='x')
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for negative start'
+
+# Negative end rejected
+try:
+    Segment(start=0.0, end=-1, text='x')
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for negative end'
+
+print('ok')
+```
+
+    ok
