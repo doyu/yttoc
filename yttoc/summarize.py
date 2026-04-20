@@ -174,12 +174,38 @@ def generate_summaries(video_id: str, # Exact video_id
     _update_last_used(meta_path)
     return result
 
-def _print_section_summary(s: AssembledSection, url: str):
-    "Render one section as a TOC-style header followed by summary/keywords/evidence."
-    print(f"## {format_toc_line(s, url)}")
-    print(s.summary)
-    print(f"**Keywords:** {', '.join(s.keywords)}")
-    print(f"**Evidence:** \"{s.evidence.text}\" [{fmt_duration(s.evidence.at)}]")
+def _format_section_summary(s: AssembledSection, # Assembled section with summary payload
+                            url: str, # Canonical video URL ('' when absent)
+                           ) -> list[str]: # Four-line block: TOC heading, summary, keywords, evidence
+    "Format one section as a TOC-heading block."
+    return [
+        f"## {format_toc_line(s, url)}",
+        s.summary,
+        f"**Keywords:** {', '.join(s.keywords)}",
+        f"**Evidence:** \"{s.evidence.text}\" [{fmt_duration(s.evidence.at)}]",
+    ]
+
+def _render_summaries(sums: AssembledSummaries, # Parsed summaries.json
+                     section: str = '', # Section path; '' for all sections + full summary
+                    ) -> str: # Rendered summaries output
+    "Render summary output for yttoc_sum. Raise ValueError if section missing."
+    url = sums.video.url or ''
+    lines = [format_header(sums.video), '']
+    if section:
+        s = next((sec for sec in sums.sections if sec.path == section), None)
+        if s is None:
+            raise ValueError(f"Section {section} not found")
+        lines.extend(_format_section_summary(s, url))
+    else:
+        for s in sums.sections:
+            lines.extend(_format_section_summary(s, url))
+            lines.append('')
+        lines.append("## Full Summary")
+        lines.append(sums.full.summary)
+        lines.append(f"**Keywords:** {', '.join(sums.full.keywords)}")
+        lines.append(f"**Evidence:** \"{sums.full.evidence.text}\" [{fmt_duration(sums.full.evidence.at)}]")
+        if url: lines.append(url)
+    return '\n'.join(lines)
 
 @call_parse
 def yttoc_sum(video_id: str, # Exact video_id
@@ -190,27 +216,10 @@ def yttoc_sum(video_id: str, # Exact video_id
     "Display summaries for a cached video."
     root = Path(root) if root else _DEFAULT_ROOT
     sums = generate_summaries(video_id, root, refresh=refresh)
-    url = sums.video.url or ''
-
-    print(format_header(sums.video))
-    print()
-
-    if section:
-        s = next((sec for sec in sums.sections if sec.path == section), None)
-        if s is None:
-            raise SystemExit(f"Section {section} not found")
-        _print_section_summary(s, url)
-    else:
-        for s in sums.sections:
-            _print_section_summary(s, url)
-            print()
-
-        print("## Full Summary")
-        print(sums.full.summary)
-        print(f"**Keywords:** {', '.join(sums.full.keywords)}")
-        print(f"**Evidence:** \"{sums.full.evidence.text}\" [{fmt_duration(sums.full.evidence.at)}]")
-        if url: print(url)
-
+    try:
+        print(_render_summaries(sums, section))
+    except ValueError as e:
+        raise SystemExit(str(e))
 
 # %% ../nbs/04_summarize.ipynb #73e522f6
 def _get_summaries_strict(video_id: str, # Exact video_id
