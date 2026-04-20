@@ -134,6 +134,38 @@ def _load_segments(video_id: str, section: str, root: str | None
 
     return meta, segments, sec_info, meta_path
 
+def _render_raw(meta: Meta, # Parsed Meta instance
+                segments: list[Segment], # Xscript segments (possibly sliced)
+                section: str, # Section path (e.g. "3"); '' for full
+                sec_info: NormalizedSection | None, # Matched section or None
+               ) -> str: # Rendered multi-line transcript with timestamps
+    "Render timestamped transcript output for yttoc_raw."
+    lines = [format_header(meta), '']
+    if sec_info is not None:
+        s_start = fmt_duration(sec_info.start)
+        s_end = fmt_duration(sec_info.end)
+        lines.append(f"## {section}. {sec_info.title} ({s_start} - {s_end})")
+    for s in segments:
+        mm = int(s.start // 60)
+        ss = int(s.start % 60)
+        lines.append(f"[{mm:02d}:{ss:02d}] {s.text}")
+    return '\n'.join(lines)
+
+def _render_txt(meta: Meta, # Parsed Meta instance
+                segments: list[Segment], # Xscript segments (possibly sliced)
+                section: str, # Section path; '' for full
+                sec_info: NormalizedSection | None, # Matched section or None
+               ) -> str: # Rendered prose with no timestamps
+    "Render plain-prose transcript output for yttoc_txt."
+    lines = [format_header(meta), '']
+    if sec_info is not None:
+        s_start = fmt_duration(sec_info.start)
+        s_end = fmt_duration(sec_info.end)
+        lines.append(f"## {section}. {sec_info.title} ({s_start} - {s_end})")
+        lines.append('')
+    lines.append(' '.join(s.text for s in segments))
+    return '\n'.join(lines)
+
 @call_parse
 def yttoc_raw(video_id: str, # Exact video_id
               section: str = '', # Section path (e.g. "3"); empty for full transcript
@@ -141,20 +173,7 @@ def yttoc_raw(video_id: str, # Exact video_id
              ):
     "Display transcript for a cached video (full or by section)."
     meta, segments, sec_info, meta_path = _load_segments(video_id, section, root)
-
-    print(format_header(meta))
-    print()
-
-    if sec_info is not None:
-        s_start = fmt_duration(sec_info.start)
-        s_end = fmt_duration(sec_info.end)
-        print(f"## {section}. {sec_info.title} ({s_start} - {s_end})")
-
-    for s in segments:
-        mm = int(s.start // 60)
-        ss = int(s.start % 60)
-        print(f"[{mm:02d}:{ss:02d}] {s.text}")
-
+    print(_render_raw(meta, segments, section, sec_info))
     _update_last_used(meta_path)
 
 @call_parse
@@ -164,18 +183,7 @@ def yttoc_txt(video_id: str, # Exact video_id
              ):
     "Display transcript as plain prose with no timestamps."
     meta, segments, sec_info, meta_path = _load_segments(video_id, section, root)
-
-    print(format_header(meta))
-    print()
-
-    if sec_info is not None:
-        s_start = fmt_duration(sec_info.start)
-        s_end = fmt_duration(sec_info.end)
-        print(f"## {section}. {sec_info.title} ({s_start} - {s_end})")
-        print()
-
-    print(' '.join(s.text for s in segments))
-
+    print(_render_txt(meta, segments, section, sec_info))
     _update_last_used(meta_path)
 
 
