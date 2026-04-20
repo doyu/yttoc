@@ -44,7 +44,7 @@ def fmt_duration(seconds: int # Duration in seconds
     m, s = divmod(rem, 60)
     return f'{h}:{m:02d}:{s:02d}' if h else f'{m}:{s:02d}'
 
-def format_header(meta: "Meta | VideoBlock" # Meta or VideoBlock (both have title/channel/duration/upload_date)
+def format_header(meta: Meta # Meta or duck-typed equivalent (title/channel/duration/upload_date)
                  ) -> str: # Formatted header string
     "Shared header for toc/sum/raw CLI commands."
     dur = fmt_duration(meta.duration)
