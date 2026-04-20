@@ -274,7 +274,7 @@ of the model. **signature**: The synthesized `__init__`
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L130"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L132"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### build_registry
@@ -291,7 +291,7 @@ def build_registry(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L107"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L108"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_citations
@@ -472,7 +472,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L151"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L153"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### ask
@@ -506,7 +506,7 @@ print(f"Citations: {result.citations}")
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L211"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L225"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_ask
@@ -525,3 +525,30 @@ def yttoc_ask(
 ```
 
 *Answer a question about a video course using LLM tool use.*
+
+``` python
+# Test: _render_ask_result returns answer + optional citations block
+from yttoc.ask import _render_ask_result, AskResponse, Citation, format_citations
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+# Case 1: no citations
+result = AskResponse(answer='The video explains Git basics.', citations=[])
+out = _render_ask_result(result, Path('/nonexistent'))
+assert out == 'The video explains Git basics.'
+
+# Case 2: with citations (can't resolve summaries, falls back to vid@ts)
+with TemporaryDirectory() as d:
+    root = Path(d)
+    result2 = AskResponse(
+        answer='Git was created by Linus.',
+        citations=[Citation(video_id='VID1', seconds=120)])
+    out2 = _render_ask_result(result2, root)
+    assert out2.startswith('Git was created by Linus.')
+    assert '\nCitations:' in out2
+    assert 'VID1' in out2
+    assert '2:00' in out2
+print('ok')
+```
+
+    ok

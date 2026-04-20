@@ -260,7 +260,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L186"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L211"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_sum
@@ -381,31 +381,65 @@ print('ok')
 ```
 
 ``` python
-# Test 6: yttoc_sum --section shows only that section (no URL when summaries lacks it)
-with TemporaryDirectory() as d:
-    root = Path(d)
-    v = root / 'VID3'; v.mkdir()
-    (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
-    (v / 'meta.json').write_text(json.dumps({
-        'id': 'VID3', 'title': 'T', 'channel': 'C', 'duration': 600,
-        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID3',
-        'description': '', 'captions': {'en': 'auto'},
-        'last_used_at': '2000-01-01T00:00:00+00:00',
-    }))
-    (v / 'summaries.json').write_text(json.dumps(_make_test_summaries('VID3')))
+# Test 6: _render_summaries with single section
+from yttoc.summarize import _render_summaries
 
-    buf = io.StringIO()
-    with contextlib.redirect_stdout(buf):
-        yttoc_sum('VID3', '2', root=str(root))  # positional section arg
-    out = buf.getvalue()
+sums_dict = _make_test_summaries('VID3')
+sums = AssembledSummaries.model_validate(sums_dict)
 
-    assert '## 2. Main 5:00-10:00 (5:00)' in out
-    assert '&t=' not in out  # no URL → no deep link
-    assert 'Main section.' in out
-    assert 'Intro section.' not in out  # only section 2
-    assert '## Full Summary' not in out
+out = _render_summaries(sums, '2')
+assert '## 2. Main 5:00-10:00 (5:00)' in out
+assert '&t=' not in out  # no URL in test fixture -> no deep link
+assert 'Main section.' in out
+assert 'Intro section.' not in out
+assert '## Full Summary' not in out
 print('ok')
 ```
+
+    ok
+
+``` python
+# Test: _render_summaries (all sections + full) returns expected block
+from yttoc.summarize import _render_summaries
+
+sums_dict = _make_test_summaries('VID9', url='https://youtube.com/watch?v=VID9')
+sums_dict['video']['title'] = 'Test Video'
+sums_dict['video']['channel'] = 'Ch'
+sums = AssembledSummaries.model_validate(sums_dict)
+
+out = _render_summaries(sums, '')
+assert '# Test Video' in out
+assert '## 1. Intro' in out
+assert '## 2. Main' in out
+assert '## Full Summary' in out
+assert 'Full video about testing.' in out
+assert out.endswith('https://youtube.com/watch?v=VID9')  # url footer
+print('ok')
+```
+
+    ok
+
+``` python
+# Test: _render_summaries(section='2') returns one section; missing section raises ValueError
+from yttoc.summarize import _render_summaries
+
+sums = AssembledSummaries.model_validate(_make_test_summaries('VIDX'))
+
+out = _render_summaries(sums, '2')
+assert '## 2. Main' in out
+assert '## 1. Intro' not in out
+assert '## Full Summary' not in out
+
+try:
+    _render_summaries(sums, '99')
+except ValueError as e:
+    assert 'Section 99 not found' in str(e)
+else:
+    raise AssertionError('expected ValueError for missing section')
+print('ok')
+```
+
+    ok
 
 ``` python
 # Test 8: _assemble_summaries raises if LLM omits any toc section (no silent corruption)
@@ -436,7 +470,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L218"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L235"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_summaries
@@ -450,11 +484,11 @@ def get_summaries(
 
 ```
 
-*Return summaries.json for a cached video. Validates via
-AssembledSummaries; error branch returns {‘error’: …}.*
+\*Compatibility wrapper around \_get_summaries_strict for tool/CLI
+consumers expecting {‘error’: …}.\*
 
 ``` python
-# Test 9: get_summaries returns AssembledSummaries
+# Test 9: _get_summaries_strict returns AssembledSummaries
 with TemporaryDirectory() as d:
     root = Path(d)
     v = root / 'VID_GS'; v.mkdir()
@@ -471,7 +505,7 @@ with TemporaryDirectory() as d:
     }
     (v / 'summaries.json').write_text(json.dumps(fixture))
 
-    result = get_summaries('VID_GS', root)
+    result = _get_summaries_strict('VID_GS', root)
     from yttoc.summarize import AssembledSummaries
     assert isinstance(result, AssembledSummaries)
     assert result.video.id == 'VID_GS'
@@ -483,7 +517,7 @@ print('ok')
     ok
 
 ``` python
-# Test 10: get_summaries returns error dict when missing
+# Test: get_summaries wrapper preserves {'error': ...} contract when missing
 with TemporaryDirectory() as d:
     result = get_summaries('NONEXIST', Path(d))
     assert 'error' in result
@@ -491,8 +525,21 @@ print('ok')
 ```
 
 ``` python
-# Test: get_summaries rejects a corrupted summaries.json (missing evidence field)
+# Test 10: _get_summaries_strict raises FileNotFoundError when missing
+with TemporaryDirectory() as d:
+    try:
+        _get_summaries_strict('NONEXIST', Path(d))
+    except FileNotFoundError as e:
+        assert 'NONEXIST' in str(e)
+    else:
+        assert False, 'expected FileNotFoundError'
+print('ok')
+```
+
+``` python
+# Test: _get_summaries_strict rejects a corrupted summaries.json (missing evidence field)
 from tempfile import TemporaryDirectory
+from pydantic import ValidationError
 
 with TemporaryDirectory() as d:
     root = Path(d)
@@ -507,6 +554,13 @@ with TemporaryDirectory() as d:
         ],
         'full': {'summary': 'f', 'keywords': ['fk'], 'evidence': {'text': 'fe', 'at': 0}},
     }))
+
+    try:
+        _get_summaries_strict('BAD_SUM', root)
+    except ValidationError as e:
+        assert 'evidence' in str(e)
+    else:
+        assert False, 'expected ValidationError'
 
     result = get_summaries('BAD_SUM', root)
     assert isinstance(result, dict)

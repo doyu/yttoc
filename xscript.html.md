@@ -220,7 +220,7 @@ for d in cache.iterdir() if cache.exists() else []:
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L161"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L180"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_txt
@@ -239,7 +239,7 @@ def yttoc_txt(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L138"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L170"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_raw
@@ -258,7 +258,7 @@ def yttoc_raw(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L183"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L205"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_xscript_range
@@ -274,8 +274,8 @@ def get_xscript_range(
 
 ```
 
-*Return parsed xscript segments within \[start, end). Raw
-parse_xscript + slice_segments output.*
+\*Compatibility wrapper around \_get_xscript_range_strict for tool
+consumers expecting {‘error’: …}.\*
 
 ``` python
 # Test 9: yttoc_raw — missing video_id raises SystemExit
@@ -345,7 +345,9 @@ print('ok')
 ```
 
 ``` python
-# Test 11: yttoc_raw --section shows only that section's transcript
+# Test 11: _load_segments + _render_raw end-to-end section filtering
+from yttoc.xscript import _load_segments, _render_raw
+
 with TemporaryDirectory() as d:
     root = Path(d)
     v = root / 'VID3'; v.mkdir()
@@ -365,17 +367,17 @@ with TemporaryDirectory() as d:
         {'path': '2', 'title': 'Main', 'start': 5, 'end': 15},
     ]}))
 
-    buf = io.StringIO()
-    with contextlib.redirect_stdout(buf):
-        yttoc_raw('VID3', section='2', root=str(root))
-    out = buf.getvalue()
+    meta, segments, sec_info, _ = _load_segments('VID3', '2', str(root))
+    out = _render_raw(meta, segments, '2', sec_info)
 
     assert '## 2. Main (0:05 - 0:15)' in out
     assert '[00:05] second segment' in out
     assert '[00:10] third segment' in out
-    assert 'first segment' not in out  # section 1 excluded
+    assert 'first segment' not in out  # section 1 excluded by slice_segments
 print('ok')
 ```
+
+    ok
 
 ``` python
 # Test 12: yttoc_txt — outputs header + plain text joined, no timestamps
@@ -405,7 +407,9 @@ print('ok')
 ```
 
 ``` python
-# Test 13: yttoc_txt --section shows only that section's prose
+# Test 13: _load_segments + _render_txt end-to-end section filtering
+from yttoc.xscript import _load_segments, _render_txt
+
 with TemporaryDirectory() as d:
     root = Path(d)
     v = root / 'VID_TXT2'; v.mkdir()
@@ -425,10 +429,8 @@ with TemporaryDirectory() as d:
         {'path': '2', 'title': 'Main', 'start': 5, 'end': 15},
     ]}))
 
-    buf = io.StringIO()
-    with contextlib.redirect_stdout(buf):
-        yttoc_txt('VID_TXT2', section='2', root=str(root))
-    out = buf.getvalue()
+    meta, segments, sec_info, _ = _load_segments('VID_TXT2', '2', str(root))
+    out = _render_txt(meta, segments, '2', sec_info)
 
     assert '## 2. Main (0:05 - 0:15)' in out
     assert 'second segment third segment' in out
@@ -437,8 +439,63 @@ with TemporaryDirectory() as d:
 print('ok')
 ```
 
+    ok
+
 ``` python
-# Test 14: get_xscript_range returns sliced segments matching parse_xscript output shape
+# Test: _render_raw returns header + [MM:SS] lines with no stdout capture
+from yttoc.xscript import _render_raw, _render_txt
+from yttoc.core import Segment, Meta
+from datetime import datetime, timezone
+
+meta = Meta(id='VIDR', title='T', channel='C', duration=120, upload_date='20260101',
+            webpage_url='https://youtube.com/watch?v=VIDR', description='',
+            captions={'en': 'auto'},
+            last_used_at=datetime(2026,1,1,tzinfo=timezone.utc))
+segs = [Segment(start=65.0, end=68.0, text='hello world'),
+        Segment(start=70.0, end=73.0, text='second line')]
+
+out = _render_raw(meta, segs, '', None)
+assert '# T' in out
+assert '[01:05] hello world' in out
+assert '[01:10] second line' in out
+assert out.count('\n') == 4  # header contains 1 \n; plus blank line + 2 segment separators
+
+from yttoc.core import NormalizedSection
+sec = NormalizedSection(path='2', title='Main', start=60, end=90)
+out2 = _render_raw(meta, segs, '2', sec)
+assert '## 2. Main (1:00 - 1:30)' in out2
+print('ok')
+```
+
+    ok
+
+``` python
+# Test: _render_txt returns joined prose with no timestamps
+from yttoc.xscript import _render_txt
+from yttoc.core import Segment, Meta, NormalizedSection
+from datetime import datetime, timezone
+
+meta = Meta(id='VIDT', title='T2', channel='C2', duration=60, upload_date='20260101',
+            webpage_url='', description='', captions={'en': 'auto'},
+            last_used_at=datetime(2026,1,1,tzinfo=timezone.utc))
+segs = [Segment(start=0.0, end=3.0, text='alpha beta'),
+        Segment(start=3.0, end=6.0, text='gamma')]
+
+out = _render_txt(meta, segs, '', None)
+assert 'alpha beta gamma' in out
+assert '[00:00]' not in out  # no timestamps
+
+sec = NormalizedSection(path='1', title='Intro', start=0, end=30)
+out2 = _render_txt(meta, segs, '1', sec)
+assert '## 1. Intro (0:00 - 0:30)' in out2
+assert 'alpha beta gamma' in out2
+print('ok')
+```
+
+    ok
+
+``` python
+# Test 14: _get_xscript_range_strict returns sliced segments matching parse_xscript output shape
 with TemporaryDirectory() as d:
     root = Path(d)
     v = root / 'VID_GXR'; v.mkdir()
@@ -447,7 +504,7 @@ with TemporaryDirectory() as d:
         '2\n00:00:05,000 --> 00:00:08,000\nsecond\n\n'
         '3\n00:00:10,000 --> 00:00:13,000\nthird\n')
 
-    result = get_xscript_range('VID_GXR', 5, 15, root)
+    result = _get_xscript_range_strict('VID_GXR', 5, 15, root)
     assert isinstance(result, list)
     assert len(result) == 2
     assert result[0].text == 'second'
@@ -459,7 +516,7 @@ print('ok')
 ```
 
 ``` python
-# Test 15: get_xscript_range returns error dict when SRT missing
+# Test: get_xscript_range wrapper preserves {'error': ...} contract when SRT missing
 with TemporaryDirectory() as d:
     result = get_xscript_range('NONEXIST', 0, 100, Path(d))
     assert 'error' in result
@@ -467,14 +524,26 @@ print('ok')
 ```
 
 ``` python
-# Test 16: get_xscript_range with no matching segments returns empty list
+# Test 15: _get_xscript_range_strict raises FileNotFoundError when SRT missing
+with TemporaryDirectory() as d:
+    try:
+        _get_xscript_range_strict('NONEXIST', 0, 100, Path(d))
+    except FileNotFoundError as e:
+        assert 'NONEXIST' in str(e)
+    else:
+        assert False, 'expected FileNotFoundError'
+print('ok')
+```
+
+``` python
+# Test 16: _get_xscript_range_strict with no matching segments returns empty list
 with TemporaryDirectory() as d:
     root = Path(d)
     v = root / 'VID_EMPTY'; v.mkdir()
     (v / 'captions.en.srt').write_text(
         '1\n00:00:00,000 --> 00:00:03,000\nhello\n')
 
-    result = get_xscript_range('VID_EMPTY', 100, 200, root)
+    result = _get_xscript_range_strict('VID_EMPTY', 100, 200, root)
     assert result == []
 print('ok')
 ```

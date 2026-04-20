@@ -45,6 +45,8 @@ stdout. Batch via shell: `cat urls.txt | xargs -I{} yttoc-fetch {}`
 
 ``` python
 # Test: helpers
+from pydantic import ValidationError
+
 assert _pick_lang({'en': []}) == 'en'
 assert _pick_lang({'live_chat': [], 'en-US': []}) == 'en-US'
 assert _pick_lang({'ja': []}) is None
@@ -72,9 +74,26 @@ with TemporaryDirectory() as d:
 fake_info = {'id': 'X', 'title': 't', 'channel': 'c', 'duration': 1,
              'upload_date': '20260101', 'webpage_url': 'u',
              'description': 'desc', 'subtitles': {}, 'automatic_captions': {'en': []}}
+typed = _coerce_video_info({
+    'id': 'Y', 'title': 'typed', 'channel': 'chan', 'duration': 2,
+    'upload_date': '20260101', 'webpage_url': 'https://y.com/Y'})
+assert typed.description == ''
+assert typed.language is None
+assert typed.subtitles == {}
+assert typed.automatic_captions == {}
+try:
+    _coerce_video_info({'id': 'BAD', 'title': 't', 'duration': 1,
+                        'upload_date': '20260101', 'webpage_url': 'u'})
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for missing channel in yt-dlp info subset'
+
 m = _build_meta(fake_info, lang='en', caption_type='auto')
 assert m.captions == {'en': 'auto'}
 assert m.description == 'desc'
+m_typed = _build_meta(typed, lang='en', caption_type='auto')
+assert m_typed.id == 'Y'
 
 m_ja = _build_meta(fake_info, lang='ja', caption_type='manual')
 assert m_ja.captions == {'ja': 'manual'}
@@ -145,7 +164,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L95"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L119"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_video_info
@@ -171,7 +190,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L102"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L126"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### fetch_video
@@ -180,7 +199,7 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 
 def fetch_video(
     url:str, # YouTube video URL
-    info:dict, # Result of get_video_info
+    info:dict | __main__._YtDlpInfo, # Result of get_video_info or validated subset
     root:str | pathlib.Path=None, # Root download directory (default: ~/.cache/yttoc)
 )->Path: # Path to video directory
 
@@ -214,7 +233,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L125"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L150"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_fetch
@@ -241,7 +260,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L138"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L175"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_list
@@ -257,7 +276,7 @@ def yttoc_list(
 *List cached videos sorted by last used.*
 
 ``` python
-# Test: yttoc_list output
+# Test: yttoc_list cache-walking (ordering, filtering, lang recovery)
 import io, contextlib
 from tempfile import TemporaryDirectory
 
@@ -292,19 +311,15 @@ with TemporaryDirectory() as d:
     with contextlib.redirect_stdout(buf):
         yttoc_list(root=str(root))
     out = buf.getvalue()
-
     lines = [l for l in out.strip().splitlines() if l.strip()]
-    assert len(lines) == 2, f'expected 2 lines, got {len(lines)}'
-    assert 'CCCC' not in out, 'incomplete video CCCC should be skipped'
-    assert 'BBBB' in out, 'Japanese video should appear'
-    assert '[ja]' in out, 'BBBB should show ja'
-    assert '[en]' in out, 'AAAA should show en'
-    # BBBB before AAAA (newer first)
-    pos_b = out.index('BBBB')
-    pos_a = out.index('AAAA')
-    assert pos_b < pos_a, 'BBBB (newer) should appear before AAAA (older)'
 
-# Legacy: yttoc_list handles meta.json with empty captions dict (falls back to filename detection)
+    # Cache-walking: incomplete dirs skipped
+    assert len(lines) == 2, f'expected 2 lines, got {len(lines)}'
+    assert 'CCCC' not in out
+    # Sorting: most recently used first
+    assert out.index('BBBB') < out.index('AAAA')
+
+# Legacy: lang recovery from srt filename when captions dict is empty
 with TemporaryDirectory() as d:
     root = Path(d)
     v = root / 'LEGACY'; v.mkdir()
@@ -319,8 +334,8 @@ with TemporaryDirectory() as d:
     with contextlib.redirect_stdout(buf):
         yttoc_list(root=str(root))
     out = buf.getvalue()
-    assert 'LEGACY' in out, 'legacy video should appear'
-    assert '[en]' in out, 'should detect language from filename'
+    assert 'LEGACY' in out
+    assert '[en]' in out  # detected from filename
 
 print('ok')
 ```
@@ -351,6 +366,40 @@ with TemporaryDirectory() as d:
         pass
     else:
         assert False, 'expected ValidationError for invalid caption type in meta.json'
+print('ok')
+```
+
+    ok
+
+``` python
+# Test: _render_list returns formatted lines with no stdout capture
+from yttoc.fetch import _render_list
+from yttoc.core import Meta
+from datetime import datetime, timezone
+
+meta_a = Meta(id='AAAA', title='First Video', channel='C', duration=3661,
+              upload_date='20260101', webpage_url='https://youtube.com/watch?v=AAAA',
+              description='', captions={'en': 'auto'},
+              last_used_at=datetime(2026,4,20,12,0,tzinfo=timezone.utc))
+meta_b = Meta(id='BBBB', title='Second Video', channel='C', duration=120,
+              upload_date='20260101', webpage_url='https://youtube.com/watch?v=BBBB',
+              description='', captions={'en': 'auto', 'ja': 'manual'},
+              last_used_at=datetime(2026,4,19,8,0,tzinfo=timezone.utc))
+
+items = [(meta_a, 'en'), (meta_b, 'en,ja')]
+out = _render_list(items)
+lines = out.strip().split('\n')
+assert len(lines) == 2
+assert 'AAAA' in lines[0]
+assert '1:01:01' in lines[0]
+assert 'First Video' in lines[0]
+assert '[en]' in lines[0]
+assert 'BBBB' in lines[1]
+assert '2:00' in lines[1]
+assert '[en,ja]' in lines[1]
+
+# Empty list returns empty string
+assert _render_list([]) == ''
 print('ok')
 ```
 

@@ -5,7 +5,7 @@
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L64"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L60"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_toc_line
@@ -13,17 +13,17 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ``` python
 
 def format_toc_line(
-    section:dict, # {path, title, start, end}
+    section:NormalizedSection, # NormalizedSection or subclass (AssembledSection, FlattenedSection)
     url:str='', # webpage_url for &t= deep link (omit when empty)
-)->str: # Single-line TOC entry
+)->str: # Formatted line
 
 ```
 
-*Format a TOC section as ‘N. title H:MM:SS-H:MM:SS (span) URL&t=N’.*
+*Single-line TOC row for a section, optionally with deep-link URL.*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L57"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L53"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### slice_segments
@@ -50,7 +50,7 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ``` python
 
 def format_header(
-    meta:__main__.Meta | dict, # Parsed Meta instance or summaries.json video dict
+    meta:Meta, # Meta or duck-typed equivalent (title/channel/duration/upload_date)
 )->str: # Formatted header string
 
 ```
@@ -153,17 +153,20 @@ print('ok')
 
 ``` python
 # Test: format_toc_line
-sec = {'path': '1', 'title': 'Intro', 'start': 0, 'end': 137}
+from yttoc.core import NormalizedSection
+sec = NormalizedSection(path='1', title='Intro', start=0, end=137)
 url = 'https://www.youtube.com/watch?v=ABC'
 assert format_toc_line(sec, url) == '1. Intro 0:00-2:17 (2:17) https://www.youtube.com/watch?v=ABC&t=0'
 
-sec2 = {'path': '3', 'title': 'Deep dive', 'start': 600, 'end': 4191}
+sec2 = NormalizedSection(path='3', title='Deep dive', start=600, end=4191)
 assert format_toc_line(sec2, url) == '3. Deep dive 10:00-1:09:51 (59:51) https://www.youtube.com/watch?v=ABC&t=600'
 
 # Empty URL: no trailing space, no &t=
 assert format_toc_line(sec) == '1. Intro 0:00-2:17 (2:17)'
 print('ok')
 ```
+
+    ok
 
 ``` python
 # Test: Segment validates non-negative timestamps
@@ -297,6 +300,44 @@ m2 = Meta.model_validate_json(
 )
 assert isinstance(m2.last_used_at, datetime)
 assert m2.last_used_at.tzinfo is not None
+
+print('ok')
+```
+
+    ok
+
+``` python
+# Test: format_toc_line and format_header accept all typed inputs via polymorphism
+from datetime import datetime, timezone
+from yttoc.core import (Meta, NormalizedSection, format_header, format_toc_line)
+from yttoc.summarize import VideoBlock, AssembledSection
+from yttoc.map import FlattenedSection
+
+# format_toc_line accepts NormalizedSection, AssembledSection, FlattenedSection
+ns = NormalizedSection(path='1', title='Intro', start=0, end=300)
+as_ = AssembledSection(path='1', title='Intro', start=0, end=300,
+                        summary='s', keywords=['k'],
+                        evidence={'text': 'e', 'at': 0})
+fs = FlattenedSection(path='1', title='Intro', start=0, end=300,
+                      summary='s', keywords=['k'], evidence={'text': 'e', 'at': 0},
+                      lesson=1, video_id='X', video_title='V', jump_url='u')
+
+line_ns = format_toc_line(ns, url='https://y.com/X')
+line_as = format_toc_line(as_, url='https://y.com/X')
+line_fs = format_toc_line(fs, url='https://y.com/X')
+# All three produce the same line because only NormalizedSection fields are used
+assert line_ns == line_as == line_fs
+assert '1. Intro' in line_ns and '&t=0' in line_ns
+
+# format_header accepts Meta and VideoBlock
+meta = Meta(id='X', title='T', channel='C', duration=60, upload_date='20260101',
+            webpage_url='u', captions={'en': 'auto'},
+            last_used_at=datetime.now(timezone.utc))
+vb = VideoBlock(id='X', title='T', channel='C', url='u', duration=60, upload_date='20260101')
+header_m = format_header(meta)
+header_v = format_header(vb)
+assert header_m == header_v  # shared 4 fields are identical
+assert '# T' in header_m and 'Channel: C' in header_m and 'Duration: 1:00' in header_m
 
 print('ok')
 ```

@@ -25,7 +25,7 @@ video URL and section start times come straight from the embedded
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L45"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L54"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### flatten_sections
@@ -33,8 +33,8 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ``` python
 
 def flatten_sections(
-    docs:list, # Loaded summaries
-)->list: # One row per section with video context
+    docs:list, # Lesson-tagged summaries
+)->list: # One FlattenedSection per section with video context
 
 ```
 
@@ -43,7 +43,7 @@ attached.*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L32"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L42"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### load_summaries
@@ -53,16 +53,34 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 def load_summaries(
     video_ids:list, # Ordered video ids (lesson 1, 2, ...)
     root:Path, # Cache root dir
-)->list: # Loaded summaries with '_lesson' attached
+)->list: # Lesson-tagged summaries
 
 ```
 
-*Load each video’s summaries.json and tag with lesson number from list
+*Load each video’s summaries.json and pair with lesson number from list
 order.*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L129"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L19"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### FlattenedSection
+
+``` python
+
+def FlattenedSection(
+    data:Any
+)->None:
+
+```
+
+*One row of the cross-video keyword/topic grid. Inherits
+AssembledSection fields and adds video context.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L139"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### render_map
@@ -70,7 +88,7 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ``` python
 
 def render_map(
-    docs:list, # Loaded summaries
+    docs:list, # Lesson-tagged summaries
     title:str='Course Learning Map', # Top-level heading
     min_topic_lessons:int=2, # Threshold for By Topic inclusion
 )->str: # Full Markdown document
@@ -81,7 +99,7 @@ def render_map(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L111"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L121"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### render_by_keyword
@@ -99,7 +117,7 @@ sections.*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L90"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L100"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### render_by_topic
@@ -118,7 +136,7 @@ lessons.*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L64"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L74"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### render_by_lecture
@@ -126,7 +144,7 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ``` python
 
 def render_by_lecture(
-    docs:list, # Loaded summaries
+    docs:list, # Lesson-tagged summaries
 )->str: # Markdown fragment
 
 ```
@@ -137,7 +155,7 @@ def render_by_lecture(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L149"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L160"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_map
@@ -181,31 +199,32 @@ print('ok')
 from tempfile import TemporaryDirectory
 
 def _make_doc(vid, title, sections):
-    return {
-        'video': {'id': vid, 'title': title, 'channel': 'C',
-                  'url': f'https://youtu.be/{vid}', 'duration': 600, 'upload_date': '20260101'},
-        'sections': sections,
-        'full': {'summary': f'{title} overall.', 'keywords': ['overview'],
-                 'evidence': {'text': 'x', 'at': 0}},
-    }
+    from yttoc.summarize import AssembledSummaries, VideoBlock, AssembledSection
+    return AssembledSummaries(
+        video=VideoBlock(id=vid, title=title, channel='C',
+                         url=f'https://youtu.be/{vid}', duration=600, upload_date='20260101'),
+        sections=[AssembledSection(**s) if isinstance(s, dict) else s for s in sections],
+        full={'summary': f'{title} overall.', 'keywords': ['overview'],
+              'evidence': {'text': 'x', 'at': 0}},
+    )
 
 with TemporaryDirectory() as d:
     root = Path(d)
     (root / 'A').mkdir()
-    (root / 'A' / 'summaries.json').write_text(json.dumps(_make_doc('A', 'Lesson A', [
+    (root / 'A' / 'summaries.json').write_text(_make_doc('A', 'Lesson A', [
         {'path': '1', 'title': 'IntroA', 'start': 0, 'end': 100,
-         'summary': 's1', 'keywords': ['Git', 'FastHTML'], 'evidence': {'text': 't', 'at': 0}}])))
+         'summary': 's1', 'keywords': ['Git', 'FastHTML'], 'evidence': {'text': 't', 'at': 0}}]).model_dump_json())
     # B is intentionally missing summaries.json
     (root / 'B').mkdir()
     (root / 'C').mkdir()
-    (root / 'C' / 'summaries.json').write_text(json.dumps(_make_doc('C', 'Lesson C', [
+    (root / 'C' / 'summaries.json').write_text(_make_doc('C', 'Lesson C', [
         {'path': '1', 'title': 'IntroC', 'start': 0, 'end': 200,
-         'summary': 's2', 'keywords': ['fast html'], 'evidence': {'text': 't', 'at': 0}}])))
+         'summary': 's2', 'keywords': ['fast html'], 'evidence': {'text': 't', 'at': 0}}]).model_dump_json())
 
     docs = load_summaries(['A', 'B', 'C'], root)
     assert len(docs) == 2
-    assert docs[0]['_lesson'] == 1
-    assert docs[1]['_lesson'] == 3  # lesson number reflects original list position
+    assert docs[0][0] == 1  # (lesson, AssembledSummaries)
+    assert docs[1][0] == 3  # lesson number reflects original list position
 print('ok')
 ```
 
@@ -219,29 +238,26 @@ doc = _make_doc('VID', 'Lesson X', [
     {'path': '2', 'title': 'B', 'start': 137, 'end': 300,
      'summary': '', 'keywords': [], 'evidence': {'text': '', 'at': 0}},
 ])
-doc['_lesson'] = 1
-rows = flatten_sections([doc])
+rows = flatten_sections([(1, doc)])
 assert len(rows) == 2
-assert rows[0]['jump_url'] == 'https://youtu.be/VID&t=0'
-assert rows[1]['jump_url'] == 'https://youtu.be/VID&t=137'
-assert rows[0]['lesson'] == 1
-assert rows[0]['video_title'] == 'Lesson X'
+assert rows[0].jump_url == 'https://youtu.be/VID&t=0'
+assert rows[1].jump_url == 'https://youtu.be/VID&t=137'
+assert rows[0].lesson == 1
+assert rows[0].video_title == 'Lesson X'
 print('ok')
 ```
 
 ``` python
 # Test 5: render_by_lecture lists sections under each lesson with deep-link URLs
 docs = [
-    {**_make_doc('A', 'Lesson A', [
+    (1, _make_doc('A', 'Lesson A', [
         {'path': '1', 'title': 'IntroA', 'start': 0, 'end': 100,
-         'summary': '', 'keywords': [], 'evidence': {'text': '', 'at': 0}}]),
-     '_lesson': 1},
-    {**_make_doc('B', 'Lesson B', [
+         'summary': '', 'keywords': [], 'evidence': {'text': '', 'at': 0}}])),
+    (2, _make_doc('B', 'Lesson B', [
         {'path': '1', 'title': 'IntroB', 'start': 0, 'end': 100,
          'summary': '', 'keywords': [], 'evidence': {'text': '', 'at': 0}},
         {'path': '2', 'title': 'MainB', 'start': 200, 'end': 400,
-         'summary': '', 'keywords': [], 'evidence': {'text': '', 'at': 0}}]),
-     '_lesson': 2},
+         'summary': '', 'keywords': [], 'evidence': {'text': '', 'at': 0}}])),
 ]
 out = render_by_lecture(docs)
 assert '## By Lecture' in out
@@ -254,10 +270,20 @@ print('ok')
 
 ``` python
 # Test 6: render_by_topic includes only keywords spanning >= min_lessons distinct lessons
+from yttoc.map import FlattenedSection
 rows = [
-    {'lesson': 1, 'path': '1', 'title': 'A', 'jump_url': 'u1', 'keywords': ['Git', 'FastHTML', 'unique-to-1']},
-    {'lesson': 1, 'path': '2', 'title': 'B', 'jump_url': 'u2', 'keywords': ['Git']},
-    {'lesson': 2, 'path': '1', 'title': 'C', 'jump_url': 'u3', 'keywords': ['Git', 'fast html']},
+    FlattenedSection(path='1', title='A', start=0, end=10,
+                     summary='', keywords=['Git', 'FastHTML', 'unique-to-1'],
+                     evidence={'text': '', 'at': 0},
+                     lesson=1, video_id='v1', video_title='V1', jump_url='u1'),
+    FlattenedSection(path='2', title='B', start=0, end=10,
+                     summary='', keywords=['Git'],
+                     evidence={'text': '', 'at': 0},
+                     lesson=1, video_id='v1', video_title='V1', jump_url='u2'),
+    FlattenedSection(path='1', title='C', start=0, end=10,
+                     summary='', keywords=['Git', 'fast html'],
+                     evidence={'text': '', 'at': 0},
+                     lesson=2, video_id='v2', video_title='V2', jump_url='u3'),
 ]
 out = render_by_topic(rows, min_lessons=2)
 assert '## By Topic' in out
@@ -267,11 +293,20 @@ assert 'unique-to-1' not in out  # only 1 lesson
 print('ok')
 ```
 
+    ok
+
 ``` python
 # Test 7: render_by_keyword groups every normalized keyword across all lessons
+from yttoc.map import FlattenedSection
 rows = [
-    {'lesson': 1, 'path': '1', 'title': 'A', 'jump_url': 'u1', 'keywords': ['Solveit']},
-    {'lesson': 2, 'path': '3', 'title': 'B', 'jump_url': 'u2', 'keywords': ['solveit', 'agent']},
+    FlattenedSection(path='1', title='A', start=0, end=10,
+                     summary='', keywords=['Solveit'],
+                     evidence={'text': '', 'at': 0},
+                     lesson=1, video_id='v1', video_title='V1', jump_url='u1'),
+    FlattenedSection(path='3', title='B', start=0, end=10,
+                     summary='', keywords=['solveit', 'agent'],
+                     evidence={'text': '', 'at': 0},
+                     lesson=2, video_id='v2', video_title='V2', jump_url='u2'),
 ]
 out = render_by_keyword(rows)
 lines = out.splitlines()
@@ -283,17 +318,17 @@ assert lines[solveit_idx + 2].startswith('  - [L2 §3 B]')
 print('ok')
 ```
 
+    ok
+
 ``` python
 # Test 8: render_map composes frontmatter + title + 3 sections
 docs = [
-    {**_make_doc('A', 'Lesson A', [
+    (1, _make_doc('A', 'Lesson A', [
         {'path': '1', 'title': 'IntroA', 'start': 0, 'end': 100,
-         'summary': '', 'keywords': ['Git'], 'evidence': {'text': '', 'at': 0}}]),
-     '_lesson': 1},
-    {**_make_doc('B', 'Lesson B', [
+         'summary': '', 'keywords': ['Git'], 'evidence': {'text': '', 'at': 0}}])),
+    (2, _make_doc('B', 'Lesson B', [
         {'path': '1', 'title': 'IntroB', 'start': 0, 'end': 100,
-         'summary': '', 'keywords': ['Git'], 'evidence': {'text': '', 'at': 0}}]),
-     '_lesson': 2},
+         'summary': '', 'keywords': ['Git'], 'evidence': {'text': '', 'at': 0}}])),
 ]
 md = render_map(docs, title='Test Map', min_topic_lessons=2)
 assert md.startswith('---\nmarkmap:')
@@ -306,23 +341,17 @@ print('ok')
 ```
 
 ``` python
-# Test 9: yttoc_map CLI end-to-end (takes positional ids, prints Markdown)
-import io, contextlib
-with TemporaryDirectory() as d:
-    root = Path(d)
-    (root / 'A').mkdir()
-    (root / 'A' / 'summaries.json').write_text(json.dumps(_make_doc('A', 'Lesson A', [
-        {'path': '1', 'title': 'IntroA', 'start': 0, 'end': 100,
-         'summary': '', 'keywords': ['Git'], 'evidence': {'text': '', 'at': 0}}])))
+# Test 9: render_map directly (no stdout capture needed)
+from yttoc.map import render_map
 
-    buf = io.StringIO()
-    with contextlib.redirect_stdout(buf):
-        yttoc_map(['A'], root=str(root))
-    out = buf.getvalue()
+doc_a = _make_doc('A', 'Lesson A', [
+    {'path': '1', 'title': 'IntroA', 'start': 0, 'end': 100,
+     'summary': '', 'keywords': ['Git'], 'evidence': {'text': '', 'at': 0}}])
 
-    assert '# Course Learning Map' in out
-    assert '- Lesson 1: Lesson A' in out
-    assert 'IntroA' in out
+out = render_map([(1, doc_a)])
+assert '# Course Learning Map' in out
+assert '- Lesson 1: Lesson A' in out
+assert 'IntroA' in out
 print('ok')
 ```
 

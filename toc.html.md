@@ -211,7 +211,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L152"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L161"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_toc
@@ -357,6 +357,31 @@ with TemporaryDirectory() as d:
     assert all(isinstance(s, NormalizedSection) for s in secs)
     assert secs[0].path == '1' and secs[0].title == 'Intro' and secs[0].start == 0 and secs[0].end == 300
     assert secs[1].path == '2' and secs[1].title == 'Main' and secs[1].start == 300 and secs[1].end == 600
+print('ok')
+```
+
+    ok
+
+``` python
+# Test: _render_toc returns header + blank + formatted section lines
+from yttoc.toc import _render_toc
+from yttoc.core import NormalizedSection, Meta
+from datetime import datetime, timezone
+
+meta = Meta(id='VID2', title='Test Video', channel='Ch', duration=900,
+            upload_date='20260101', webpage_url='https://youtube.com/watch?v=VID2',
+            description='', captions={'en': 'auto'},
+            last_used_at=datetime(2000,1,1,tzinfo=timezone.utc))
+sections = [NormalizedSection(path='1', title='Intro', start=0, end=300),
+            NormalizedSection(path='2', title='Main', start=300, end=900)]
+
+out = _render_toc(meta, sections)
+lines = out.split('\n')
+assert '# Test Video' in lines[0]
+assert lines[2] == ''  # blank line between header (2 lines) and first section
+assert '1. Intro 0:00-5:00' in out
+assert '2. Main 5:00-15:00' in out
+assert '&t=300' in out
 print('ok')
 ```
 
