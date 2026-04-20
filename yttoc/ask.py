@@ -207,6 +207,18 @@ def ask(question: str, # Natural-language query
     return AskResponse(answer='No answer generated.', citations=[])
 
 # %% ../nbs/06_ask.ipynb #098006d7
+def _render_ask_result(result: AskResponse, # LLM response with answer + citations
+                       root: Path, # Cache root for citation resolution
+                      ) -> str: # Rendered answer with optional citations block
+    "Render an AskResponse as displayable text."
+    parts = [result.answer]
+    if result.citations:
+        lines = format_citations(result.citations, root)
+        parts.append('')
+        parts.append('Citations:')
+        parts.extend(lines)
+    return '\n'.join(parts)
+
 from fastcore.script import call_parse, Param
 
 @call_parse
@@ -223,12 +235,5 @@ def yttoc_ask(question: str, # Natural-language query
 
     result = ask(question, ids, model=model, max_iterations=max_iterations,
                  root=root_path, verbose=verbose)
+    print(_render_ask_result(result, root_path))
 
-    print(result.answer)
-
-    if result.citations:
-        lines = format_citations(result.citations, root_path)
-        print()
-        print('Citations:')
-        for line in lines:
-            print(line)

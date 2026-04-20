@@ -159,6 +159,18 @@ def yttoc_fetch(url: str, # YouTube video URL
 from .core import fmt_duration as _fmt_duration
 
 # %% ../nbs/01_fetch.ipynb #9e0508a9
+def _render_list(items: list[tuple['Meta', str]] # Sorted list of (meta, langs_string)
+                ) -> str: # Formatted listing, one line per video
+    "Render the yttoc_list table from pre-sorted items."
+    if not items:
+        return ''
+    lines = []
+    for meta, langs in items:
+        ts = meta.last_used_at.isoformat()[:16].replace('T', ' ')
+        dur = _fmt_duration(meta.duration)
+        lines.append(f"{meta.id}  {ts}  {dur:>8}  [{langs}]  {meta.title}")
+    return '\n'.join(lines)
+
 @call_parse
 def yttoc_list(root: str = None, # Root directory (default: ~/.cache/yttoc)
               ):
@@ -178,8 +190,7 @@ def yttoc_list(root: str = None, # Root directory (default: ~/.cache/yttoc)
         items.append((meta, langs))
 
     items.sort(key=lambda x: x[0].last_used_at, reverse=True)
-    for meta, langs in items:
-        ts = meta.last_used_at.isoformat()[:16].replace('T', ' ')
-        dur = _fmt_duration(meta.duration)
-        print(f"{meta.id}  {ts}  {dur:>8}  [{langs}]  {meta.title}")
+    out = _render_list(items)
+    if out:
+        print(out)
 
