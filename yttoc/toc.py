@@ -132,7 +132,6 @@ def generate_toc(video_id: str, # Exact video_id
             sum_path.unlink()
             print('Invalidated summaries.json (depends on toc)', file=sys.stderr)
 
-    # Return cached toc if exists
     if toc_path.exists():
         return TocFile.model_validate_json(toc_path.read_text(encoding='utf-8')).sections
 
@@ -148,6 +147,16 @@ def generate_toc(video_id: str, # Exact video_id
     _update_last_used(meta_path)
     return sections
 
+def _render_toc(meta: Meta, # Parsed Meta instance
+                sections: list[NormalizedSection], # Normalized TOC sections
+               ) -> str: # Rendered TOC: header + blank + formatted lines
+    "Render TOC output for yttoc_toc."
+    lines = [format_header(meta), '']
+    url = meta.webpage_url
+    for s in sections:
+        lines.append(format_toc_line(s, url))
+    return '\n'.join(lines)
+
 @call_parse
 def yttoc_toc(video_id: str, # Exact video_id
               root: str = None, # Root cache directory
@@ -162,10 +171,5 @@ def yttoc_toc(video_id: str, # Exact video_id
 
     meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
     sections = generate_toc(video_id, root, refresh=refresh)
-
-    print(format_header(meta))
-    print()
-    url = meta.webpage_url
-    for s in sections:
-        print(format_toc_line(s, url))
+    print(_render_toc(meta, sections))
 

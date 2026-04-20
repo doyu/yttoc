@@ -9,12 +9,34 @@ __all__ = ['get_video_info', 'fetch_video', 'yttoc_fetch', 'yttoc_list']
 import json, os
 from datetime import datetime, timezone
 from pathlib import Path
+from pydantic import BaseModel, Field
 import yt_dlp
 from .core import Meta
 
 _DEFAULT_ROOT = Path(os.environ.get('XDG_CACHE_HOME', Path.home() / '.cache')) / 'yttoc'
 
 # %% ../nbs/01_fetch.ipynb #0zd7en6efu0n
+class _YtDlpInfo(BaseModel):
+    "Subset of yt-dlp info fields consumed by yttoc.fetch."
+    id: str = Field(description="YouTube video ID")
+    title: str = Field(description="Video title")
+    channel: str = Field(description="Channel name")
+    duration: int = Field(ge=0, description="Duration in seconds")
+    upload_date: str = Field(description="Upload date in YYYYMMDD format")
+    webpage_url: str = Field(description="Canonical YouTube URL")
+    description: str = Field(default='', description="Video description (may be empty)")
+    language: str | None = Field(default=None, description="Original spoken language code")
+    subtitles: dict[str, list[dict[str, object]]] = Field(default_factory=dict,
+        description="Manual subtitle tracks by language")
+    automatic_captions: dict[str, list[dict[str, object]]] = Field(default_factory=dict,
+        description="Automatic caption tracks by language")
+
+def _coerce_video_info(info: dict | _YtDlpInfo) -> _YtDlpInfo:
+    "Validate the yt-dlp fields yttoc.fetch depends on."
+    if isinstance(info, _YtDlpInfo):
+        return info
+    return _YtDlpInfo.model_validate(info)
+
 def _pick_lang(tracks: dict,
                base_lang: str = 'en' # Preferred base language
               ) -> str | None: # Best-matching language key
@@ -39,35 +61,37 @@ def _update_last_used(meta_path: Path # Path to meta.json
     meta.last_used_at = datetime.now(timezone.utc)
     meta_path.write_text(meta.model_dump_json(indent=2), encoding='utf-8')
 
-def _build_meta(info: dict, # yt-dlp info dict
+def _build_meta(info: dict | _YtDlpInfo, # yt-dlp info dict or validated subset
                 lang: str = 'en', # Language that was fetched
                 caption_type: str = 'auto' # 'manual' or 'auto'
                ) -> Meta: # Parsed Meta instance
     "Extract fields for meta.json from yt-dlp info."
+    info = _coerce_video_info(info)
     meta = Meta(
-        id=info['id'],
-        title=info['title'],
-        channel=info['channel'],
-        duration=info['duration'],
-        upload_date=info['upload_date'],
-        webpage_url=info['webpage_url'],
-        description=info.get('description', ''),
+        id=info.id,
+        title=info.title,
+        channel=info.channel,
+        duration=info.duration,
+        upload_date=info.upload_date,
+        webpage_url=info.webpage_url,
+        description=info.description,
         captions={lang: caption_type},
         last_used_at=datetime.now(timezone.utc),
     )
     return meta
 
-def _download_srt(url: str, info: dict, out_dir: Path
+def _download_srt(url: str, info: dict | _YtDlpInfo, out_dir: Path
                  ) -> tuple[Path, str, str]: # (srt_path, lang, caption_type)
     "Download SRT captions in the video's original spoken language."
-    base_lang = info.get('language')
+    info = _coerce_video_info(info)
+    base_lang = info.language
     if not base_lang:
-        raise ValueError(f"Cannot determine original language for {info['id']}")
-    manual_lang = _pick_lang(info.get('subtitles', {}), base_lang)
-    auto_lang = _pick_lang(info.get('automatic_captions', {}), base_lang)
+        raise ValueError(f"Cannot determine original language for {info.id}")
+    manual_lang = _pick_lang(info.subtitles, base_lang)
+    auto_lang = _pick_lang(info.automatic_captions, base_lang)
     selected_lang = manual_lang or auto_lang
     if selected_lang is None:
-        raise ValueError(f"No {base_lang} captions available for {info['id']}")
+        raise ValueError(f"No {base_lang} captions available for {info.id}")
 
     sub_opt = 'writesubtitles' if manual_lang else 'writeautomaticsub'
     opts = {
@@ -83,7 +107,7 @@ def _download_srt(url: str, info: dict, out_dir: Path
     srt_path = out_dir / f'captions.{base_lang}.srt'
     matches = _glob_srt(out_dir, f'captions_{base_lang}*.srt')
     if not matches:
-        raise FileNotFoundError(f"yt-dlp did not write an srt caption for {info['id']}")
+        raise FileNotFoundError(f"yt-dlp did not write an srt caption for {info.id}")
     if len(matches) > 1:
         raise ValueError(f"Ambiguous caption files: {', '.join(p.name for p in matches)}")
     if matches[0] != srt_path:
@@ -100,12 +124,13 @@ def get_video_info(url: str # YouTube video URL
 
 # %% ../nbs/01_fetch.ipynb #irch7o3902r
 def fetch_video(url: str, # YouTube video URL
-                info: dict, # Result of get_video_info
+                info: dict | _YtDlpInfo, # Result of get_video_info or validated subset
                 root: str | Path = None, # Root download directory (default: ~/.cache/yttoc)
                ) -> Path: # Path to video directory
     "Save metadata and srt captions for one video in its original spoken language."
+    info = _coerce_video_info(info)
     root = Path(root) if root else _DEFAULT_ROOT
-    out_dir = root / info['id']
+    out_dir = root / info.id
     out_dir.mkdir(parents=True, exist_ok=True)
 
     meta_path = out_dir / 'meta.json'
