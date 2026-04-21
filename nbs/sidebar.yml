@@ -8,3 +8,4 @@ website:
       - 03_toc.ipynb
       - 04_summarize.ipynb
       - 05_map.ipynb
+      - 06_ask.ipynb
