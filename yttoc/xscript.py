@@ -105,34 +105,38 @@ def parse_xscript(path: str | Path # Path to SRT file
 import json
 from fastcore.script import call_parse
 from .core import fmt_duration, format_header, slice_segments, NormalizedSection, Meta
-from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
+from .cache import (resolve_root, meta_path, toc_path,
+                         first_srt_path, load_meta, read_model)
+from .fetch import _update_last_used
 from .toc import TocFile
 
 def _load_segments(video_id: str, section: str, root: str | None
                   ) -> tuple[Meta, list[Segment], NormalizedSection | None, Path]:
     "Load meta, parse xscript, optionally slice to section. Return (meta, segments, sec_info, meta_path)."
-    root = Path(root) if root else _DEFAULT_ROOT
-    d = root / video_id
-    meta_path = d / 'meta.json'
-    srt_files = _glob_srt(d)
-    if not (meta_path.exists() and srt_files):
+    root = resolve_root(root)
+    meta_p = meta_path(video_id, root)
+    if not meta_p.exists():
+        raise SystemExit(f"Not cached: {video_id}")
+    try:
+        srt_path = first_srt_path(video_id, root)
+    except FileNotFoundError:
         raise SystemExit(f"Not cached: {video_id}")
 
-    meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
-    segments = parse_xscript(srt_files[0])
+    meta = load_meta(video_id, root)
+    segments = parse_xscript(srt_path)
     sec_info = None
 
     if section:
-        toc_path = d / 'toc.json'
-        if not toc_path.exists():
+        toc_p = toc_path(video_id, root)
+        if not toc_p.exists():
             raise SystemExit(f"No toc.json for {video_id}. Run yttoc-toc first.")
-        toc = TocFile.model_validate_json(toc_path.read_text(encoding='utf-8'))
+        toc = read_model(toc_p, TocFile)
         sec_info = next((s for s in toc.sections if s.path == section), None)
         if sec_info is None:
             raise SystemExit(f"Section {section} not found")
         segments = slice_segments(segments, sec_info.start, sec_info.end)
 
-    return meta, segments, sec_info, meta_path
+    return meta, segments, sec_info, meta_p
 
 def _render_raw(meta: Meta, # Parsed Meta instance
                 segments: list[Segment], # Xscript segments (possibly sliced)
@@ -194,12 +198,8 @@ def _get_xscript_range_strict(video_id: str, # Exact video_id
                               root: str | Path = None # Root cache directory
                              ) -> list[Segment]: # List of Segment
     "Return parsed xscript segments within [start, end) or raise if captions are missing."
-    root = Path(root) if root else _DEFAULT_ROOT
-    d = root / video_id
-    srt_files = _glob_srt(d)
-    if not srt_files:
-        raise FileNotFoundError(f'No captions found for {video_id}')
-    segments = parse_xscript(srt_files[0])
+    srt_path = first_srt_path(video_id, root)
+    segments = parse_xscript(srt_path)
     return slice_segments(segments, start, end)
 
 def get_xscript_range(video_id: str, # Exact video_id

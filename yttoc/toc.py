@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 from pydantic import BaseModel, Field
 from .core import Segment, NormalizedSection, Meta
+from .llm import generate_structured
 
 # %% ../nbs/03_toc.ipynb #b1000005
 def _normalize_sections(raw: 'list[RawTocSection]', # [RawTocSection, ...] from LLM
@@ -88,20 +89,7 @@ class TocFile(BaseModel):
 def _call_llm(prompt: str # Full prompt
              ) -> list[RawTocSection]: # List of RawTocSection
     "Call OpenAI gpt-5.4 with Pydantic-generated schema, return raw section list."
-    import openai
-    client = openai.OpenAI()
-    response = client.chat.completions.create(
-        model='gpt-5.4',
-        response_format={
-            "type": "json_schema",
-            "json_schema": {
-                "name": "generate_toc",
-                "schema": TocLLMResult.model_json_schema(),
-            },
-        },
-        messages=[{"role": "user", "content": prompt}],
-    )
-    result = TocLLMResult.model_validate_json(response.choices[0].message.content)
+    result = generate_structured(prompt, TocLLMResult, schema_name='generate_toc')
     return result.sections
 
 
@@ -109,7 +97,9 @@ def _call_llm(prompt: str # Full prompt
 import sys
 from fastcore.script import call_parse
 from .core import format_header, format_toc_line, Meta
-from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
+from .cache import (resolve_root, meta_path, toc_path, summaries_path,
+                         first_srt_path, load_meta, read_model)
+from .fetch import _update_last_used
 from .xscript import parse_xscript
 
 def generate_toc(video_id: str, # Exact video_id
@@ -117,34 +107,36 @@ def generate_toc(video_id: str, # Exact video_id
                  refresh: bool = False, # Delete cached toc/summaries and regenerate
                 ) -> list[NormalizedSection]: # List of NormalizedSection
     "Generate toc.json for a cached video. Returns sections list."
-    root = root or _DEFAULT_ROOT
-    d = root / video_id
-    meta_path = d / 'meta.json'
-    toc_path = d / 'toc.json'
-    srt_files = _glob_srt(d)
-    if not (meta_path.exists() and srt_files):
+    root = resolve_root(root)
+    meta_p = meta_path(video_id, root)
+    toc_p = toc_path(video_id, root)
+    sum_p = summaries_path(video_id, root)
+    if not meta_p.exists():
+        raise SystemExit(f"Not cached: {video_id}")
+    try:
+        srt_path = first_srt_path(video_id, root)
+    except FileNotFoundError:
         raise SystemExit(f"Not cached: {video_id}")
 
     if refresh:
-        if toc_path.exists(): toc_path.unlink()
-        sum_path = d / 'summaries.json'
-        if sum_path.exists():
-            sum_path.unlink()
+        if toc_p.exists(): toc_p.unlink()
+        if sum_p.exists():
+            sum_p.unlink()
             print('Invalidated summaries.json (depends on toc)', file=sys.stderr)
 
-    if toc_path.exists():
-        return TocFile.model_validate_json(toc_path.read_text(encoding='utf-8')).sections
+    if toc_p.exists():
+        return read_model(toc_p, TocFile).sections
 
-    meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
-    segments = parse_xscript(srt_files[0])
+    meta = load_meta(video_id, root)
+    segments = parse_xscript(srt_path)
     prompt = _build_toc_prompt(segments, meta)
     raw = _call_llm(prompt)
     sections = _normalize_sections(raw, meta.duration)
 
-    toc_path.write_text(
+    toc_p.write_text(
         TocFile(sections=sections).model_dump_json(indent=2),
         encoding='utf-8')
-    _update_last_used(meta_path)
+    _update_last_used(meta_p)
     return sections
 
 def _render_toc(meta: Meta, # Parsed Meta instance
@@ -163,13 +155,12 @@ def yttoc_toc(video_id: str, # Exact video_id
               refresh: bool = False, # Regenerate toc (and invalidate summaries)
              ):
     "Generate and display Table of Contents for a cached video."
-    root = Path(root) if root else _DEFAULT_ROOT
-    d = root / video_id
-    meta_path = d / 'meta.json'
-    if not meta_path.exists():
+    root = resolve_root(root)
+    meta_p = meta_path(video_id, root)
+    if not meta_p.exists():
         raise SystemExit(f"Not cached: {video_id}")
 
-    meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
+    meta = load_meta(video_id, root)
     sections = generate_toc(video_id, root, refresh=refresh)
     print(_render_toc(meta, sections))
 

@@ -12,6 +12,7 @@ import re
 from collections import Counter, defaultdict
 from pathlib import Path
 from pydantic import Field
+from .cache import summaries_path, read_model, resolve_root
 from .summarize import AssembledSection, AssembledSummaries
 
 
@@ -45,9 +46,9 @@ def load_summaries(video_ids: list[str], # Ordered video ids (lesson 1, 2, ...)
     "Load each video's summaries.json and pair with lesson number from list order."
     docs = []
     for i, vid in enumerate(video_ids, 1):
-        p = Path(root) / vid / 'summaries.json'
+        p = summaries_path(vid, root)
         if not p.exists(): continue
-        doc = AssembledSummaries.model_validate_json(p.read_text(encoding='utf-8'))
+        doc = read_model(p, AssembledSummaries)
         docs.append((i, doc))
     return docs
 
@@ -154,7 +155,6 @@ def render_map(docs: list[tuple[int, AssembledSummaries]], # Lesson-tagged summa
 
 # %% ../nbs/05_map.ipynb #e1000009
 from fastcore.script import call_parse, Param
-from .fetch import _DEFAULT_ROOT
 
 @call_parse
 def yttoc_map(ids: Param('Cached video IDs in lesson order (1+ required)', str, nargs='+'),
@@ -163,7 +163,7 @@ def yttoc_map(ids: Param('Cached video IDs in lesson order (1+ required)', str, 
               min_topic_lessons: int = 2, # By Topic threshold (distinct lessons)
              ):
     "Generate a markmap-ready Markdown course map from cached summaries.json files."
-    root = Path(root) if root else _DEFAULT_ROOT
+    root = resolve_root(root)
     docs = load_summaries(ids, root)
     if not docs:
         raise SystemExit(f"No summaries.json found for: {ids}")

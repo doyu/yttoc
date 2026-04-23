@@ -10,6 +10,7 @@ __all__ = ['Evidence', 'SectionSummaryPayload', 'SummaryLLMResult', 'VideoBlock'
 import json
 from pathlib import Path
 from pydantic import BaseModel, Field
+from .llm import generate_structured
 
 
 # %% ../nbs/04_summarize.ipynb #c1000005
@@ -97,26 +98,15 @@ class AssembledSummaries(BaseModel):
 
 def _call_summary_llm(prompt: str) -> dict:
     "Call OpenAI gpt-5.4 with Pydantic-generated schema, return {full, sections} dict."
-    import openai
-    client = openai.OpenAI()
-    response = client.chat.completions.create(
-        model='gpt-5.4',
-        response_format={
-            "type": "json_schema",
-            "json_schema": {
-                "name": "generate_summaries",
-                "schema": SummaryLLMResult.model_json_schema(),
-            },
-        },
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return SummaryLLMResult.model_validate_json(
-        response.choices[0].message.content).model_dump()
+    return generate_structured(
+        prompt, SummaryLLMResult, schema_name='generate_summaries').model_dump()
 
 # %% ../nbs/04_summarize.ipynb #d286018a
 from fastcore.script import call_parse
 from .core import fmt_duration, format_header, format_toc_line, NormalizedSection, Meta
-from .fetch import _DEFAULT_ROOT, _update_last_used, _glob_srt
+from .cache import (resolve_root, meta_path, summaries_path,
+                         first_srt_path, load_meta, read_model)
+from .fetch import _update_last_used
 from .xscript import parse_xscript
 from .toc import generate_toc
 
@@ -149,29 +139,31 @@ def generate_summaries(video_id: str, # Exact video_id
                        refresh: bool = False, # Delete cached summaries and regenerate
                       ) -> AssembledSummaries: # Parsed AssembledSummaries instance
     "Generate summaries.json for a cached video. Returns parsed AssembledSummaries."
-    root = root or _DEFAULT_ROOT
-    d = root / video_id
-    meta_path = d / 'meta.json'
-    sum_path = d / 'summaries.json'
-    srt_files = _glob_srt(d)
-    if not (meta_path.exists() and srt_files):
+    root = resolve_root(root)
+    meta_p = meta_path(video_id, root)
+    sum_p = summaries_path(video_id, root)
+    if not meta_p.exists():
+        raise SystemExit(f"Not cached: {video_id}")
+    try:
+        srt_path = first_srt_path(video_id, root)
+    except FileNotFoundError:
         raise SystemExit(f"Not cached: {video_id}")
 
-    if refresh and sum_path.exists():
-        sum_path.unlink()
+    if refresh and sum_p.exists():
+        sum_p.unlink()
 
-    if sum_path.exists():
-        return AssembledSummaries.model_validate_json(sum_path.read_text(encoding='utf-8'))
+    if sum_p.exists():
+        return read_model(sum_p, AssembledSummaries)
 
     toc_sections = generate_toc(video_id, root)
-    meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
-    segments = parse_xscript(srt_files[0])
+    meta = load_meta(video_id, root)
+    segments = parse_xscript(srt_path)
     prompt = _build_summary_prompt(segments, toc_sections, meta)
     llm_result = _call_summary_llm(prompt)
     result = _assemble_summaries(meta, toc_sections, llm_result)
 
-    sum_path.write_text(result.model_dump_json(indent=2), encoding='utf-8')
-    _update_last_used(meta_path)
+    sum_p.write_text(result.model_dump_json(indent=2), encoding='utf-8')
+    _update_last_used(meta_p)
     return result
 
 def _format_section_summary(s: AssembledSection, # Assembled section with summary payload
@@ -214,7 +206,7 @@ def yttoc_sum(video_id: str, # Exact video_id
               refresh: bool = False, # Regenerate summaries
              ):
     "Display summaries for a cached video."
-    root = Path(root) if root else _DEFAULT_ROOT
+    root = resolve_root(root)
     sums = generate_summaries(video_id, root, refresh=refresh)
     try:
         print(_render_summaries(sums, section))
@@ -226,11 +218,11 @@ def _get_summaries_strict(video_id: str, # Exact video_id
                           root: Path = None # Root cache directory (default: ~/.cache/yttoc)
                          ) -> AssembledSummaries: # Parsed AssembledSummaries
     "Return validated summaries.json or raise on missing/invalid data."
-    root = root or _DEFAULT_ROOT
-    sum_path = root / video_id / 'summaries.json'
-    if not sum_path.exists():
+    root = resolve_root(root)
+    sum_p = summaries_path(video_id, root)
+    if not sum_p.exists():
         raise FileNotFoundError(f'summaries.json not found for {video_id}')
-    return AssembledSummaries.model_validate_json(sum_path.read_text(encoding='utf-8'))
+    return read_model(sum_p, AssembledSummaries)
 
 def get_summaries(video_id: str, # Exact video_id
                   root: Path = None # Root cache directory (default: ~/.cache/yttoc)
