@@ -21,7 +21,7 @@ path/end, sort, dedup, validate 4. Write `toc.json` to cache dir
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L84"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L85"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### TocFile
@@ -38,7 +38,7 @@ def TocFile(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L79"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L80"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### TocLLMResult
@@ -55,7 +55,7 @@ def TocLLMResult(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L74"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L75"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### RawTocSection
@@ -211,7 +211,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L161"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L153"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_toc
@@ -230,7 +230,7 @@ def yttoc_toc(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L115"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L105"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_toc

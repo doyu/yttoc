@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="YouTube xscript to structured Table of Contents — turn any YouTube video into searchable, timestamped knowledge">
+<meta name="description" content="Thin structured-output helper for OpenAI + Pydantic">
 
-<title>yttoc</title>
+<title>llm – yttoc</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -109,11 +109,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <link rel="stylesheet" href="styles.css">
-<meta property="og:title" content="yttoc">
-<meta property="og:description" content="YouTube xscript to structured Table of Contents — turn any YouTube video into searchable, timestamped knowledge">
+<meta property="og:title" content="llm – yttoc">
+<meta property="og:description" content="Thin structured-output helper for OpenAI + Pydantic">
 <meta property="og:site_name" content="yttoc">
-<meta name="twitter:title" content="yttoc">
-<meta name="twitter:description" content="YouTube xscript to structured Table of Contents — turn any YouTube video into searchable, timestamped knowledge">
+<meta name="twitter:title" content="llm – yttoc">
+<meta name="twitter:description" content="Thin structured-output helper for OpenAI + Pydantic">
 <meta name="twitter:card" content="summary">
 </head>
 
@@ -138,7 +138,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">yttoc</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./llm.html">llm</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -152,7 +152,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">yttoc</span></a>
   </div>
 </li>
@@ -206,7 +206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./llm.html" class="sidebar-item-text sidebar-link">
+  <a href="./llm.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">llm</span></a>
   </div>
 </li>
@@ -220,36 +220,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#usage" id="toc-usage" class="nav-link active" data-scroll-target="#usage">Usage</a>
+  <li><a href="#design" id="toc-design" class="nav-link active" data-scroll-target="#design">Design</a>
   <ul class="collapse">
-  <li><a href="#installation" id="toc-installation" class="nav-link" data-scroll-target="#installation">Installation</a></li>
+  <li><a href="#generate_structured" id="toc-generate_structured" class="nav-link" data-scroll-target="#generate_structured">generate_structured</a></li>
   </ul></li>
-  <li><a href="#example-andrej-karpathy-on-code-agents-66-min" id="toc-example-andrej-karpathy-on-code-agents-66-min" class="nav-link" data-scroll-target="#example-andrej-karpathy-on-code-agents-66-min">Example: Andrej Karpathy on Code Agents (66 min)</a>
-  <ul class="collapse">
-  <li><a href="#yttoc-toc-table-of-contents" id="toc-yttoc-toc-table-of-contents" class="nav-link" data-scroll-target="#yttoc-toc-table-of-contents"><code>yttoc-toc</code> — Table of Contents</a></li>
-  <li><a href="#yttoc-sum---section-6-section-summary" id="toc-yttoc-sum---section-6-section-summary" class="nav-link" data-scroll-target="#yttoc-sum---section-6-section-summary"><code>yttoc-sum --section 6</code> — Section Summary</a></li>
-  <li><a href="#yttoc-raw---section-6-section-transcript" id="toc-yttoc-raw---section-6-section-transcript" class="nav-link" data-scroll-target="#yttoc-raw---section-6-section-transcript"><code>yttoc-raw --section 6</code> — Section Transcript</a></li>
-  <li><a href="#all-commands" id="toc-all-commands" class="nav-link" data-scroll-target="#all-commands">All commands</a></li>
-  </ul></li>
-  <li><a href="#course-maps-across-multiple-videos" id="toc-course-maps-across-multiple-videos" class="nav-link" data-scroll-target="#course-maps-across-multiple-videos">Course maps across multiple videos</a>
-  <ul class="collapse">
-  <li><a href="#searching-with-fzf" id="toc-searching-with-fzf" class="nav-link" data-scroll-target="#searching-with-fzf">Searching with fzf</a></li>
-  </ul></li>
-  <li><a href="#development" id="toc-development" class="nav-link" data-scroll-target="#development">Development</a></li>
+  <li><a href="#tests" id="toc-tests" class="nav-link" data-scroll-target="#tests">Tests</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/doyu/yttoc/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="index.html.md"><i class="bi bi-file-code"></i>CommonMark</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/doyu/yttoc/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="llm.html.md"><i class="bi bi-file-code"></i>CommonMark</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">yttoc</h1>
+<h1 class="title">llm</h1>
 </div>
 
 <div>
   <div class="description">
-    YouTube xscript to structured Table of Contents — turn any YouTube video into searchable, timestamped knowledge
+    Thin structured-output helper for OpenAI + Pydantic
   </div>
 </div>
 
@@ -267,119 +256,66 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
-<p><code>yttoc</code> downloads YouTube captions (Japanese preferred, English fallback), parses them into normalized transcript segments, and uses an LLM to generate a structured Table of Contents with section summaries, keywords, and evidence quotes.</p>
-<p><strong>What you get from a single video URL:</strong></p>
-<ul>
-<li>Timestamped transcript (<code>yttoc-raw</code>)</li>
-<li>Auto-generated Table of Contents with deep links (<code>yttoc-toc</code>)</li>
-<li>Per-section summaries with keywords and quoted evidence (<code>yttoc-sum</code>)</li>
-</ul>
-<section id="usage" class="level2">
-<h2 class="anchored" data-anchor-id="usage">Usage</h2>
-<section id="installation" class="level3">
-<h3 class="anchored" data-anchor-id="installation">Installation</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install git+https://github.com/doyu/yttoc.git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><strong>Requirements:</strong> - Python 3.9+ - <a href="https://github.com/yt-dlp/yt-dlp">yt-dlp</a> (installed automatically) - <code>OPENAI_API_KEY</code> environment variable set (for <code>yttoc-toc</code> and <code>yttoc-sum</code>)</p>
+<section id="design" class="level2">
+<h2 class="anchored" data-anchor-id="design">Design</h2>
+<p>This helper removes the duplicated OpenAI structured-output boilerplate used by <code>toc.py</code> and <code>summarize.py</code>.</p>
+<p>It intentionally supports only the current shape: one prompt in, one structured Pydantic result out.</p>
+<hr>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/llm.py#L17" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="generate_structured" class="level3">
+<h3 class="anchored" data-anchor-id="generate_structured">generate_structured</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_structured(</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    prompt:<span class="bu">str</span>, <span class="co"># Full user prompt</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    response_model:<span class="bu">type</span>, <span class="co"># Pydantic response model</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    schema_name:<span class="bu">str</span>, <span class="co"># JSON schema name for OpenAI response_format</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    model:<span class="bu">str</span><span class="op">=</span><span class="st">'gpt-5.4'</span>, <span class="co"># OpenAI model name</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    client:Any<span class="op">=</span><span class="va">None</span>, <span class="co"># Optional prebuilt OpenAI-compatible client for tests</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>TModel: <span class="co"># Parsed response model instance</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Call OpenAI structured output and validate into the caller-provided Pydantic model.</em></p>
 </section>
 </section>
-<section id="example-andrej-karpathy-on-code-agents-66-min" class="level2">
-<h2 class="anchored" data-anchor-id="example-andrej-karpathy-on-code-agents-66-min">Example: Andrej Karpathy on Code Agents (66 min)</h2>
-<p>Fetch the video and generate a full ToC + summaries in three commands:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="va">vid</span><span class="op">=</span><span class="va">$(</span><span class="ex">yttoc-fetch</span> https://www.youtube.com/watch<span class="pp">?</span>v=kwSVtQ7dziU<span class="va">)</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-toc</span> <span class="st">"</span><span class="va">$vid</span><span class="st">"</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-sum</span> <span class="st">"</span><span class="va">$vid</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<section id="yttoc-toc-table-of-contents" class="level3">
-<h3 class="anchored" data-anchor-id="yttoc-toc-table-of-contents"><code>yttoc-toc</code> — Table of Contents</h3>
-<pre><code># Skill Issue: Andrej Karpathy on Code Agents, AutoResearch, and the Loopy Era of AI
-Channel: No Priors: AI, Machine Learning, Tech, &amp; Startups | Duration: 1:06:31 | 20260320
-
-1. AI agents change coding overnight 0:00-3:24 (3:24) https://youtube.com/watch?v=kwSVtQ7dziU&amp;t=0
-2. Parallel agents, token throughput, and the new bottleneck 3:24-6:49 (3:25) ...&amp;t=204
-3. From agents to persistent 'claws' 6:49-9:25 (2:36) ...&amp;t=409
-...
-6. AutoResearch and removing humans from the loop 16:33-21:00 (4:27) ...&amp;t=993
-...
-14. MicroGPT and teaching agents instead of humans 1:01:31-1:06:31 (5:00) ...&amp;t=3691</code></pre>
-<p>Each line links directly to that section in the YouTube player.</p>
-</section>
-<section id="yttoc-sum---section-6-section-summary" class="level3">
-<h3 class="anchored" data-anchor-id="yttoc-sum---section-6-section-summary"><code>yttoc-sum --section 6</code> — Section Summary</h3>
-<pre><code>## 6. AutoResearch and removing humans from the loop (16:33)
-AutoResearch is Karpathy's attempt to remove humans from the research loop
-by letting agents pursue objectives autonomously for long periods. He found
-that even on a well-tuned small LLM training setup, the system discovered
-improvements he had missed, reinforcing his belief in recursive self-improvement.
-**Keywords:** AutoResearch, recursive self-improvement, hyperparameter tuning,
-LLM training, DataChat, validation loss, objective metrics, automation
-**Evidence:** "I don't want to be like the researcher in the loop...
-I'm holding the system back" [17:17]</code></pre>
-</section>
-<section id="yttoc-raw---section-6-section-transcript" class="level3">
-<h3 class="anchored" data-anchor-id="yttoc-raw---section-6-section-transcript"><code>yttoc-raw --section 6</code> — Section Transcript</h3>
-<pre><code>## 6. AutoResearch and removing humans from the loop (16:33 - 21:00)
-[16:33] Auto research. Yeah. So I think like I
-[16:36] had a tweet earlier where I kind of like
-[16:38] said something along the lines of to get
-[16:40] the most out of the tools that have
-[16:41] become available now you have to remove
-[16:43] yourself as the as the bottleneck.
-...</code></pre>
-</section>
-<section id="all-commands" class="level3">
-<h3 class="anchored" data-anchor-id="all-commands">All commands</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-fetch</span> <span class="op">&lt;</span>url<span class="op">&gt;</span>              <span class="co"># Download captions (ja preferred, en fallback)</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-list</span>                     <span class="co"># Show cached videos</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-raw</span> <span class="op">&lt;</span>video_id<span class="op">&gt;</span>           <span class="co"># Full transcript</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-raw</span> <span class="op">&lt;</span>vid<span class="op">&gt;</span> --section 3    <span class="co"># Section transcript</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-toc</span> <span class="op">&lt;</span>video_id<span class="op">&gt;</span>           <span class="co"># Generate Table of Contents</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-sum</span> <span class="op">&lt;</span>video_id<span class="op">&gt;</span>           <span class="co"># All section summaries + full summary</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-sum</span> <span class="op">&lt;</span>vid<span class="op">&gt;</span> --section 3    <span class="co"># Single section summary</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-map</span> <span class="op">&lt;</span>id1<span class="op">&gt;</span> <span class="op">&lt;</span>id2<span class="op">&gt;</span> ...      <span class="co"># Course-wide learning map across multiple videos</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-</section>
-<section id="course-maps-across-multiple-videos" class="level2">
-<h2 class="anchored" data-anchor-id="course-maps-across-multiple-videos">Course maps across multiple videos</h2>
-<p>Once several videos in a course are cached, <code>yttoc-map</code> builds a single Markdown learning map with three views — <strong>By Lecture</strong> / <strong>By Topic</strong> / <strong>By Keyword</strong> — each section linking to the YouTube player at the right timestamp.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-map</span> <span class="va">$(</span><span class="fu">cat</span> course-ids.txt<span class="va">)</span> <span class="at">--title</span> <span class="st">"My Course Map"</span> <span class="op">&gt;</span> course-map.md</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Render it as an interactive folding mindmap (single offline HTML file):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npx</span> <span class="at">-y</span> markmap-cli@latest <span class="at">--offline</span> course-map.md <span class="at">-o</span> course-map.html</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">xdg-open</span> course-map.html</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>…or as a static linked page:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pandoc</span> course-map.md <span class="at">-s</span> <span class="at">--toc</span> <span class="at">-o</span> course-map.html</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<section id="searching-with-fzf" class="level3">
-<h3 class="anchored" data-anchor-id="searching-with-fzf">Searching with fzf</h3>
-<p><code>yttoc-map</code> is for <strong>browsing</strong>. For <strong>finding</strong> a specific topic across the whole course, pipe <code>summaries.json</code> through <code>jq</code> into <code>fzf</code> — fuzzy-search section titles in the left pane, see summary + keywords in the preview pane below, hit Enter to open the deep-linked YouTube URL.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">yttoc-find()</span> <span class="kw">{</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> id <span class="kw">in</span> <span class="st">"</span><span class="va">$@</span><span class="st">"</span><span class="kw">;</span> <span class="cf">do</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        <span class="ex">jq</span> <span class="at">-r</span> <span class="at">--arg</span> id <span class="st">"</span><span class="va">$id</span><span class="st">"</span> <span class="st">'</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="st">            .video.url as $u</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="st">            | .sections[]</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="st">            | [</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="st">                ($u + "&amp;t=" + (.start|tostring)),</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="st">                ($id + " §" + .path + " " + .title),</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="st">                .summary,</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="st">                (.keywords | join(", "))</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="st">            ] | @tsv</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="st">        '</span> <span class="st">"</span><span class="va">$HOME</span><span class="st">/.cache/yttoc/</span><span class="va">$id</span><span class="st">/summaries.json"</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">done</span> <span class="dt">\</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">|</span> <span class="ex">fzf</span> <span class="at">--delimiter</span><span class="op">=</span><span class="st">$'</span><span class="dt">\t</span><span class="st">'</span> <span class="dt">\</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>          <span class="at">--with-nth</span><span class="op">=</span>2 <span class="dt">\</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>          <span class="at">--preview</span> <span class="st">'printf "%s\n\nKeywords: %s\n" {3} {4}'</span> <span class="dt">\</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>          <span class="at">--preview-window</span><span class="op">=</span>down:60%:wrap <span class="dt">\</span></span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>          <span class="at">--bind</span> <span class="st">'enter:execute(xdg-open {1})'</span></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Usage — same shell-expansion style as <code>yttoc-map</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-find</span> <span class="va">$(</span><span class="fu">cat</span> course-ids.txt<span class="va">)</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-find</span> <span class="va">$(</span><span class="fu">ls</span> ~/.cache/yttoc<span class="va">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Drop into <code>~/.bashrc</code>. Replace <code>xdg-open</code> with <code>open</code> on macOS.</p>
-<p>The fzf snippet stays out of the Python package on purpose — <code>xdg-open</code>/<code>open</code> is environment-specific, fzf isn’t a Python dep, and shell composition is what shells are good at. yttoc generates the data; your shell does the searching.</p>
-</section>
-</section>
-<section id="development" class="level2">
-<h2 class="anchored" data-anchor-id="development">Development</h2>
-<p>Built with <a href="https://nbdev.fast.ai/">nbdev</a>. Source of truth is in <code>nbs/</code> notebooks.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> .</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nbdev_prepare</span>    <span class="co"># export, test, build docs</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="tests" class="level2">
+<h2 class="anchored" data-anchor-id="tests">Tests</h2>
+<div id="h1000007" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> _ToyResult(BaseModel):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    answer: <span class="bu">str</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> _FakeCompletions:</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.kw <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> create(<span class="va">self</span>, <span class="op">**</span>kw):</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.kw <span class="op">=</span> kw</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="kw">class</span> _Message:</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>            content <span class="op">=</span> <span class="st">'{"answer": "ok"}'</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">class</span> _Choice:</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>            message <span class="op">=</span> _Message()</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">class</span> _Response:</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            choices <span class="op">=</span> [_Choice()]</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> _Response()</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> _FakeChat:</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.completions <span class="op">=</span> _FakeCompletions()</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> _FakeClient:</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.chat <span class="op">=</span> _FakeChat()</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>client <span class="op">=</span> _FakeClient()</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> generate_structured(<span class="st">'hello'</span>, _ToyResult, schema_name<span class="op">=</span><span class="st">'toy'</span>, model<span class="op">=</span><span class="st">'gpt-test'</span>, client<span class="op">=</span>client)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> result <span class="op">==</span> _ToyResult(answer<span class="op">=</span><span class="st">'ok'</span>)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> client.chat.completions.kw[<span class="st">'model'</span>] <span class="op">==</span> <span class="st">'gpt-test'</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> client.chat.completions.kw[<span class="st">'messages'</span>] <span class="op">==</span> [{<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'hello'</span>}]</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> client.chat.completions.kw[<span class="st">'response_format'</span>][<span class="st">'json_schema'</span>][<span class="st">'name'</span>] <span class="op">==</span> <span class="st">'toy'</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ok</code></pre>
+</div>
+</div>
 
 
 </section>

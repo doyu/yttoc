@@ -25,7 +25,7 @@ video URL and section start times come straight from the embedded
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L54"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L55"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### flatten_sections
@@ -43,7 +43,7 @@ attached.*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L42"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L43"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### load_summaries
@@ -62,7 +62,7 @@ order.*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L19"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L20"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### FlattenedSection
@@ -80,7 +80,7 @@ AssembledSection fields and adds video context.*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L139"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L140"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### render_map
@@ -99,7 +99,7 @@ def render_map(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L121"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L122"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### render_by_keyword
@@ -117,7 +117,7 @@ sections.*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L100"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L101"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### render_by_topic
@@ -136,7 +136,7 @@ lessons.*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L74"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L75"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### render_by_lecture

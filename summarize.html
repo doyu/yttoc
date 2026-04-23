@@ -78,7 +78,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-de52dc3353fe04aa4d07820b7139bd46.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-368be6e10e2a2b62bd7965d9a2264c3e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -198,6 +198,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">ask</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cache.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">cache</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./llm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">llm</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -278,7 +290,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>If <code>toc.json</code> is missing, <a href="https://doyu.github.io/yttoc/toc.html#generate_toc"><code>generate_toc</code></a> is called first internally. The LLM call returns <code>{full, sections: {path: {...}}}</code> and <a href="https://doyu.github.io/yttoc/summarize.html#_assemble_summaries"><code>_assemble_summaries</code></a> merges it with <code>meta</code> and <code>toc_sections</code> into the canonical shape above.</p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L92" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L93" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="assembledsummaries" class="level3">
 <h3 class="anchored" data-anchor-id="assembledsummaries">AssembledSummaries</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -288,7 +300,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>On-disk shape of summaries.json.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L86" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L87" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="assembledsection" class="level3">
 <h3 class="anchored" data-anchor-id="assembledsection">AssembledSection</h3>
@@ -299,7 +311,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>TOC section with LLM-generated summary payload.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L77" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L78" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="videoblock" class="level3">
 <h3 class="anchored" data-anchor-id="videoblock">VideoBlock</h3>
@@ -310,7 +322,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Video header subset persisted inside summaries.json.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L71" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L72" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="summaryllmresult" class="level3">
 <h3 class="anchored" data-anchor-id="summaryllmresult">SummaryLLMResult</h3>
@@ -321,7 +333,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Structured output from the summary generation LLM call.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L65" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L66" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="sectionsummarypayload" class="level3">
 <h3 class="anchored" data-anchor-id="sectionsummarypayload">SectionSummaryPayload</h3>
@@ -332,7 +344,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Summary payload for one section or the full video.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L60" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L61" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="evidence" class="level3">
 <h3 class="anchored" data-anchor-id="evidence">Evidence</h3>
@@ -461,7 +473,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="cli" class="level2">
 <h2 class="anchored" data-anchor-id="cli">CLI</h2>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L211" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L203" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="yttoc_sum" class="level3">
 <h3 class="anchored" data-anchor-id="yttoc_sum">yttoc_sum</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -474,7 +486,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Display summaries for a cached video.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L147" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L137" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="generate_summaries" class="level3">
 <h3 class="anchored" data-anchor-id="generate_summaries">generate_summaries</h3>
@@ -656,7 +668,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="get_summaries" class="level2">
 <h2 class="anchored" data-anchor-id="get_summaries">get_summaries</h2>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L235" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L227" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="get_summaries-1" class="level3">
 <h3 class="anchored" data-anchor-id="get_summaries-1">get_summaries</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a></span>

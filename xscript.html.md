@@ -220,7 +220,7 @@ for d in cache.iterdir() if cache.exists() else []:
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L180"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L184"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_txt
@@ -239,7 +239,7 @@ def yttoc_txt(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L170"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L174"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_raw
