@@ -85,13 +85,6 @@ Why adopted:
 - Symmetric for both `TocLLMResult` (list-based) and `SummaryLLMResult` (dict-based) — no per-caller branching.
 - Test added in `nbs/08_llm.ipynb` covers the trailing-content case.
 
-## When to revisit
+## Future work
 
-If we end up with more callers, or if OpenAI relaxes strict-mode constraints around `additionalProperties`, the cleaner path is:
-
-1. Refactor `SummaryLLMResult.sections` from `dict[str, ...]` to `list[PathedSummary]` (path as a field).
-2. Update the summary prompt's response-shape description.
-3. Adapter inside `_call_summary_llm` converts list → dict so `_assemble_summaries` is untouched.
-4. Switch `generate_structured` to `client.chat.completions.parse()` and drop `schema_name`.
-
-That brings us back to Option A with full strict-mode safety. It is intentionally deferred — the current bug does not justify it.
+The deferred refactor back to `parse()` (Option A) is tracked as a task in [#36](https://github.com/doyu/yttoc/issues/36), including completion criteria and triggers to revisit. This document captures the *decision*; the issue captures the *task state*.
