@@ -6,6 +6,7 @@
 __all__ = ['TModel', 'generate_structured']
 
 # %% ../nbs/08_llm.ipynb #h1000004
+import json
 from typing import Any, TypeVar
 import openai
 from pydantic import BaseModel
@@ -34,5 +35,9 @@ def generate_structured(prompt: str, # Full user prompt
         },
         messages=[{'role': 'user', 'content': prompt}],
     )
-    return response_model.model_validate_json(response.choices[0].message.content)
+    # Some models occasionally emit trailing content after the primary JSON
+    # object; extract just the first JSON value.
+    content = response.choices[0].message.content
+    obj, _ = json.JSONDecoder().raw_decode(content.lstrip())
+    return response_model.model_validate(obj)
 

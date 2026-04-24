@@ -101,6 +101,7 @@ def _call_summary_llm(prompt: str) -> dict:
     return generate_structured(
         prompt, SummaryLLMResult, schema_name='generate_summaries').model_dump()
 
+
 # %% ../nbs/04_summarize.ipynb #d286018a
 from fastcore.script import call_parse
 from .core import fmt_duration, format_header, format_toc_line, NormalizedSection, Meta
