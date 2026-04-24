@@ -53,6 +53,10 @@ assert _pick_lang({'ja': []}) is None
 assert _pick_lang({'ja': []}, 'ja') == 'ja'
 assert _pick_lang({'ja-JP': []}, 'ja') == 'ja-JP'
 assert _pick_lang({'en': []}, 'ja') is None
+# Regional tag → parent family, then sibling variants
+assert _pick_lang({'en': []}, 'en-US') == 'en'
+assert _pick_lang({'en-GB': []}, 'en-US') == 'en-GB'
+assert _pick_lang({'en': [], 'en-US': []}, 'en-US') == 'en-US'
 
 # Test: _build_meta
 fake_info = {'id': 'X', 'title': 't', 'channel': 'c', 'duration': 1,
@@ -88,50 +92,48 @@ print('ok')
 
 ``` python
 # Test: _download_srt language resolution (unit-level, no network)
-# Picks the original spoken language from info['language'], preferring manual
-# captions over auto. No cross-language fallback / translation.
+# Picks the actually-matched caption key from info['language'], preferring manual
+# over auto. For regional tags (e.g. 'en-US') falls back to the parent family.
 
 def _resolve_lang(info):
     "Simulate _download_srt's language resolution without downloading."
     base = info.get('language')
     if not base:
-        return None, None, None
+        return None, None
     manual = _pick_lang(info.get('subtitles', {}), base)
     auto = _pick_lang(info.get('automatic_captions', {}), base)
-    if manual or auto:
-        return base, ('manual' if manual else 'auto'), (manual or auto)
-    return None, None, None
+    sel = manual or auto
+    if sel is None:
+        return None, None
+    return sel, ('manual' if manual else 'auto')
 
 # English video with manual en subs → en manual
-lang, ctype, sel = _resolve_lang({'language': 'en', 'subtitles': {'en': []}, 'automatic_captions': {}})
-assert (lang, ctype, sel) == ('en', 'manual', 'en')
+assert _resolve_lang({'language': 'en', 'subtitles': {'en': []}, 'automatic_captions': {}}) == ('en', 'manual')
 
 # English video with only auto en → en auto
-lang, ctype, sel = _resolve_lang({'language': 'en', 'subtitles': {}, 'automatic_captions': {'en': [], 'ja': []}})
-assert (lang, ctype) == ('en', 'auto') and sel == 'en'
+assert _resolve_lang({'language': 'en', 'subtitles': {}, 'automatic_captions': {'en': [], 'ja': []}}) == ('en', 'auto')
 
 # Japanese video → picks ja, ignores en
-lang, ctype, sel = _resolve_lang({'language': 'ja', 'subtitles': {}, 'automatic_captions': {'ja': [], 'en': []}})
-assert (lang, ctype, sel) == ('ja', 'auto', 'ja')
+assert _resolve_lang({'language': 'ja', 'subtitles': {}, 'automatic_captions': {'ja': [], 'en': []}}) == ('ja', 'auto')
 
-# Original ja with ja-JP variant
-lang, ctype, sel = _resolve_lang({'language': 'ja', 'subtitles': {'ja-JP': []}, 'automatic_captions': {}})
-assert (lang, ctype, sel) == ('ja', 'manual', 'ja-JP')
+# Original ja with ja-JP variant — records the matched key
+assert _resolve_lang({'language': 'ja', 'subtitles': {'ja-JP': []}, 'automatic_captions': {}}) == ('ja-JP', 'manual')
+
+# Regional base language falls back to parent family — records 'en', not 'en-US'
+assert _resolve_lang({'language': 'en-US', 'subtitles': {}, 'automatic_captions': {'en': []}}) == ('en', 'auto')
 
 # English video but no en captions at all → None (no cross-language fallback)
-lang, ctype, sel = _resolve_lang({'language': 'en', 'subtitles': {}, 'automatic_captions': {'ja': []}})
-assert lang is None
+assert _resolve_lang({'language': 'en', 'subtitles': {}, 'automatic_captions': {'ja': []}}) == (None, None)
 
 # Missing language field → None
-lang, ctype, sel = _resolve_lang({'subtitles': {'en': []}, 'automatic_captions': {}})
-assert lang is None
+assert _resolve_lang({'subtitles': {'en': []}, 'automatic_captions': {}}) == (None, None)
 
 print('ok')
 ```
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L107"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L109"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_video_info
@@ -157,7 +159,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L114"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L116"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### fetch_video
@@ -200,7 +202,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L139"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L141"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_fetch
@@ -227,7 +229,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L164"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L166"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_list

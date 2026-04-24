@@ -260,7 +260,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L202"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L203"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_sum
@@ -281,7 +281,7 @@ def yttoc_sum(
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L136"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L137"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_summaries
@@ -470,7 +470,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L226"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L227"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_summaries

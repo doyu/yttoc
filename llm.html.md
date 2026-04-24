@@ -13,7 +13,7 @@ structured Pydantic result out.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/llm.py#L17"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/llm.py#L18"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_structured
@@ -42,12 +42,15 @@ class _ToyResult(BaseModel):
     answer: str
 
 class _FakeCompletions:
-    def __init__(self):
+    def __init__(self, content='{"answer": "ok"}'):
         self.kw = None
+        self.content = content
     def create(self, **kw):
         self.kw = kw
+        content = self.content
         class _Message:
-            content = '{"answer": "ok"}'
+            pass
+        _Message.content = content
         class _Choice:
             message = _Message()
         class _Response:
@@ -55,19 +58,24 @@ class _FakeCompletions:
         return _Response()
 
 class _FakeChat:
-    def __init__(self):
-        self.completions = _FakeCompletions()
+    def __init__(self, content='{"answer": "ok"}'):
+        self.completions = _FakeCompletions(content)
 
 class _FakeClient:
-    def __init__(self):
-        self.chat = _FakeChat()
+    def __init__(self, content='{"answer": "ok"}'):
+        self.chat = _FakeChat(content)
 
+# Happy path
 client = _FakeClient()
 result = generate_structured('hello', _ToyResult, schema_name='toy', model='gpt-test', client=client)
 assert result == _ToyResult(answer='ok')
 assert client.chat.completions.kw['model'] == 'gpt-test'
 assert client.chat.completions.kw['messages'] == [{'role': 'user', 'content': 'hello'}]
 assert client.chat.completions.kw['response_format']['json_schema']['name'] == 'toy'
+
+# Trailing content after the first JSON object is tolerated.
+client = _FakeClient(content='{"answer": "ok"}\n{"junk": 1}')
+assert generate_structured('p', _ToyResult, schema_name='toy', client=client) == _ToyResult(answer='ok')
 print('ok')
 ```
 
