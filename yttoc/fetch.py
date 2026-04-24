@@ -38,13 +38,15 @@ def _coerce_video_info(info: dict | _YtDlpInfo) -> _YtDlpInfo:
     return _YtDlpInfo.model_validate(info)
 
 def _pick_lang(tracks: dict,
-               base_lang: str = 'en' # Preferred base language
-              ) -> str | None: # Best-matching language key
-    "Select an exact or prefix language match from yt-dlp subtitle tracks."
+               base_lang: str = 'en' # Preferred base language (may be a regional tag like 'en-US')
+              ) -> str | None: # Best-matching language key actually present in tracks
+    "Match base_lang exactly, else its parent family, else a sibling variant."
     tracks = tracks or {}
     if base_lang in tracks: return base_lang
+    family = base_lang.split('-', 1)[0]
+    if family != base_lang and family in tracks: return family
     for lang in sorted(k for k in tracks if k != 'live_chat'):
-        if lang.startswith(f'{base_lang}-'):
+        if lang.startswith(f'{family}-'):
             return lang
     return None
 
@@ -68,7 +70,7 @@ def _build_meta(info: dict | _YtDlpInfo, # yt-dlp info dict or validated subset
     return meta
 
 def _download_srt(url: str, info: dict | _YtDlpInfo, out_dir: Path
-                 ) -> tuple[Path, str, str]: # (srt_path, lang, caption_type)
+                 ) -> tuple[Path, str, str]: # (srt_path, selected_lang, caption_type)
     "Download SRT captions in the video's original spoken language."
     info = _coerce_video_info(info)
     base_lang = info.language
@@ -86,13 +88,13 @@ def _download_srt(url: str, info: dict | _YtDlpInfo, out_dir: Path
         sub_opt: True,
         'subtitleslangs': [selected_lang],
         'subtitlesformat': 'srt',
-        'outtmpl': str(out_dir / f'captions_{base_lang}.%(ext)s'),
+        'outtmpl': str(out_dir / f'captions_{selected_lang}.%(ext)s'),
     }
     with yt_dlp.YoutubeDL(opts) as ydl:
         ydl.download([url])
 
-    srt_path = out_dir / f'captions.{base_lang}.srt'
-    matches = glob_srt(out_dir, f'captions_{base_lang}*.srt')
+    srt_path = out_dir / f'captions.{selected_lang}.srt'
+    matches = glob_srt(out_dir, f'captions_{selected_lang}*.srt')
     if not matches:
         raise FileNotFoundError(f"yt-dlp did not write an srt caption for {info.id}")
     if len(matches) > 1:
@@ -100,7 +102,7 @@ def _download_srt(url: str, info: dict | _YtDlpInfo, out_dir: Path
     if matches[0] != srt_path:
         matches[0].replace(srt_path)
     caption_type = 'manual' if manual_lang else 'auto'
-    return srt_path, base_lang, caption_type
+    return srt_path, selected_lang, caption_type
 
 
 # %% ../nbs/01_fetch.ipynb #tccc8rj4sxs
