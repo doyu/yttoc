@@ -97,6 +97,7 @@ from pydantic import ValidationError
 from .summarize import _get_summaries_strict as _read_summaries, AssembledSection
 from .xscript import _get_xscript_range_strict as _read_xscript_range
 from .core import fmt_duration
+from .cache import resolve_root
 
 def _find_section(sections: list[AssembledSection], seconds: int) -> AssembledSection | None:
     "Find the section containing the given timestamp. Returns None if no match."
@@ -109,8 +110,7 @@ def format_citations(citations: list[Citation], # List of Citation objects
                      root: Path = None # Cache root for summaries lookup
                     ) -> list[str]: # Formatted citation lines
     "Resolve Citation objects into display lines with YouTube deep links."
-    from yttoc.fetch import _DEFAULT_ROOT
-    root = root or _DEFAULT_ROOT
+    root = resolve_root(root)
     lines = []
     for i, c in enumerate(citations, 1):
         vid, sec = c.video_id, c.seconds
@@ -158,8 +158,7 @@ def ask(question: str, # Natural-language query
         verbose: bool = False # Print tool calls to stderr
        ) -> AskResponse:
     "Run a tool-use loop to answer a question about a video course."
-    from yttoc.fetch import _DEFAULT_ROOT
-    root = root or _DEFAULT_ROOT
+    root = resolve_root(root)
     client = openai.OpenAI()
     registry = build_registry(root)
     tools = openai_tools(registry)
@@ -230,8 +229,7 @@ def yttoc_ask(question: str, # Natural-language query
               verbose: bool = False, # Show tool-use trace on stderr
              ):
     "Answer a question about a video course using LLM tool use."
-    from yttoc.fetch import _DEFAULT_ROOT
-    root_path = Path(root) if root else _DEFAULT_ROOT
+    root_path = resolve_root(root)
 
     result = ask(question, ids, model=model, max_iterations=max_iterations,
                  root=root_path, verbose=verbose)

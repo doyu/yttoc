@@ -6,14 +6,14 @@
 __all__ = ['get_video_info', 'fetch_video', 'yttoc_fetch', 'yttoc_list']
 
 # %% ../nbs/01_fetch.ipynb #k1vfan4sv
-import json, os
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 from pydantic import BaseModel, Field
 import yt_dlp
 from .core import Meta
+from .cache import resolve_root, glob_srt, touch_meta
 
-_DEFAULT_ROOT = Path(os.environ.get('XDG_CACHE_HOME', Path.home() / '.cache')) / 'yttoc'
 
 # %% ../nbs/01_fetch.ipynb #0zd7en6efu0n
 class _YtDlpInfo(BaseModel):
@@ -47,19 +47,6 @@ def _pick_lang(tracks: dict,
         if lang.startswith(f'{base_lang}-'):
             return lang
     return None
-
-def _glob_srt(out_dir: str | Path, # Directory to search
-              pattern: str = 'captions.*.srt' # Glob pattern
-             ) -> list[Path]: # Sorted matching paths
-    "Find SRT files matching a glob pattern."
-    return sorted(Path(out_dir).glob(pattern))
-
-def _update_last_used(meta_path: Path # Path to meta.json
-                     ) -> None:
-    "Update last_used_at timestamp in meta.json."
-    meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
-    meta.last_used_at = datetime.now(timezone.utc)
-    meta_path.write_text(meta.model_dump_json(indent=2), encoding='utf-8')
 
 def _build_meta(info: dict | _YtDlpInfo, # yt-dlp info dict or validated subset
                 lang: str = 'en', # Language that was fetched
@@ -105,7 +92,7 @@ def _download_srt(url: str, info: dict | _YtDlpInfo, out_dir: Path
         ydl.download([url])
 
     srt_path = out_dir / f'captions.{base_lang}.srt'
-    matches = _glob_srt(out_dir, f'captions_{base_lang}*.srt')
+    matches = glob_srt(out_dir, f'captions_{base_lang}*.srt')
     if not matches:
         raise FileNotFoundError(f"yt-dlp did not write an srt caption for {info.id}")
     if len(matches) > 1:
@@ -114,6 +101,7 @@ def _download_srt(url: str, info: dict | _YtDlpInfo, out_dir: Path
         matches[0].replace(srt_path)
     caption_type = 'manual' if manual_lang else 'auto'
     return srt_path, base_lang, caption_type
+
 
 # %% ../nbs/01_fetch.ipynb #tccc8rj4sxs
 def get_video_info(url: str # YouTube video URL
@@ -129,19 +117,20 @@ def fetch_video(url: str, # YouTube video URL
                ) -> Path: # Path to video directory
     "Save metadata and srt captions for one video in its original spoken language."
     info = _coerce_video_info(info)
-    root = Path(root) if root else _DEFAULT_ROOT
+    root = resolve_root(root)
     out_dir = root / info.id
     out_dir.mkdir(parents=True, exist_ok=True)
 
     meta_path = out_dir / 'meta.json'
-    if _glob_srt(out_dir) and meta_path.exists():
-        _update_last_used(meta_path)
+    if glob_srt(out_dir) and meta_path.exists():
+        touch_meta(info.id, root)
         return out_dir
 
     _srt_path, lang, caption_type = _download_srt(url, info, out_dir)
     meta = _build_meta(info, lang=lang, caption_type=caption_type)
     meta_path.write_text(meta.model_dump_json(indent=2), encoding='utf-8')
     return out_dir
+
 
 # %% ../nbs/01_fetch.ipynb #56af6a8c
 from fastcore.script import call_parse
@@ -175,14 +164,14 @@ def _render_list(items: list[tuple['Meta', str]] # Sorted list of (meta, langs_s
 def yttoc_list(root: str = None, # Root directory (default: ~/.cache/yttoc)
               ):
     "List cached videos sorted by last used."
-    root = Path(root) if root else _DEFAULT_ROOT
+    root = resolve_root(root)
     if not root.exists(): return
 
     items = []  # list of (meta: Meta, langs: str)
     for d in root.iterdir():
         if not d.is_dir(): continue
         meta_path = d / 'meta.json'
-        srt_files = _glob_srt(d)
+        srt_files = glob_srt(d)
         if not (meta_path.exists() and srt_files): continue
         meta = Meta.model_validate_json(meta_path.read_text(encoding='utf-8'))
         captions = meta.captions or {p.stem.split('.', 1)[1]: '?' for p in srt_files}

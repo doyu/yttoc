@@ -106,13 +106,12 @@ import json
 from fastcore.script import call_parse
 from .core import fmt_duration, format_header, slice_segments, NormalizedSection, Meta
 from .cache import (resolve_root, meta_path, toc_path,
-                         first_srt_path, load_meta, read_model)
-from .fetch import _update_last_used
+                         first_srt_path, load_meta, read_model, touch_meta)
 from .toc import TocFile
 
 def _load_segments(video_id: str, section: str, root: str | None
-                  ) -> tuple[Meta, list[Segment], NormalizedSection | None, Path]:
-    "Load meta, parse xscript, optionally slice to section. Return (meta, segments, sec_info, meta_path)."
+                  ) -> tuple[Meta, list[Segment], NormalizedSection | None]:
+    "Load meta, parse xscript, optionally slice to section. Return (meta, segments, sec_info)."
     root = resolve_root(root)
     meta_p = meta_path(video_id, root)
     if not meta_p.exists():
@@ -136,7 +135,7 @@ def _load_segments(video_id: str, section: str, root: str | None
             raise SystemExit(f"Section {section} not found")
         segments = slice_segments(segments, sec_info.start, sec_info.end)
 
-    return meta, segments, sec_info, meta_p
+    return meta, segments, sec_info
 
 def _render_raw(meta: Meta, # Parsed Meta instance
                 segments: list[Segment], # Xscript segments (possibly sliced)
@@ -176,9 +175,9 @@ def yttoc_raw(video_id: str, # Exact video_id
               root: str = None, # Root cache directory (default: ~/.cache/yttoc)
              ):
     "Display transcript for a cached video (full or by section)."
-    meta, segments, sec_info, meta_path = _load_segments(video_id, section, root)
+    meta, segments, sec_info = _load_segments(video_id, section, root)
     print(_render_raw(meta, segments, section, sec_info))
-    _update_last_used(meta_path)
+    touch_meta(video_id, root)
 
 @call_parse
 def yttoc_txt(video_id: str, # Exact video_id
@@ -186,9 +185,9 @@ def yttoc_txt(video_id: str, # Exact video_id
               root: str = None, # Root cache directory (default: ~/.cache/yttoc)
              ):
     "Display transcript as plain prose with no timestamps."
-    meta, segments, sec_info, meta_path = _load_segments(video_id, section, root)
+    meta, segments, sec_info = _load_segments(video_id, section, root)
     print(_render_txt(meta, segments, section, sec_info))
-    _update_last_used(meta_path)
+    touch_meta(video_id, root)
 
 
 # %% ../nbs/02_xscript.ipynb #db2334f5

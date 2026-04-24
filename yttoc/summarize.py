@@ -105,8 +105,7 @@ def _call_summary_llm(prompt: str) -> dict:
 from fastcore.script import call_parse
 from .core import fmt_duration, format_header, format_toc_line, NormalizedSection, Meta
 from .cache import (resolve_root, meta_path, summaries_path,
-                         first_srt_path, load_meta, read_model)
-from .fetch import _update_last_used
+                         first_srt_path, load_meta, read_model, touch_meta)
 from .xscript import parse_xscript
 from .toc import generate_toc
 
@@ -163,7 +162,7 @@ def generate_summaries(video_id: str, # Exact video_id
     result = _assemble_summaries(meta, toc_sections, llm_result)
 
     sum_p.write_text(result.model_dump_json(indent=2), encoding='utf-8')
-    _update_last_used(meta_p)
+    touch_meta(video_id, root)
     return result
 
 def _format_section_summary(s: AssembledSection, # Assembled section with summary payload

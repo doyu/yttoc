@@ -98,8 +98,7 @@ import sys
 from fastcore.script import call_parse
 from .core import format_header, format_toc_line, Meta
 from .cache import (resolve_root, meta_path, toc_path, summaries_path,
-                         first_srt_path, load_meta, read_model)
-from .fetch import _update_last_used
+                         first_srt_path, load_meta, read_model, touch_meta)
 from .xscript import parse_xscript
 
 def generate_toc(video_id: str, # Exact video_id
@@ -136,7 +135,7 @@ def generate_toc(video_id: str, # Exact video_id
     toc_p.write_text(
         TocFile(sections=sections).model_dump_json(indent=2),
         encoding='utf-8')
-    _update_last_used(meta_p)
+    touch_meta(video_id, root)
     return sections
 
 def _render_toc(meta: Meta, # Parsed Meta instance
