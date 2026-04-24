@@ -220,7 +220,7 @@ for d in cache.iterdir() if cache.exists() else []:
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L184"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L183"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_txt
@@ -239,7 +239,7 @@ def yttoc_txt(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L174"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L173"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_raw
@@ -258,7 +258,7 @@ def yttoc_raw(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L205"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L204"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_xscript_range
@@ -367,7 +367,7 @@ with TemporaryDirectory() as d:
         {'path': '2', 'title': 'Main', 'start': 5, 'end': 15},
     ]}))
 
-    meta, segments, sec_info, _ = _load_segments('VID3', '2', str(root))
+    meta, segments, sec_info = _load_segments('VID3', '2', str(root))
     out = _render_raw(meta, segments, '2', sec_info)
 
     assert '## 2. Main (0:05 - 0:15)' in out
@@ -429,7 +429,7 @@ with TemporaryDirectory() as d:
         {'path': '2', 'title': 'Main', 'start': 5, 'end': 15},
     ]}))
 
-    meta, segments, sec_info, _ = _load_segments('VID_TXT2', '2', str(root))
+    meta, segments, sec_info = _load_segments('VID_TXT2', '2', str(root))
     out = _render_txt(meta, segments, '2', sec_info)
 
     assert '## 2. Main (0:05 - 0:15)' in out

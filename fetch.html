@@ -78,7 +78,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-368be6e10e2a2b62bd7965d9a2264c3e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-de52dc3353fe04aa4d07820b7139bd46.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -299,67 +299,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> _pick_lang({<span class="st">'ja-JP'</span>: []}, <span class="st">'ja'</span>) <span class="op">==</span> <span class="st">'ja-JP'</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> _pick_lang({<span class="st">'en'</span>: []}, <span class="st">'ja'</span>) <span class="kw">is</span> <span class="va">None</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># _glob_srt with default pattern (cache lookup)</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    base <span class="op">=</span> Path(d)</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> _glob_srt(base) <span class="op">==</span> []</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    (base <span class="op">/</span> <span class="st">'captions.ja.srt'</span>).write_text(<span class="st">'1'</span>, encoding<span class="op">=</span><span class="st">'utf-8'</span>)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> _glob_srt(base) <span class="op">==</span> [base <span class="op">/</span> <span class="st">'captions.ja.srt'</span>]</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># _glob_srt with download prefix pattern</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    base <span class="op">=</span> Path(d)</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    sample <span class="op">=</span> base <span class="op">/</span> <span class="st">'captions_en.en-US.srt'</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    sample.write_text(<span class="st">'1'</span>, encoding<span class="op">=</span><span class="st">'utf-8'</span>)</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> _glob_srt(base, <span class="st">'captions_en*.srt'</span>) <span class="op">==</span> [sample]</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: _build_meta</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>fake_info <span class="op">=</span> {<span class="st">'id'</span>: <span class="st">'X'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>, <span class="st">'duration'</span>: <span class="dv">1</span>,</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>             <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'u'</span>,</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>             <span class="st">'description'</span>: <span class="st">'desc'</span>, <span class="st">'subtitles'</span>: {}, <span class="st">'automatic_captions'</span>: {<span class="st">'en'</span>: []}}</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>typed <span class="op">=</span> _coerce_video_info({</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">'id'</span>: <span class="st">'Y'</span>, <span class="st">'title'</span>: <span class="st">'typed'</span>, <span class="st">'channel'</span>: <span class="st">'chan'</span>, <span class="st">'duration'</span>: <span class="dv">2</span>,</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'https://y.com/Y'</span>})</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> typed.description <span class="op">==</span> <span class="st">''</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> typed.language <span class="kw">is</span> <span class="va">None</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> typed.subtitles <span class="op">==</span> {}</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> typed.automatic_captions <span class="op">==</span> {}</span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    _coerce_video_info({<span class="st">'id'</span>: <span class="st">'BAD'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'duration'</span>: <span class="dv">1</span>,</span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'u'</span>})</span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> ValidationError:</span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="va">False</span>, <span class="st">'expected ValidationError for missing channel in yt-dlp info subset'</span></span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> _build_meta(fake_info, lang<span class="op">=</span><span class="st">'en'</span>, caption_type<span class="op">=</span><span class="st">'auto'</span>)</span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> m.captions <span class="op">==</span> {<span class="st">'en'</span>: <span class="st">'auto'</span>}</span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> m.description <span class="op">==</span> <span class="st">'desc'</span></span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>m_typed <span class="op">=</span> _build_meta(typed, lang<span class="op">=</span><span class="st">'en'</span>, caption_type<span class="op">=</span><span class="st">'auto'</span>)</span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> m_typed.<span class="bu">id</span> <span class="op">==</span> <span class="st">'Y'</span></span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>m_ja <span class="op">=</span> _build_meta(fake_info, lang<span class="op">=</span><span class="st">'ja'</span>, caption_type<span class="op">=</span><span class="st">'manual'</span>)</span>
-<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> m_ja.captions <span class="op">==</span> {<span class="st">'ja'</span>: <span class="st">'manual'</span>}</span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: _update_last_used</span></span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
-<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> Path(d) <span class="op">/</span> <span class="st">'meta.json'</span></span>
-<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    p.write_text(json.dumps({</span>
-<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'X'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>, <span class="st">'duration'</span>: <span class="dv">60</span>,</span>
-<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>        <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'https://y.com/X'</span>,</span>
-<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>        <span class="st">'description'</span>: <span class="st">''</span>, <span class="st">'captions'</span>: {<span class="st">'en'</span>: <span class="st">'auto'</span>},</span>
-<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>,</span>
-<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    }), encoding<span class="op">=</span><span class="st">'utf-8'</span>)</span>
-<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    _update_last_used(p)</span>
-<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    updated <span class="op">=</span> json.loads(p.read_text(encoding<span class="op">=</span><span class="st">'utf-8'</span>))</span>
-<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> updated[<span class="st">'id'</span>] <span class="op">==</span> <span class="st">'X'</span></span>
-<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> updated[<span class="st">'last_used_at'</span>] <span class="op">!=</span> <span class="st">'2000-01-01T00:00:00+00:00'</span></span>
-<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    <span class="im">from</span> datetime <span class="im">import</span> datetime</span>
-<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> datetime.fromisoformat(updated[<span class="st">'last_used_at'</span>]).tzinfo <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span></span>
-<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: _build_meta</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>fake_info <span class="op">=</span> {<span class="st">'id'</span>: <span class="st">'X'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>, <span class="st">'duration'</span>: <span class="dv">1</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>             <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'u'</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>             <span class="st">'description'</span>: <span class="st">'desc'</span>, <span class="st">'subtitles'</span>: {}, <span class="st">'automatic_captions'</span>: {<span class="st">'en'</span>: []}}</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>typed <span class="op">=</span> _coerce_video_info({</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">'id'</span>: <span class="st">'Y'</span>, <span class="st">'title'</span>: <span class="st">'typed'</span>, <span class="st">'channel'</span>: <span class="st">'chan'</span>, <span class="st">'duration'</span>: <span class="dv">2</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'https://y.com/Y'</span>})</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> typed.description <span class="op">==</span> <span class="st">''</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> typed.language <span class="kw">is</span> <span class="va">None</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> typed.subtitles <span class="op">==</span> {}</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> typed.automatic_captions <span class="op">==</span> {}</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    _coerce_video_info({<span class="st">'id'</span>: <span class="st">'BAD'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'duration'</span>: <span class="dv">1</span>,</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'u'</span>})</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> ValidationError:</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="va">False</span>, <span class="st">'expected ValidationError for missing channel in yt-dlp info subset'</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> _build_meta(fake_info, lang<span class="op">=</span><span class="st">'en'</span>, caption_type<span class="op">=</span><span class="st">'auto'</span>)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> m.captions <span class="op">==</span> {<span class="st">'en'</span>: <span class="st">'auto'</span>}</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> m.description <span class="op">==</span> <span class="st">'desc'</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>m_typed <span class="op">=</span> _build_meta(typed, lang<span class="op">=</span><span class="st">'en'</span>, caption_type<span class="op">=</span><span class="st">'auto'</span>)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> m_typed.<span class="bu">id</span> <span class="op">==</span> <span class="st">'Y'</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>m_ja <span class="op">=</span> _build_meta(fake_info, lang<span class="op">=</span><span class="st">'ja'</span>, caption_type<span class="op">=</span><span class="st">'manual'</span>)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> m_ja.captions <span class="op">==</span> {<span class="st">'ja'</span>: <span class="st">'manual'</span>}</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ok</code></pre>
 </div>
@@ -407,7 +374,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L119" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L107" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="get_video_info" class="level3">
 <h3 class="anchored" data-anchor-id="get_video_info">get_video_info</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -425,7 +392,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L126" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L114" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="fetch_video" class="level3">
 <h3 class="anchored" data-anchor-id="fetch_video">fetch_video</h3>
@@ -447,7 +414,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>info <span class="op">=</span> get_video_info(url)</span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> fetch_video(url, info, root<span class="op">=</span>test_root)</span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> (out <span class="op">/</span> <span class="st">'meta.json'</span>).exists()</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> _glob_srt(out)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> glob_srt(out)</span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>meta <span class="op">=</span> json.loads((out <span class="op">/</span> <span class="st">'meta.json'</span>).read_text(encoding<span class="op">=</span><span class="st">'utf-8'</span>))</span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> meta[<span class="st">'id'</span>] <span class="op">==</span> <span class="st">'kwSVtQ7dziU'</span></span>
@@ -462,7 +429,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="cli" class="level2">
 <h2 class="anchored" data-anchor-id="cli">CLI</h2>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L150" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L139" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="yttoc_fetch" class="level3">
 <h3 class="anchored" data-anchor-id="yttoc_fetch">yttoc_fetch</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -480,7 +447,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L175" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L164" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="yttoc_list" class="level3">
 <h3 class="anchored" data-anchor-id="yttoc_list">yttoc_list</h3>
@@ -620,77 +587,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>ok</code></pre>
 </div>
 </div>
-<div id="e5f6a7b8" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: _update_last_used round-trip — bumps last_used_at monotonically, result is datetime-parseable</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> Path(d) <span class="op">/</span> <span class="st">'meta.json'</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    p.write_text(json.dumps({</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'RT1'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>, <span class="st">'duration'</span>: <span class="dv">60</span>,</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'https://y.com'</span>,</span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'description'</span>: <span class="st">''</span>, <span class="st">'captions'</span>: {<span class="st">'en'</span>: <span class="st">'auto'</span>},</span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>,</span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    }), encoding<span class="op">=</span><span class="st">'utf-8'</span>)</span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    _update_last_used(p)</span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    first <span class="op">=</span> json.loads(p.read_text(encoding<span class="op">=</span><span class="st">'utf-8'</span>))[<span class="st">'last_used_at'</span>]</span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> first <span class="op">!=</span> <span class="st">'2000-01-01T00:00:00+00:00'</span></span>
-<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    first_dt <span class="op">=</span> datetime.fromisoformat(first)</span>
-<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> first_dt.tzinfo <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span></span>
-<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="fl">0.001</span>)</span>
-<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    _update_last_used(p)</span>
-<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>    second <span class="op">=</span> json.loads(p.read_text(encoding<span class="op">=</span><span class="st">'utf-8'</span>))[<span class="st">'last_used_at'</span>]</span>
-<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>    second_dt <span class="op">=</span> datetime.fromisoformat(second)</span>
-<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> second_dt <span class="op">&gt;=</span> first_dt, <span class="ss">f'</span><span class="sc">{</span>second<span class="sc">}</span><span class="ss"> should be &gt;= </span><span class="sc">{</span>first<span class="sc">}</span><span class="ss">'</span></span>
-<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>ok</code></pre>
-</div>
-</div>
 <div id="d40bb3e6" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: fetch_video cache hit with existing captions</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    fake_info <span class="op">=</span> {<span class="st">'id'</span>: <span class="st">'TEST123'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>,</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'duration'</span>: <span class="dv">60</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>,</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'webpage_url'</span>: <span class="st">'https://example.com'</span>, <span class="st">'description'</span>: <span class="st">''</span>,</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'subtitles'</span>: {}, <span class="st">'automatic_captions'</span>: {<span class="st">'en'</span>: [{<span class="st">'ext'</span>: <span class="st">'srt'</span>}]}}</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    out_dir <span class="op">=</span> Path(d) <span class="op">/</span> <span class="st">'TEST123'</span></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    out_dir.mkdir()</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    (out_dir <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(<span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:01,000</span><span class="ch">\n</span><span class="st">test</span><span class="ch">\n</span><span class="st">'</span>)</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    (out_dir <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'TEST123'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>, <span class="st">'duration'</span>: <span class="dv">60</span>,</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'https://example.com'</span>,</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">'description'</span>: <span class="st">''</span>, <span class="st">'captions'</span>: {<span class="st">'en'</span>: <span class="st">'auto'</span>},</span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>,</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    }))</span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> fetch_video(<span class="st">'https://example.com'</span>, fake_info, root<span class="op">=</span>d)</span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result.name <span class="op">==</span> <span class="st">'TEST123'</span></span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    meta <span class="op">=</span> json.loads((result <span class="op">/</span> <span class="st">'meta.json'</span>).read_text())</span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'last_used_at'</span> <span class="kw">in</span> meta</span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Cache hit also works with ja srt</span></span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
-<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    out_dir <span class="op">=</span> Path(d) <span class="op">/</span> <span class="st">'TEST456'</span></span>
-<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    out_dir.mkdir()</span>
-<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>    (out_dir <span class="op">/</span> <span class="st">'captions.ja.srt'</span>).write_text(<span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:01,000</span><span class="ch">\n</span><span class="st">テスト</span><span class="ch">\n</span><span class="st">'</span>)</span>
-<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    (out_dir <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
-<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'TEST456'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>, <span class="st">'duration'</span>: <span class="dv">60</span>,</span>
-<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'https://example.com'</span>,</span>
-<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>        <span class="st">'description'</span>: <span class="st">''</span>, <span class="st">'captions'</span>: {<span class="st">'ja'</span>: <span class="st">'manual'</span>},</span>
-<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>,</span>
-<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>    }))</span>
-<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> fetch_video(<span class="st">'https://example.com'</span>,</span>
-<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'id'</span>: <span class="st">'TEST456'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>, <span class="st">'duration'</span>: <span class="dv">60</span>,</span>
-<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>         <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'u'</span>, <span class="st">'description'</span>: <span class="st">''</span>,</span>
-<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>         <span class="st">'subtitles'</span>: {<span class="st">'ja'</span>: []}, <span class="st">'automatic_captions'</span>: {}}, root<span class="op">=</span>d)</span>
-<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>    meta <span class="op">=</span> json.loads((result <span class="op">/</span> <span class="st">'meta.json'</span>).read_text())</span>
-<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> meta[<span class="st">'captions'</span>] <span class="op">==</span> {<span class="st">'ja'</span>: <span class="st">'manual'</span>}</span>
-<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: fetch_video cache hit with existing captions</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    fake_info <span class="op">=</span> {<span class="st">'id'</span>: <span class="st">'TEST123'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'duration'</span>: <span class="dv">60</span>, <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'webpage_url'</span>: <span class="st">'https://example.com'</span>, <span class="st">'description'</span>: <span class="st">''</span>,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'subtitles'</span>: {}, <span class="st">'automatic_captions'</span>: {<span class="st">'en'</span>: [{<span class="st">'ext'</span>: <span class="st">'srt'</span>}]}}</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    out_dir <span class="op">=</span> Path(d) <span class="op">/</span> <span class="st">'TEST123'</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    out_dir.mkdir()</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    (out_dir <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(<span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:01,000</span><span class="ch">\n</span><span class="st">test</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    (out_dir <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'TEST123'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>, <span class="st">'duration'</span>: <span class="dv">60</span>,</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'https://example.com'</span>,</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">'description'</span>: <span class="st">''</span>, <span class="st">'captions'</span>: {<span class="st">'en'</span>: <span class="st">'auto'</span>},</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>,</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    }))</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> fetch_video(<span class="st">'https://example.com'</span>, fake_info, root<span class="op">=</span>d)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> result.name <span class="op">==</span> <span class="st">'TEST123'</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    meta <span class="op">=</span> json.loads((result <span class="op">/</span> <span class="st">'meta.json'</span>).read_text())</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'last_used_at'</span> <span class="kw">in</span> meta</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Cache hit also works with ja srt</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>    out_dir <span class="op">=</span> Path(d) <span class="op">/</span> <span class="st">'TEST456'</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    out_dir.mkdir()</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>    (out_dir <span class="op">/</span> <span class="st">'captions.ja.srt'</span>).write_text(<span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:01,000</span><span class="ch">\n</span><span class="st">テスト</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>    (out_dir <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'TEST456'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>, <span class="st">'duration'</span>: <span class="dv">60</span>,</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'https://example.com'</span>,</span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>        <span class="st">'description'</span>: <span class="st">''</span>, <span class="st">'captions'</span>: {<span class="st">'ja'</span>: <span class="st">'manual'</span>},</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>,</span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>    }))</span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> fetch_video(<span class="st">'https://example.com'</span>,</span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'id'</span>: <span class="st">'TEST456'</span>, <span class="st">'title'</span>: <span class="st">'t'</span>, <span class="st">'channel'</span>: <span class="st">'c'</span>, <span class="st">'duration'</span>: <span class="dv">60</span>,</span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>         <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'u'</span>, <span class="st">'description'</span>: <span class="st">''</span>,</span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>         <span class="st">'subtitles'</span>: {<span class="st">'ja'</span>: []}, <span class="st">'automatic_captions'</span>: {}}, root<span class="op">=</span>d)</span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>    meta <span class="op">=</span> json.loads((result <span class="op">/</span> <span class="st">'meta.json'</span>).read_text())</span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> meta[<span class="st">'captions'</span>] <span class="op">==</span> {<span class="st">'ja'</span>: <span class="st">'manual'</span>}</span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ok</code></pre>
 </div>

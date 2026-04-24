@@ -54,22 +54,6 @@ assert _pick_lang({'ja': []}, 'ja') == 'ja'
 assert _pick_lang({'ja-JP': []}, 'ja') == 'ja-JP'
 assert _pick_lang({'en': []}, 'ja') is None
 
-from tempfile import TemporaryDirectory
-
-# _glob_srt with default pattern (cache lookup)
-with TemporaryDirectory() as d:
-    base = Path(d)
-    assert _glob_srt(base) == []
-    (base / 'captions.ja.srt').write_text('1', encoding='utf-8')
-    assert _glob_srt(base) == [base / 'captions.ja.srt']
-
-# _glob_srt with download prefix pattern
-with TemporaryDirectory() as d:
-    base = Path(d)
-    sample = base / 'captions_en.en-US.srt'
-    sample.write_text('1', encoding='utf-8')
-    assert _glob_srt(base, 'captions_en*.srt') == [sample]
-
 # Test: _build_meta
 fake_info = {'id': 'X', 'title': 't', 'channel': 'c', 'duration': 1,
              'upload_date': '20260101', 'webpage_url': 'u',
@@ -97,23 +81,6 @@ assert m_typed.id == 'Y'
 
 m_ja = _build_meta(fake_info, lang='ja', caption_type='manual')
 assert m_ja.captions == {'ja': 'manual'}
-
-# Test: _update_last_used
-with TemporaryDirectory() as d:
-    p = Path(d) / 'meta.json'
-    p.write_text(json.dumps({
-        'id': 'X', 'title': 't', 'channel': 'c', 'duration': 60,
-        'upload_date': '20260101', 'webpage_url': 'https://y.com/X',
-        'description': '', 'captions': {'en': 'auto'},
-        'last_used_at': '2000-01-01T00:00:00+00:00',
-    }), encoding='utf-8')
-    _update_last_used(p)
-    updated = json.loads(p.read_text(encoding='utf-8'))
-    assert updated['id'] == 'X'
-    assert updated['last_used_at'] != '2000-01-01T00:00:00+00:00'
-    from datetime import datetime
-    assert datetime.fromisoformat(updated['last_used_at']).tzinfo is not None
-
 print('ok')
 ```
 
@@ -164,7 +131,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L119"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L107"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_video_info
@@ -190,7 +157,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L126"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L114"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### fetch_video
@@ -218,7 +185,7 @@ url = 'https://www.youtube.com/watch?v=kwSVtQ7dziU'
 info = get_video_info(url)
 out = fetch_video(url, info, root=test_root)
 assert (out / 'meta.json').exists()
-assert _glob_srt(out)
+assert glob_srt(out)
 
 meta = json.loads((out / 'meta.json').read_text(encoding='utf-8'))
 assert meta['id'] == 'kwSVtQ7dziU'
@@ -233,7 +200,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L150"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L139"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_fetch
@@ -260,7 +227,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L175"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L164"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_list
@@ -400,37 +367,6 @@ assert '[en,ja]' in lines[1]
 
 # Empty list returns empty string
 assert _render_list([]) == ''
-print('ok')
-```
-
-    ok
-
-``` python
-# Test: _update_last_used round-trip — bumps last_used_at monotonically, result is datetime-parseable
-import time
-from datetime import datetime
-from tempfile import TemporaryDirectory
-
-with TemporaryDirectory() as d:
-    p = Path(d) / 'meta.json'
-    p.write_text(json.dumps({
-        'id': 'RT1', 'title': 't', 'channel': 'c', 'duration': 60,
-        'upload_date': '20260101', 'webpage_url': 'https://y.com',
-        'description': '', 'captions': {'en': 'auto'},
-        'last_used_at': '2000-01-01T00:00:00+00:00',
-    }), encoding='utf-8')
-
-    _update_last_used(p)
-    first = json.loads(p.read_text(encoding='utf-8'))['last_used_at']
-    assert first != '2000-01-01T00:00:00+00:00'
-    first_dt = datetime.fromisoformat(first)
-    assert first_dt.tzinfo is not None
-
-    time.sleep(0.001)
-    _update_last_used(p)
-    second = json.loads(p.read_text(encoding='utf-8'))['last_used_at']
-    second_dt = datetime.fromisoformat(second)
-    assert second_dt >= first_dt, f'{second} should be >= {first}'
 print('ok')
 ```
 

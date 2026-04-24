@@ -78,7 +78,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-368be6e10e2a2b62bd7965d9a2264c3e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-de52dc3353fe04aa4d07820b7139bd46.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -477,7 +477,7 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Build the tool registry with handlers bound to the given cache root.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L108" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L109" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="format_citations-1" class="level3">
 <h3 class="anchored" data-anchor-id="format_citations-1">format_citations</h3>
@@ -669,9 +669,9 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 <p><em>Run a tool-use loop to answer a question about a video course.</em></p>
 <div id="f15978b5" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Integration test: ask() returns AskResponse with a real cached video</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.fetch <span class="im">import</span> _DEFAULT_ROOT</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.cache <span class="im">import</span> resolve_root</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> ask(<span class="st">'What is this course about?'</span>, [<span class="st">'7T83srD0Mu4'</span>], root<span class="op">=</span>_DEFAULT_ROOT)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> ask(<span class="st">'What is this course about?'</span>, [<span class="st">'7T83srD0Mu4'</span>], root<span class="op">=</span>resolve_root())</span>
 <span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">isinstance</span>(result, AskResponse)</span>
 <span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Answer: </span><span class="sc">{</span>result<span class="sc">.</span>answer[:<span class="dv">200</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Citations: </span><span class="sc">{</span>result<span class="sc">.</span>citations<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -681,7 +681,7 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 <section id="cli" class="level2">
 <h2 class="anchored" data-anchor-id="cli">CLI</h2>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L225" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L224" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="yttoc_ask" class="level3">
 <h3 class="anchored" data-anchor-id="yttoc_ask">yttoc_ask</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a></span>

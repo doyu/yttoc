@@ -19,7 +19,25 @@ circular imports.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L65"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L80"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### touch_meta
+
+``` python
+
+def touch_meta(
+    video_id:str, # Exact video_id
+    root:str | pathlib.Path | None=None, # Cache root override
+)->None:
+
+```
+
+*Bump last_used_at on meta.json for one cached video.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L74"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### load_meta
@@ -37,7 +55,7 @@ def load_meta(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L58"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L67"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### read_model
@@ -56,7 +74,7 @@ model class.*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L49"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L58"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### first_srt_path
@@ -74,7 +92,25 @@ def first_srt_path(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L43"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L52"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### glob_srt
+
+``` python
+
+def glob_srt(
+    out_dir:str | pathlib.Path, # Directory to search
+    pattern:str='captions.*.srt', # Glob pattern
+)->list: # Sorted matching paths
+
+```
+
+*Find SRT files matching a glob pattern.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L46"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### summaries_path
@@ -92,7 +128,7 @@ def summaries_path(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L37"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L40"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### toc_path
@@ -110,7 +146,7 @@ def toc_path(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L31"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L34"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### meta_path
@@ -128,7 +164,7 @@ def meta_path(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L25"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L28"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### video_dir
@@ -146,7 +182,7 @@ def video_dir(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L20"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L23"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### resolve_root
@@ -221,6 +257,46 @@ with TemporaryDirectory() as d:
     assert loaded == meta
     loaded2 = read_model(vdir / 'meta.json', Meta)
     assert loaded2 == meta
+print('ok')
+```
+
+    ok
+
+``` python
+import json, time
+from datetime import datetime
+from tempfile import TemporaryDirectory
+
+# glob_srt: sorting + pattern override
+with TemporaryDirectory() as d:
+    base = Path(d)
+    assert glob_srt(base) == []
+    (base / 'captions.ja.srt').write_text('2', encoding='utf-8')
+    (base / 'captions.en.srt').write_text('1', encoding='utf-8')
+    assert glob_srt(base) == [base / 'captions.en.srt', base / 'captions.ja.srt']
+    (base / 'captions_en.en-US.srt').write_text('x', encoding='utf-8')
+    assert glob_srt(base, 'captions_en*.srt') == [base / 'captions_en.en-US.srt']
+
+# touch_meta: bumps last_used_at monotonically
+with TemporaryDirectory() as d:
+    root = Path(d)
+    vdir = root / 'TM1'
+    vdir.mkdir()
+    (vdir / 'meta.json').write_text(json.dumps({
+        'id': 'TM1', 'title': 't', 'channel': 'c', 'duration': 60,
+        'upload_date': '20260101', 'webpage_url': 'u',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }), encoding='utf-8')
+    touch_meta('TM1', root)
+    first = json.loads((vdir / 'meta.json').read_text())['last_used_at']
+    assert first != '2000-01-01T00:00:00+00:00'
+    first_dt = datetime.fromisoformat(first)
+    assert first_dt.tzinfo is not None
+    time.sleep(0.001)
+    touch_meta('TM1', root)
+    second_dt = datetime.fromisoformat(json.loads((vdir / 'meta.json').read_text())['last_used_at'])
+    assert second_dt >= first_dt
 print('ok')
 ```
 

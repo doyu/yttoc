@@ -291,7 +291,7 @@ def build_registry(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L108"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L109"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_citations
@@ -494,9 +494,9 @@ def ask(
 
 ``` python
 # Integration test: ask() returns AskResponse with a real cached video
-from yttoc.fetch import _DEFAULT_ROOT
+from yttoc.cache import resolve_root
 
-result = ask('What is this course about?', ['7T83srD0Mu4'], root=_DEFAULT_ROOT)
+result = ask('What is this course about?', ['7T83srD0Mu4'], root=resolve_root())
 assert isinstance(result, AskResponse)
 print(f"Answer: {result.answer[:200]}")
 print(f"Citations: {result.citations}")
@@ -506,7 +506,7 @@ print(f"Citations: {result.citations}")
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L225"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L224"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_ask
