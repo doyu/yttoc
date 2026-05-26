@@ -41,7 +41,7 @@ merges it with `meta` and `toc_sections` into the canonical shape above.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L93"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L99"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### AssembledSummaries
@@ -58,7 +58,7 @@ def AssembledSummaries(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L87"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L93"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### AssembledSection
@@ -75,7 +75,7 @@ def AssembledSection(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L78"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L84"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### VideoBlock
@@ -92,7 +92,7 @@ def VideoBlock(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L72"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L78"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### SummaryLLMResult
@@ -109,7 +109,7 @@ def SummaryLLMResult(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L66"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L72"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### SectionSummaryPayload
@@ -126,7 +126,7 @@ def SectionSummaryPayload(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L61"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L67"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### Evidence
@@ -193,6 +193,18 @@ assert 'Intro' in prompt
 assert 'Main' in prompt
 assert 'hello world' in prompt
 assert 'second part' in prompt
+assert 'Summary language: en' in prompt
+assert 'English summary' not in prompt
+meta_ja = Meta(
+    id='T', title='Test Video', channel='Ch',
+    duration=600, upload_date='20260101',
+    webpage_url='https://youtube.com/watch?v=T',
+    description='', captions={'ja': 'auto'},
+    last_used_at=datetime(2026, 1, 1, tzinfo=timezone.utc))
+prompt_ja = _build_summary_prompt(segments, sections, meta_ja)
+assert 'Summary language: ja' in prompt_ja
+assert 'Write summaries and keywords in the summary language' in prompt_ja
+assert 'Keep evidence quotes in the original transcript wording' in prompt_ja
 print('ok')
 ```
 
@@ -260,7 +272,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L203"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L209"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_sum
@@ -281,7 +293,7 @@ def yttoc_sum(
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L137"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L143"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_summaries
@@ -470,7 +482,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L227"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L233"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_summaries
