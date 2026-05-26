@@ -13,7 +13,7 @@ structured Pydantic result out.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/llm.py#L18"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/llm.py#L20"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_structured

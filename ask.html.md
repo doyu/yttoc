@@ -16,7 +16,7 @@ design rationale.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L80"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L82"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### dispatch_tool
@@ -33,7 +33,7 @@ def dispatch_tool(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L69"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L71"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### openai_tools
@@ -50,7 +50,7 @@ def openai_tools(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L51"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L53"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### make_tool
@@ -67,7 +67,7 @@ def make_tool(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L45"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L47"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### ToolEntry
@@ -84,7 +84,7 @@ def ToolEntry(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L37"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L39"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### AskResponse
@@ -131,7 +131,7 @@ of the model. **signature**: The synthesized `__init__`
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L33"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L35"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### Citation
@@ -178,7 +178,7 @@ of the model. **signature**: The synthesized `__init__`
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L26"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L28"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### GetXscriptRangeArgs
@@ -225,7 +225,7 @@ of the model. **signature**: The synthesized `__init__`
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L23"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L25"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### GetSummariesArgs
@@ -274,7 +274,7 @@ of the model. **signature**: The synthesized `__init__`
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L132"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L134"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### build_registry
@@ -291,7 +291,7 @@ def build_registry(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L109"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L111"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_citations
@@ -472,7 +472,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L153"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L155"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### ask
@@ -506,7 +506,7 @@ print(f"Citations: {result.citations}")
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L224"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L226"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_ask

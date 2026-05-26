@@ -32,7 +32,7 @@ dependencies at module import time.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/serve.py#L12"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/serve.py#L14"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_date
@@ -56,7 +56,7 @@ installed.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/serve.py#L18"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/serve.py#L20"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### build_server
@@ -78,7 +78,7 @@ def build_server(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/serve.py#L30"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/serve.py#L32"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### main

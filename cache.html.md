@@ -19,7 +19,7 @@ circular imports.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L80"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L82"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### touch_meta
@@ -37,7 +37,7 @@ def touch_meta(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L74"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L76"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### load_meta
@@ -55,7 +55,7 @@ def load_meta(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L67"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L69"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### read_model
@@ -74,7 +74,7 @@ model class.*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L58"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L60"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### first_srt_path
@@ -92,7 +92,7 @@ def first_srt_path(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L52"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L54"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### glob_srt
@@ -110,7 +110,7 @@ def glob_srt(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L46"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L48"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### summaries_path
@@ -128,7 +128,7 @@ def summaries_path(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L40"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L42"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### toc_path
@@ -146,7 +146,7 @@ def toc_path(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L34"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L36"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### meta_path
@@ -164,7 +164,7 @@ def meta_path(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L28"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L30"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### video_dir
@@ -182,7 +182,7 @@ def video_dir(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L23"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L25"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### resolve_root

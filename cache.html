@@ -277,7 +277,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>It deliberately does <strong>not</strong> own refresh or invalidation policy. Those remain in stage modules like <code>toc.py</code> and <code>summarize.py</code>.</p>
 <p>It also does <strong>not</strong> import downstream models such as <a href="https://doyu.github.io/yttoc/toc.html#tocfile"><code>TocFile</code></a> or <a href="https://doyu.github.io/yttoc/summarize.html#assembledsummaries"><code>AssembledSummaries</code></a>. Callers pass their own model class into <code>read_model(...)</code> to avoid circular imports.</p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L80" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L82" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="touch_meta" class="level3">
 <h3 class="anchored" data-anchor-id="touch_meta">touch_meta</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -288,7 +288,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Bump last_used_at on meta.json for one cached video.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L74" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L76" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="load_meta" class="level3">
 <h3 class="anchored" data-anchor-id="load_meta">load_meta</h3>
@@ -300,7 +300,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Load meta.json for one cached video.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L67" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L69" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="read_model" class="level3">
 <h3 class="anchored" data-anchor-id="read_model">read_model</h3>
@@ -312,7 +312,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Read a JSON file and validate it with the caller-provided Pydantic model class.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L58" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L60" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="first_srt_path" class="level3">
 <h3 class="anchored" data-anchor-id="first_srt_path">first_srt_path</h3>
@@ -324,7 +324,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Return the first cached SRT path for one video or raise if none exist.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L52" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L54" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="glob_srt" class="level3">
 <h3 class="anchored" data-anchor-id="glob_srt">glob_srt</h3>
@@ -336,7 +336,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Find SRT files matching a glob pattern.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L46" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L48" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="summaries_path" class="level3">
 <h3 class="anchored" data-anchor-id="summaries_path">summaries_path</h3>
@@ -348,7 +348,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Return the path to summaries.json for one video.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L40" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L42" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="toc_path" class="level3">
 <h3 class="anchored" data-anchor-id="toc_path">toc_path</h3>
@@ -360,7 +360,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Return the path to toc.json for one video.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L34" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L36" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="meta_path" class="level3">
 <h3 class="anchored" data-anchor-id="meta_path">meta_path</h3>
@@ -372,7 +372,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Return the path to meta.json for one video.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L28" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L30" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="video_dir" class="level3">
 <h3 class="anchored" data-anchor-id="video_dir">video_dir</h3>
@@ -384,7 +384,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Return the cache directory for one video.</em></p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L23" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L25" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="resolve_root" class="level3">
 <h3 class="anchored" data-anchor-id="resolve_root">resolve_root</h3>

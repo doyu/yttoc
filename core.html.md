@@ -5,7 +5,7 @@
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L60"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L62"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_toc_line
@@ -23,7 +23,7 @@ def format_toc_line(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L53"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L55"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### slice_segments
@@ -42,7 +42,7 @@ def slice_segments(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L47"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L49"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_header
@@ -59,7 +59,7 @@ def format_header(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L40"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L42"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### fmt_duration
@@ -76,7 +76,7 @@ def fmt_duration(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L27"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L29"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### Meta
@@ -93,7 +93,7 @@ def Meta(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L20"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L22"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### NormalizedSection
@@ -111,7 +111,7 @@ output).*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L13"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L15"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### Segment

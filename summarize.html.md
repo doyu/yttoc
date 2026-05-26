@@ -41,7 +41,8 @@ merges it with `meta` and `toc_sections` into the canonical shape above.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L99"
+<a
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L101"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### AssembledSummaries
@@ -58,7 +59,7 @@ def AssembledSummaries(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L93"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L95"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### AssembledSection
@@ -75,7 +76,7 @@ def AssembledSection(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L84"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L86"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### VideoBlock
@@ -92,7 +93,7 @@ def VideoBlock(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L78"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L80"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### SummaryLLMResult
@@ -109,7 +110,7 @@ def SummaryLLMResult(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L72"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L74"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### SectionSummaryPayload
@@ -126,7 +127,7 @@ def SectionSummaryPayload(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L67"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L69"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### Evidence
@@ -272,7 +273,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L209"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L211"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_sum
@@ -293,7 +294,7 @@ def yttoc_sum(
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L143"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L145"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_summaries
@@ -482,7 +483,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L233"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L235"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_summaries
