@@ -9,3 +9,6 @@ website:
       - 04_summarize.ipynb
       - 05_map.ipynb
       - 06_ask.ipynb
+      - 07_cache.ipynb
+      - 08_llm.ipynb
+      - 09_serve.ipynb

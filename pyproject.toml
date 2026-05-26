@@ -14,6 +14,9 @@ keywords = ['nbdev', 'jupyter', 'notebook', 'python', 'youtube', 'transcript', '
 classifiers = ["Natural Language :: English", "Intended Audience :: Developers", "Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Programming Language :: Python :: 3 :: Only"]
 dependencies = ["yt-dlp", "fastcore", "openai", "pydantic>=2"]
 
+[project.optional-dependencies]
+mcp = ["mcp>=1.2"]
+
 [project.urls]
 Repository = "https://github.com/doyu/yttoc"
 Documentation = "https://doyu.github.io/yttoc"
@@ -27,6 +30,7 @@ yttoc-toc = "yttoc.toc:yttoc_toc"
 yttoc-sum = "yttoc.summarize:yttoc_sum"
 yttoc-map = "yttoc.map:yttoc_map"
 yttoc-ask = "yttoc.ask:yttoc_ask"
+yttoc-serve = "yttoc.serve:main"
 
 [project.entry-points.nbdev]
 yttoc = "yttoc._modidx:d"
