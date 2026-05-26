@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Thin structured-output helper for OpenAI + Pydantic">
+<meta name="description" content="MCP server example for exposing yttoc tools to Claude Code, Codex, and other MCP clients">
 
-<title>llm – yttoc</title>
+<title>serve – yttoc</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -109,11 +109,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <link rel="stylesheet" href="styles.css">
-<meta property="og:title" content="llm – yttoc">
-<meta property="og:description" content="Thin structured-output helper for OpenAI + Pydantic">
+<meta property="og:title" content="serve – yttoc">
+<meta property="og:description" content="MCP server example for exposing yttoc tools to Claude Code, Codex, and other MCP clients">
 <meta property="og:site_name" content="yttoc">
-<meta name="twitter:title" content="llm – yttoc">
-<meta name="twitter:description" content="Thin structured-output helper for OpenAI + Pydantic">
+<meta name="twitter:title" content="serve – yttoc">
+<meta name="twitter:description" content="MCP server example for exposing yttoc tools to Claude Code, Codex, and other MCP clients">
 <meta name="twitter:card" content="summary">
 </head>
 
@@ -138,7 +138,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./llm.html">llm</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./serve.html">serve</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -206,13 +206,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./llm.html" class="sidebar-item-text sidebar-link active">
+  <a href="./llm.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">llm</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./serve.html" class="sidebar-item-text sidebar-link">
+  <a href="./serve.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">serve</span></a>
   </div>
 </li>
@@ -226,25 +226,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#design" id="toc-design" class="nav-link active" data-scroll-target="#design">Design</a>
+  <li><a href="#how-mcp-works" id="toc-how-mcp-works" class="nav-link active" data-scroll-target="#how-mcp-works">How MCP works</a></li>
+  <li><a href="#step-1-define-the-callable-work" id="toc-step-1-define-the-callable-work" class="nav-link" data-scroll-target="#step-1-define-the-callable-work">Step 1: Define the callable work</a>
   <ul class="collapse">
-  <li><a href="#generate_structured" id="toc-generate_structured" class="nav-link" data-scroll-target="#generate_structured">generate_structured</a></li>
+  <li><a href="#get_date" id="toc-get_date" class="nav-link" data-scroll-target="#get_date">get_date</a></li>
   </ul></li>
-  <li><a href="#tests" id="toc-tests" class="nav-link" data-scroll-target="#tests">Tests</a></li>
+  <li><a href="#step-2-build-the-mcp-server" id="toc-step-2-build-the-mcp-server" class="nav-link" data-scroll-target="#step-2-build-the-mcp-server">Step 2: Build the MCP server</a>
+  <ul class="collapse">
+  <li><a href="#build_server" id="toc-build_server" class="nav-link" data-scroll-target="#build_server">build_server</a></li>
+  </ul></li>
+  <li><a href="#step-3-entry-point" id="toc-step-3-entry-point" class="nav-link" data-scroll-target="#step-3-entry-point">Step 3: Entry point</a>
+  <ul class="collapse">
+  <li><a href="#main" id="toc-main" class="nav-link" data-scroll-target="#main">main</a></li>
+  </ul></li>
+  <li><a href="#test" id="toc-test" class="nav-link" data-scroll-target="#test">Test</a></li>
+  <li><a href="#how-to-register" id="toc-how-to-register" class="nav-link" data-scroll-target="#how-to-register">How to register</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/doyu/yttoc/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="llm.html.md"><i class="bi bi-file-code"></i>CommonMark</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/doyu/yttoc/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="serve.html.md"><i class="bi bi-file-code"></i>CommonMark</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">llm</h1>
+<h1 class="title">serve</h1>
 </div>
 
 <div>
   <div class="description">
-    Thin structured-output helper for OpenAI + Pydantic
+    MCP server example for exposing yttoc tools to Claude Code, Codex, and other MCP clients
   </div>
 </div>
 
@@ -262,74 +272,90 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
-<section id="design" class="level2">
-<h2 class="anchored" data-anchor-id="design">Design</h2>
-<p>This helper removes the duplicated OpenAI structured-output boilerplate used by <code>toc.py</code> and <code>summarize.py</code>.</p>
-<p>It intentionally supports only the current shape: one prompt in, one structured Pydantic result out.</p>
+<section id="how-mcp-works" class="level2">
+<h2 class="anchored" data-anchor-id="how-mcp-works">How MCP works</h2>
+<p>MCP (Model Context Protocol) lets LLMs call external tools over JSON-RPC on stdio.</p>
+<p>The flow:</p>
+<pre><code>LLM client (Claude Code, Codex, etc.)
+  &lt;-&gt; stdin/stdout (JSON-RPC)
+MCP server (this module)
+  &lt;-&gt; calls Python functions / shell commands
+Local tools (date, yttoc, etc.)</code></pre>
+<p>Three concepts: 1. <strong>Server</strong>: <code>FastMCP("name")</code> creates an MCP server instance 2. <strong>Tool</strong>: <code>mcp.tool()(function)</code> registers a Python function as a callable tool 3. <strong>Run</strong>: <code>mcp.run()</code> starts the stdio transport and blocks</p>
+<p>The LLM sees each registered function as a tool it can call, just like built-in tools.</p>
+</section>
+<section id="step-1-define-the-callable-work" class="level2">
+<h2 class="anchored" data-anchor-id="step-1-define-the-callable-work">Step 1: Define the callable work</h2>
+<p>Keep the real work in a plain function first. This makes it testable without starting the MCP transport and avoids importing optional MCP dependencies at module import time.</p>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/llm.py#L18" target="_blank" style="float:right; font-size:smaller">source</a></p>
-<section id="generate_structured" class="level3">
-<h3 class="anchored" data-anchor-id="generate_structured">generate_structured</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_structured(</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    prompt:<span class="bu">str</span>, <span class="co"># Full user prompt</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    response_model:<span class="bu">type</span>, <span class="co"># Pydantic response model</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    schema_name:<span class="bu">str</span>, <span class="co"># JSON schema name for OpenAI response_format</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    model:<span class="bu">str</span><span class="op">=</span><span class="st">'gpt-5.4'</span>, <span class="co"># OpenAI model name</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    client:Any<span class="op">=</span><span class="va">None</span>, <span class="co"># Optional prebuilt OpenAI-compatible client for tests</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>TModel: <span class="co"># Parsed response model instance</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><em>Call OpenAI structured output and validate into the caller-provided Pydantic model.</em></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/serve.py#L12" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="get_date" class="level3">
+<h3 class="anchored" data-anchor-id="get_date">get_date</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_date(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    utc:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">str</span>:</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Return the current date and time from the system clock.</em></p>
 </section>
 </section>
-<section id="tests" class="level2">
-<h2 class="anchored" data-anchor-id="tests">Tests</h2>
-<div id="h1000007" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> _ToyResult(BaseModel):</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    answer: <span class="bu">str</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> _FakeCompletions:</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, content<span class="op">=</span><span class="st">'{"answer": "ok"}'</span>):</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.kw <span class="op">=</span> <span class="va">None</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.content <span class="op">=</span> content</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> create(<span class="va">self</span>, <span class="op">**</span>kw):</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.kw <span class="op">=</span> kw</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        content <span class="op">=</span> <span class="va">self</span>.content</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">class</span> _Message:</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">pass</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        _Message.content <span class="op">=</span> content</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        <span class="kw">class</span> _Choice:</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            message <span class="op">=</span> _Message()</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        <span class="kw">class</span> _Response:</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>            choices <span class="op">=</span> [_Choice()]</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> _Response()</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> _FakeChat:</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, content<span class="op">=</span><span class="st">'{"answer": "ok"}'</span>):</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.completions <span class="op">=</span> _FakeCompletions(content)</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> _FakeClient:</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, content<span class="op">=</span><span class="st">'{"answer": "ok"}'</span>):</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.chat <span class="op">=</span> _FakeChat(content)</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Happy path</span></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>client <span class="op">=</span> _FakeClient()</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> generate_structured(<span class="st">'hello'</span>, _ToyResult, schema_name<span class="op">=</span><span class="st">'toy'</span>, model<span class="op">=</span><span class="st">'gpt-test'</span>, client<span class="op">=</span>client)</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> result <span class="op">==</span> _ToyResult(answer<span class="op">=</span><span class="st">'ok'</span>)</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> client.chat.completions.kw[<span class="st">'model'</span>] <span class="op">==</span> <span class="st">'gpt-test'</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> client.chat.completions.kw[<span class="st">'messages'</span>] <span class="op">==</span> [{<span class="st">'role'</span>: <span class="st">'user'</span>, <span class="st">'content'</span>: <span class="st">'hello'</span>}]</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> client.chat.completions.kw[<span class="st">'response_format'</span>][<span class="st">'json_schema'</span>][<span class="st">'name'</span>] <span class="op">==</span> <span class="st">'toy'</span></span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Trailing content after the first JSON object is tolerated.</span></span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>client <span class="op">=</span> _FakeClient(content<span class="op">=</span><span class="st">'{"answer": "ok"}</span><span class="ch">\n</span><span class="st">{"junk": 1}'</span>)</span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> generate_structured(<span class="st">'p'</span>, _ToyResult, schema_name<span class="op">=</span><span class="st">'toy'</span>, client<span class="op">=</span>client) <span class="op">==</span> _ToyResult(answer<span class="op">=</span><span class="st">'ok'</span>)</span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>ok</code></pre>
+<section id="step-2-build-the-mcp-server" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-build-the-mcp-server">Step 2: Build the MCP server</h2>
+<p><code>mcp</code> is an optional dependency, so import it inside <a href="https://doyu.github.io/yttoc/serve.html#build_server"><code>build_server()</code></a>. A normal <code>import yttoc.serve</code> should work even when the MCP extra is not installed.</p>
+<hr>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/serve.py#L18" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="build_server" class="level3">
+<h3 class="anchored" data-anchor-id="build_server">build_server</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_server(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Create the MCP server and register yttoc tools.</em></p>
+</section>
+</section>
+<section id="step-3-entry-point" class="level2">
+<h2 class="anchored" data-anchor-id="step-3-entry-point">Step 3: Entry point</h2>
+<p><code>mcp.run()</code> starts the stdio JSON-RPC transport. This is what <code>claude mcp add</code> and <code>codex mcp add</code> invoke.</p>
+<hr>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/serve.py#L30" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="main" class="level3">
+<h3 class="anchored" data-anchor-id="main">main</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Entry point for yttoc-serve CLI command.</em></p>
+</section>
+</section>
+<section id="test" class="level2">
+<h2 class="anchored" data-anchor-id="test">Test</h2>
+<p>We can verify the tool function directly without MCP transport:</p>
+<div id="86e5ce82" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> get_date()</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(result) <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>result_utc <span class="op">=</span> get_date(utc<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result_utc)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">"UTC"</span> <span class="kw">in</span> result_utc</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"ok"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<div id="fc233afd" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>server <span class="op">=</span> build_server()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> server.name <span class="op">==</span> <span class="st">"yttoc"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="how-to-register" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-register">How to register</h2>
+<p>After <code>nbdev-export</code> and <code>pip install -e ".[mcp]"</code>, register with each LLM client from the repository root:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Claude Code</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> mcp add yttoc <span class="at">--</span> <span class="st">"</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/.venv/bin/yttoc-serve"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Codex</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">codex</span> mcp add yttoc <span class="at">--</span> <span class="st">"</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/.venv/bin/yttoc-serve"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then restart the LLM client. The tool appears as <code>mcp__yttoc__get_date</code> and the LLM can call it directly.</p>
 
 
 </section>
