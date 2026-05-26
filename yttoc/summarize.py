@@ -16,6 +16,8 @@ from .llm import generate_structured
 # %% ../nbs/04_summarize.ipynb #c1000005
 from .core import slice_segments, Segment, NormalizedSection, Meta
 
+
+# %% ../nbs/04_summarize.ipynb #c1000005_build_prompt
 def _build_summary_prompt(segments: list[Segment], # Full xscript segments
                           sections: list[NormalizedSection], # List of NormalizedSection from toc.json
                           meta: Meta # Parsed Meta instance
@@ -35,6 +37,7 @@ def _build_summary_prompt(segments: list[Segment], # Full xscript segments
     title = meta.title
     channel = meta.channel
     desc = meta.description
+    lang = next(iter(meta.captions), 'en')
 
     return f"""You are a structural editor for YouTube video transcripts.
 
@@ -42,15 +45,18 @@ Video info:
 - Title: {title}
 - Channel: {channel}
 - Description: {desc}
+- Summary language: {lang}
 
 Transcript (organized by section):
 {transcript}
 
 Task:
 For each section AND for the full video, provide:
-- summary: 1-2 sentence English summary
-- keywords: important terms (people, technical terms, proper nouns)
+- summary: 1-2 sentence summary in the summary language
+- keywords: important terms in the summary language when natural (people, technical terms, proper nouns)
 - evidence: a short quoted phrase from the transcript with its timestamp in seconds
+
+Write summaries and keywords in the summary language. Keep evidence quotes in the original transcript wording.
 
 Return a JSON object with:
 - "full": {{summary, keywords, evidence: {{text, at}}}}
@@ -65,8 +71,8 @@ class Evidence(BaseModel):
 
 class SectionSummaryPayload(BaseModel):
     "Summary payload for one section or the full video."
-    summary: str = Field(description="1-2 sentence English summary")
-    keywords: list[str] = Field(description="Important terms (people, technical terms, proper nouns)")
+    summary: str = Field(description="1-2 sentence summary in the requested language")
+    keywords: list[str] = Field(description="Important terms in the requested language when natural")
     evidence: Evidence
 
 class SummaryLLMResult(BaseModel):
