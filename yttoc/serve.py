@@ -5,16 +5,16 @@
 # %% auto #0
 __all__ = ['get_date', 'build_server', 'main']
 
-# %% ../nbs/09_serve.ipynb #5600dd1b
+# %% ../nbs/09_serve.ipynb #serve_imports
 import subprocess
 
-# %% ../nbs/09_serve.ipynb #634f5d6f
+# %% ../nbs/09_serve.ipynb #serve_get_date
 def get_date(utc: bool = False) -> str:
     "Return the current date and time from the system clock."
     cmd = ["date", "--utc"] if utc else ["date"]
     return subprocess.run(cmd, capture_output=True, text=True, check=True).stdout.strip()
 
-# %% ../nbs/09_serve.ipynb #2aec92a9
+# %% ../nbs/09_serve.ipynb #serve_build_server
 def build_server():
     "Create the MCP server and register yttoc tools."
     try:
@@ -26,7 +26,7 @@ def build_server():
     mcp.tool()(get_date)
     return mcp
 
-# %% ../nbs/09_serve.ipynb #c97b9e75
+# %% ../nbs/09_serve.ipynb #serve_main
 def main():
     "Entry point for yttoc-serve CLI command."
     build_server().run()
