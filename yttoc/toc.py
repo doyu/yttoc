@@ -15,6 +15,21 @@ from .core import Segment, NormalizedSection, Meta
 from .llm import generate_structured
 
 # %% ../nbs/03_toc.ipynb #b1000005
+def _validate_sections(sections: list[NormalizedSection], # Normalized sections in path order
+                       duration: int # Video duration in seconds
+                      ) -> None:
+    "Check sections cover [0, duration] contiguously with positive spans. Raise ValueError otherwise."
+    if sections[0].start != 0:
+        raise ValueError(f"First section starts at {sections[0].start}, expected 0")
+    for s in sections:
+        if s.start >= s.end:
+            raise ValueError(f"Section {s.path} has non-positive span: start={s.start}, end={s.end}")
+    for a, b in zip(sections, sections[1:]):
+        if a.end != b.start:
+            raise ValueError(f"Coverage break between sections {a.path} and {b.path}: end={a.end}, next start={b.start}")
+    if sections[-1].end != duration:
+        raise ValueError(f"Last section ends at {sections[-1].end}, expected duration {duration}")
+
 def _normalize_sections(raw: 'list[RawTocSection]', # [RawTocSection, ...] from LLM
                         duration: int # Video duration in seconds
                        ) -> list[NormalizedSection]: # List of NormalizedSection
@@ -38,6 +53,7 @@ def _normalize_sections(raw: 'list[RawTocSection]', # [RawTocSection, ...] from 
     for i, s in enumerate(sections):
         end = sections[i+1].start if i+1 < len(sections) else duration
         result.append(NormalizedSection(path=str(i+1), title=s.title, start=s.start, end=end))
+    _validate_sections(result, duration)
     return result
 
 
