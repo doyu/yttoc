@@ -211,7 +211,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L154"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L151"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_toc
@@ -240,7 +240,7 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 def generate_toc(
     video_id:str, # Exact video_id
     root:Path=None, # Root cache directory
-    refresh:bool=False, # Delete cached toc/summaries and regenerate
+    refresh:bool=False, # Regenerate toc (and invalidate summaries) on success
 )->list: # List of NormalizedSection
 
 ```
@@ -361,6 +361,80 @@ print('ok')
 ```
 
     ok
+
+``` python
+# Test 11: --refresh keeps old toc.json/summaries.json intact when LLM fails
+from tempfile import TemporaryDirectory
+
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID_RF'; v.mkdir()
+    (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
+    (v / 'meta.json').write_text(json.dumps({
+        'id': 'VID_RF', 'title': 'T', 'channel': 'C', 'duration': 600,
+        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID_RF',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00'}))
+    old_toc = json.dumps({'sections': [
+        {'path': '1', 'title': 'Old', 'start': 0, 'end': 600}]})
+    (v / 'toc.json').write_text(old_toc)
+    (v / 'summaries.json').write_text('{"old": true}')
+
+    _orig_call_llm = _call_llm
+    def _call_llm(prompt):
+        raise RuntimeError('LLM down')
+    try:
+        try:
+            generate_toc('VID_RF', root, refresh=True)
+        except RuntimeError:
+            pass
+        else:
+            assert False, 'expected RuntimeError from LLM failure'
+    finally:
+        _call_llm = _orig_call_llm
+
+    assert (v / 'toc.json').read_text() == old_toc, 'old toc.json must survive failed refresh'
+    assert (v / 'summaries.json').exists(), 'summaries.json must survive failed refresh'
+print('ok')
+```
+
+    ok
+
+``` python
+# Test 12: successful --refresh replaces toc.json, then invalidates summaries.json
+from yttoc.toc import RawTocSection
+
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID_RF2'; v.mkdir()
+    (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
+    (v / 'meta.json').write_text(json.dumps({
+        'id': 'VID_RF2', 'title': 'T', 'channel': 'C', 'duration': 600,
+        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID_RF2',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00'}))
+    (v / 'toc.json').write_text(json.dumps({'sections': [
+        {'path': '1', 'title': 'Old', 'start': 0, 'end': 600}]}))
+    (v / 'summaries.json').write_text('{"old": true}')
+
+    _orig_call_llm = _call_llm
+    def _call_llm(prompt):
+        return [RawTocSection(title='New', start=0)]
+    try:
+        secs = generate_toc('VID_RF2', root, refresh=True)
+    finally:
+        _call_llm = _orig_call_llm
+
+    assert len(secs) == 1 and secs[0].title == 'New'
+    on_disk = json.loads((v / 'toc.json').read_text())
+    assert on_disk['sections'][0]['title'] == 'New', 'toc.json must hold the regenerated sections'
+    assert not (v / 'summaries.json').exists(), 'summaries.json must be invalidated after successful refresh'
+print('ok')
+```
+
+    ok
+
+    Invalidated summaries.json (depends on toc)
 
 ``` python
 # Test: _render_toc returns header + blank + formatted section lines

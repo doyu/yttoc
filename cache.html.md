@@ -19,24 +19,6 @@ circular imports.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L82"
-target="_blank" style="float:right; font-size:smaller">source</a>
-
-### touch_meta
-
-``` python
-
-def touch_meta(
-    video_id:str, # Exact video_id
-    root:str | pathlib.Path | None=None, # Cache root override
-)->None:
-
-```
-
-*Bump last_used_at on meta.json for one cached video.*
-
-------------------------------------------------------------------------
-
 <a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L76"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
@@ -197,6 +179,42 @@ def resolve_root(
 
 *Return the effective cache root as a Path.*
 
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L93"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### touch_meta
+
+``` python
+
+def touch_meta(
+    video_id:str, # Exact video_id
+    root:str | pathlib.Path | None=None, # Cache root override
+)->None:
+
+```
+
+*Bump last_used_at on meta.json for one cached video.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L84"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### write_model
+
+``` python
+
+def write_model(
+    path:str | pathlib.Path, # Destination JSON file path
+    model:BaseModel, # Pydantic model instance to persist
+)->None:
+
+```
+
+*Atomically write a model as indented JSON (temp file + os.replace).*
+
 ## Tests
 
 ``` python
@@ -297,6 +315,35 @@ with TemporaryDirectory() as d:
     touch_meta('TM1', root)
     second_dt = datetime.fromisoformat(json.loads((vdir / 'meta.json').read_text())['last_used_at'])
     assert second_dt >= first_dt
+print('ok')
+```
+
+    ok
+
+``` python
+# write_model: atomic JSON write round-trips through read_model, leaves no temp file
+from datetime import datetime, timezone
+from tempfile import TemporaryDirectory
+
+with TemporaryDirectory() as d:
+    root = Path(d)
+    vdir = root / 'WM1'
+    vdir.mkdir()
+    meta = Meta(
+        id='WM1', title='T', channel='C', duration=60,
+        upload_date='20260101', webpage_url='u',
+        description='', captions={'en': 'auto'},
+        last_used_at=datetime(2026, 1, 1, tzinfo=timezone.utc))
+    p = vdir / 'meta.json'
+    write_model(p, meta)
+    assert read_model(p, Meta) == meta
+    assert p.read_text(encoding='utf-8').count('\n') > 1  # indented JSON
+    leftovers = [f for f in vdir.iterdir() if f != p]
+    assert leftovers == [], f'temp files left behind: {leftovers}'
+    # Overwrites an existing file in place
+    meta2 = meta.model_copy(update={'title': 'T2'})
+    write_model(p, meta2)
+    assert read_model(p, Meta).title == 'T2'
 print('ok')
 ```
 

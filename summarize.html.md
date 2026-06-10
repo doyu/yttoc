@@ -273,7 +273,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L211"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L210"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_sum
@@ -304,7 +304,7 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 def generate_summaries(
     video_id:str, # Exact video_id
     root:Path=None, # Root cache directory
-    refresh:bool=False, # Delete cached summaries and regenerate
+    refresh:bool=False, # Regenerate summaries on success
 )->AssembledSummaries: # Parsed AssembledSummaries instance
 
 ```
@@ -358,6 +358,79 @@ print('ok')
 ```
 
     ok
+
+``` python
+# Test: --refresh keeps old summaries.json intact when LLM fails
+from tempfile import TemporaryDirectory
+
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID_RF'; v.mkdir()
+    (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
+    (v / 'meta.json').write_text(json.dumps({
+        'id': 'VID_RF', 'title': 'T', 'channel': 'C', 'duration': 600,
+        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID_RF',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }))
+    (v / 'toc.json').write_text(json.dumps({'sections': [
+        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 600}]}))
+    old_sums = json.dumps(_make_test_summaries('VID_RF'))
+    (v / 'summaries.json').write_text(old_sums)
+
+    _orig_call_summary_llm = _call_summary_llm
+    def _call_summary_llm(prompt):
+        raise RuntimeError('LLM down')
+    try:
+        try:
+            generate_summaries('VID_RF', root, refresh=True)
+        except RuntimeError:
+            pass
+        else:
+            assert False, 'expected RuntimeError from LLM failure'
+    finally:
+        _call_summary_llm = _orig_call_summary_llm
+
+    assert (v / 'summaries.json').read_text() == old_sums, 'old summaries.json must survive failed refresh'
+print('ok')
+```
+
+    ok
+
+``` python
+# Test: successful --refresh replaces summaries.json with regenerated content
+with TemporaryDirectory() as d:
+    root = Path(d)
+    v = root / 'VID_RF2'; v.mkdir()
+    (v / 'captions.en.srt').write_text('1\n00:00:00,000 --> 00:00:01,000\nhi\n')
+    (v / 'meta.json').write_text(json.dumps({
+        'id': 'VID_RF2', 'title': 'T', 'channel': 'C', 'duration': 600,
+        'upload_date': '20260101', 'webpage_url': 'https://youtube.com/watch?v=VID_RF2',
+        'description': '', 'captions': {'en': 'auto'},
+        'last_used_at': '2000-01-01T00:00:00+00:00',
+    }))
+    (v / 'toc.json').write_text(json.dumps({'sections': [
+        {'path': '1', 'title': 'Intro', 'start': 0, 'end': 600}]}))
+    (v / 'summaries.json').write_text(json.dumps(_make_test_summaries('VID_RF2')))
+
+    _orig_call_summary_llm = _call_summary_llm
+    def _call_summary_llm(prompt):
+        return {
+            'full': {'summary': 'New full.', 'keywords': ['new'],
+                     'evidence': {'text': 'hi', 'at': 0}},
+            'sections': {'1': {'summary': 'New intro.', 'keywords': ['new'],
+                               'evidence': {'text': 'hi', 'at': 0}}},
+        }
+    try:
+        result = generate_summaries('VID_RF2', root, refresh=True)
+    finally:
+        _call_summary_llm = _orig_call_summary_llm
+
+    assert result.full.summary == 'New full.'
+    on_disk = json.loads((v / 'summaries.json').read_text())
+    assert on_disk['full']['summary'] == 'New full.', 'summaries.json must hold the regenerated content'
+print('ok')
+```
 
 ``` python
 # Test 5: yttoc_sum reads summaries.json only (no toc.json), embedded URL flows through
@@ -483,7 +556,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L235"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L234"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_summaries

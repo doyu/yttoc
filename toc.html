@@ -78,7 +78,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-2c7ee61df5f97705813a2ada775cab09.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-3d242d70d41cd9edc5ebe4da1d712dc5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -449,7 +449,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="cli" class="level2">
 <h2 class="anchored" data-anchor-id="cli">CLI</h2>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L154" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L151" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="yttoc_toc" class="level3">
 <h3 class="anchored" data-anchor-id="yttoc_toc">yttoc_toc</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -469,7 +469,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_toc(</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    root:Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    refresh:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># Delete cached toc/summaries and regenerate</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    refresh:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># Regenerate toc (and invalidate summaries) on success</span></span>
 <span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>: <span class="co"># List of NormalizedSection</span></span>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Generate toc.json for a cached video. Returns sections list.</em></p>
@@ -587,27 +587,102 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>ok</code></pre>
 </div>
 </div>
+<div id="fb027dea" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 11: --refresh keeps old toc.json/summaries.json intact when LLM fails</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID_RF'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(<span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:01,000</span><span class="ch">\n</span><span class="st">hi</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'VID_RF'</span>, <span class="st">'title'</span>: <span class="st">'T'</span>, <span class="st">'channel'</span>: <span class="st">'C'</span>, <span class="st">'duration'</span>: <span class="dv">600</span>,</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'https://youtube.com/watch?v=VID_RF'</span>,</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'description'</span>: <span class="st">''</span>, <span class="st">'captions'</span>: {<span class="st">'en'</span>: <span class="st">'auto'</span>},</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>}))</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    old_toc <span class="op">=</span> json.dumps({<span class="st">'sections'</span>: [</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'path'</span>: <span class="st">'1'</span>, <span class="st">'title'</span>: <span class="st">'Old'</span>, <span class="st">'start'</span>: <span class="dv">0</span>, <span class="st">'end'</span>: <span class="dv">600</span>}]})</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'toc.json'</span>).write_text(old_toc)</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'summaries.json'</span>).write_text(<span class="st">'{"old": true}'</span>)</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    _orig_call_llm <span class="op">=</span> _call_llm</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _call_llm(prompt):</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">RuntimeError</span>(<span class="st">'LLM down'</span>)</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>            generate_toc(<span class="st">'VID_RF'</span>, root, refresh<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span> <span class="pp">RuntimeError</span>:</span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>            <span class="cf">pass</span></span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>            <span class="cf">assert</span> <span class="va">False</span>, <span class="st">'expected RuntimeError from LLM failure'</span></span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">finally</span>:</span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>        _call_llm <span class="op">=</span> _orig_call_llm</span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> (v <span class="op">/</span> <span class="st">'toc.json'</span>).read_text() <span class="op">==</span> old_toc, <span class="st">'old toc.json must survive failed refresh'</span></span>
+<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> (v <span class="op">/</span> <span class="st">'summaries.json'</span>).exists(), <span class="st">'summaries.json must survive failed refresh'</span></span>
+<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ok</code></pre>
+</div>
+</div>
+<div id="c1ab39b2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 12: successful --refresh replaces toc.json, then invalidates summaries.json</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.toc <span class="im">import</span> RawTocSection</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> root <span class="op">/</span> <span class="st">'VID_RF2'</span><span class="op">;</span> v.mkdir()</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'captions.en.srt'</span>).write_text(<span class="st">'1</span><span class="ch">\n</span><span class="st">00:00:00,000 --&gt; 00:00:01,000</span><span class="ch">\n</span><span class="st">hi</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'meta.json'</span>).write_text(json.dumps({</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">'id'</span>: <span class="st">'VID_RF2'</span>, <span class="st">'title'</span>: <span class="st">'T'</span>, <span class="st">'channel'</span>: <span class="st">'C'</span>, <span class="st">'duration'</span>: <span class="dv">600</span>,</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'upload_date'</span>: <span class="st">'20260101'</span>, <span class="st">'webpage_url'</span>: <span class="st">'https://youtube.com/watch?v=VID_RF2'</span>,</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'description'</span>: <span class="st">''</span>, <span class="st">'captions'</span>: {<span class="st">'en'</span>: <span class="st">'auto'</span>},</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">'last_used_at'</span>: <span class="st">'2000-01-01T00:00:00+00:00'</span>}))</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'toc.json'</span>).write_text(json.dumps({<span class="st">'sections'</span>: [</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>        {<span class="st">'path'</span>: <span class="st">'1'</span>, <span class="st">'title'</span>: <span class="st">'Old'</span>, <span class="st">'start'</span>: <span class="dv">0</span>, <span class="st">'end'</span>: <span class="dv">600</span>}]}))</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    (v <span class="op">/</span> <span class="st">'summaries.json'</span>).write_text(<span class="st">'{"old": true}'</span>)</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>    _orig_call_llm <span class="op">=</span> _call_llm</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _call_llm(prompt):</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [RawTocSection(title<span class="op">=</span><span class="st">'New'</span>, start<span class="op">=</span><span class="dv">0</span>)]</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>        secs <span class="op">=</span> generate_toc(<span class="st">'VID_RF2'</span>, root, refresh<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">finally</span>:</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>        _call_llm <span class="op">=</span> _orig_call_llm</span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(secs) <span class="op">==</span> <span class="dv">1</span> <span class="kw">and</span> secs[<span class="dv">0</span>].title <span class="op">==</span> <span class="st">'New'</span></span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>    on_disk <span class="op">=</span> json.loads((v <span class="op">/</span> <span class="st">'toc.json'</span>).read_text())</span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> on_disk[<span class="st">'sections'</span>][<span class="dv">0</span>][<span class="st">'title'</span>] <span class="op">==</span> <span class="st">'New'</span>, <span class="st">'toc.json must hold the regenerated sections'</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="kw">not</span> (v <span class="op">/</span> <span class="st">'summaries.json'</span>).exists(), <span class="st">'summaries.json must be invalidated after successful refresh'</span></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ok</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Invalidated summaries.json (depends on toc)</code></pre>
+</div>
+</div>
 <div id="r2render01" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: _render_toc returns header + blank + formatted section lines</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.toc <span class="im">import</span> _render_toc</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.core <span class="im">import</span> NormalizedSection, Meta</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime, timezone</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>meta <span class="op">=</span> Meta(<span class="bu">id</span><span class="op">=</span><span class="st">'VID2'</span>, title<span class="op">=</span><span class="st">'Test Video'</span>, channel<span class="op">=</span><span class="st">'Ch'</span>, duration<span class="op">=</span><span class="dv">900</span>,</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>            upload_date<span class="op">=</span><span class="st">'20260101'</span>, webpage_url<span class="op">=</span><span class="st">'https://youtube.com/watch?v=VID2'</span>,</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>            description<span class="op">=</span><span class="st">''</span>, captions<span class="op">=</span>{<span class="st">'en'</span>: <span class="st">'auto'</span>},</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>            last_used_at<span class="op">=</span>datetime(<span class="dv">2000</span>,<span class="dv">1</span>,<span class="dv">1</span>,tzinfo<span class="op">=</span>timezone.utc))</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>sections <span class="op">=</span> [NormalizedSection(path<span class="op">=</span><span class="st">'1'</span>, title<span class="op">=</span><span class="st">'Intro'</span>, start<span class="op">=</span><span class="dv">0</span>, end<span class="op">=</span><span class="dv">300</span>),</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>            NormalizedSection(path<span class="op">=</span><span class="st">'2'</span>, title<span class="op">=</span><span class="st">'Main'</span>, start<span class="op">=</span><span class="dv">300</span>, end<span class="op">=</span><span class="dv">900</span>)]</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> _render_toc(meta, sections)</span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>lines <span class="op">=</span> out.split(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>)</span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'# Test Video'</span> <span class="kw">in</span> lines[<span class="dv">0</span>]</span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> lines[<span class="dv">2</span>] <span class="op">==</span> <span class="st">''</span>  <span class="co"># blank line between header (2 lines) and first section</span></span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'1. Intro 0:00-5:00'</span> <span class="kw">in</span> out</span>
-<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'2. Main 5:00-15:00'</span> <span class="kw">in</span> out</span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'&amp;t=300'</span> <span class="kw">in</span> out</span>
-<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: _render_toc returns header + blank + formatted section lines</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.toc <span class="im">import</span> _render_toc</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.core <span class="im">import</span> NormalizedSection, Meta</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime, timezone</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>meta <span class="op">=</span> Meta(<span class="bu">id</span><span class="op">=</span><span class="st">'VID2'</span>, title<span class="op">=</span><span class="st">'Test Video'</span>, channel<span class="op">=</span><span class="st">'Ch'</span>, duration<span class="op">=</span><span class="dv">900</span>,</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>            upload_date<span class="op">=</span><span class="st">'20260101'</span>, webpage_url<span class="op">=</span><span class="st">'https://youtube.com/watch?v=VID2'</span>,</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>            description<span class="op">=</span><span class="st">''</span>, captions<span class="op">=</span>{<span class="st">'en'</span>: <span class="st">'auto'</span>},</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>            last_used_at<span class="op">=</span>datetime(<span class="dv">2000</span>,<span class="dv">1</span>,<span class="dv">1</span>,tzinfo<span class="op">=</span>timezone.utc))</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>sections <span class="op">=</span> [NormalizedSection(path<span class="op">=</span><span class="st">'1'</span>, title<span class="op">=</span><span class="st">'Intro'</span>, start<span class="op">=</span><span class="dv">0</span>, end<span class="op">=</span><span class="dv">300</span>),</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>            NormalizedSection(path<span class="op">=</span><span class="st">'2'</span>, title<span class="op">=</span><span class="st">'Main'</span>, start<span class="op">=</span><span class="dv">300</span>, end<span class="op">=</span><span class="dv">900</span>)]</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> _render_toc(meta, sections)</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>lines <span class="op">=</span> out.split(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'# Test Video'</span> <span class="kw">in</span> lines[<span class="dv">0</span>]</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> lines[<span class="dv">2</span>] <span class="op">==</span> <span class="st">''</span>  <span class="co"># blank line between header (2 lines) and first section</span></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'1. Intro 0:00-5:00'</span> <span class="kw">in</span> out</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'2. Main 5:00-15:00'</span> <span class="kw">in</span> out</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'&amp;t=300'</span> <span class="kw">in</span> out</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ok</code></pre>
 </div>

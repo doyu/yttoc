@@ -162,5 +162,6 @@ notebooks.
 
 ``` sh
 pip install -e .
-nbdev_prepare    # export, test, build docs
+nbdev_install_hooks   # one-time after clone: trust + merge-conflict git hooks
+nbdev_prepare         # export, test, build docs
 ```
