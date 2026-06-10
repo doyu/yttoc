@@ -114,7 +114,7 @@ def _call_summary_llm(prompt: str) -> dict:
 from fastcore.script import call_parse
 from .core import fmt_duration, format_header, format_toc_line, NormalizedSection, Meta
 from .cache import (resolve_root, meta_path, summaries_path,
-                         first_srt_path, load_meta, read_model, touch_meta)
+                         first_srt_path, load_meta, read_model, write_model, touch_meta)
 from .xscript import parse_xscript
 from .toc import generate_toc
 
@@ -144,7 +144,7 @@ def _assemble_summaries(meta: Meta, # Parsed Meta instance
 
 def generate_summaries(video_id: str, # Exact video_id
                        root: Path = None, # Root cache directory
-                       refresh: bool = False, # Delete cached summaries and regenerate
+                       refresh: bool = False, # Regenerate summaries on success
                       ) -> AssembledSummaries: # Parsed AssembledSummaries instance
     "Generate summaries.json for a cached video. Returns parsed AssembledSummaries."
     root = resolve_root(root)
@@ -157,10 +157,7 @@ def generate_summaries(video_id: str, # Exact video_id
     except FileNotFoundError:
         raise SystemExit(f"Not cached: {video_id}")
 
-    if refresh and sum_p.exists():
-        sum_p.unlink()
-
-    if sum_p.exists():
+    if sum_p.exists() and not refresh:
         return read_model(sum_p, AssembledSummaries)
 
     toc_sections = generate_toc(video_id, root)
@@ -170,7 +167,9 @@ def generate_summaries(video_id: str, # Exact video_id
     llm_result = _call_summary_llm(prompt)
     result = _assemble_summaries(meta, toc_sections, llm_result)
 
-    sum_p.write_text(result.model_dump_json(indent=2), encoding='utf-8')
+    # Replace summaries.json only after successful generation — a failed
+    # refresh keeps the old cache.
+    write_model(sum_p, result)
     touch_meta(video_id, root)
     return result
 
