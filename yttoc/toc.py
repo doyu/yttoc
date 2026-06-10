@@ -100,12 +100,12 @@ import sys
 from fastcore.script import call_parse
 from .core import format_header, format_toc_line, Meta
 from .cache import (resolve_root, meta_path, toc_path, summaries_path,
-                         first_srt_path, load_meta, read_model, touch_meta)
+                         first_srt_path, load_meta, read_model, write_model, touch_meta)
 from .xscript import parse_xscript
 
 def generate_toc(video_id: str, # Exact video_id
                  root: Path = None, # Root cache directory
-                 refresh: bool = False, # Delete cached toc/summaries and regenerate
+                 refresh: bool = False, # Regenerate toc (and invalidate summaries) on success
                 ) -> list[NormalizedSection]: # List of NormalizedSection
     "Generate toc.json for a cached video. Returns sections list."
     root = resolve_root(root)
@@ -119,13 +119,7 @@ def generate_toc(video_id: str, # Exact video_id
     except FileNotFoundError:
         raise SystemExit(f"Not cached: {video_id}")
 
-    if refresh:
-        if toc_p.exists(): toc_p.unlink()
-        if sum_p.exists():
-            sum_p.unlink()
-            print('Invalidated summaries.json (depends on toc)', file=sys.stderr)
-
-    if toc_p.exists():
+    if toc_p.exists() and not refresh:
         return read_model(toc_p, TocFile).sections
 
     meta = load_meta(video_id, root)
@@ -134,9 +128,12 @@ def generate_toc(video_id: str, # Exact video_id
     raw = _call_llm(prompt)
     sections = _normalize_sections(raw, meta.duration)
 
-    toc_p.write_text(
-        TocFile(sections=sections).model_dump_json(indent=2),
-        encoding='utf-8')
+    # Replace toc.json only after successful generation, then invalidate
+    # the dependent summaries.json — a failed refresh keeps the old cache.
+    write_model(toc_p, TocFile(sections=sections))
+    if refresh and sum_p.exists():
+        sum_p.unlink()
+        print('Invalidated summaries.json (depends on toc)', file=sys.stderr)
     touch_meta(video_id, root)
     return sections
 

@@ -14,7 +14,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 import yt_dlp
 from .core import Meta
-from .cache import resolve_root, glob_srt, touch_meta
+from .cache import resolve_root, glob_srt, write_model, touch_meta
 
 
 # %% ../nbs/01_fetch.ipynb #0zd7en6efu0n
@@ -132,7 +132,7 @@ def fetch_video(url: str, # YouTube video URL
 
     _srt_path, lang, caption_type = _download_srt(url, info, out_dir)
     meta = _build_meta(info, lang=lang, caption_type=caption_type)
-    meta_path.write_text(meta.model_dump_json(indent=2), encoding='utf-8')
+    write_model(meta_path, meta)
     return out_dir
 
 

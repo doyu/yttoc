@@ -6,7 +6,7 @@ Docs: https://doyu.github.io/yttoccache.html.md"""
 
 # %% auto #0
 __all__ = ['TModel', 'resolve_root', 'video_dir', 'meta_path', 'toc_path', 'summaries_path', 'glob_srt', 'first_srt_path',
-           'read_model', 'load_meta', 'touch_meta']
+           'read_model', 'load_meta', 'write_model', 'touch_meta']
 
 # %% ../nbs/07_cache.ipynb #g1000004
 import os
@@ -79,6 +79,17 @@ def load_meta(video_id: str, # Exact video_id
     "Load meta.json for one cached video."
     return read_model(meta_path(video_id, root), Meta)
 
+
+# %% ../nbs/07_cache.ipynb #96669222
+def write_model(path: str | Path, # Destination JSON file path
+                model: BaseModel # Pydantic model instance to persist
+               ) -> None:
+    "Atomically write a model as indented JSON (temp file + os.replace)."
+    path = Path(path)
+    tmp = path.with_suffix(path.suffix + '.tmp')
+    tmp.write_text(model.model_dump_json(indent=2), encoding='utf-8')
+    os.replace(tmp, path)
+
 def touch_meta(video_id: str, # Exact video_id
                root: str | Path | None = None # Cache root override
               ) -> None:
@@ -86,5 +97,5 @@ def touch_meta(video_id: str, # Exact video_id
     path = meta_path(video_id, root)
     meta = read_model(path, Meta)
     meta.last_used_at = datetime.now(timezone.utc)
-    path.write_text(meta.model_dump_json(indent=2), encoding='utf-8')
+    write_model(path, meta)
 
