@@ -274,8 +274,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>~/.cache/yttoc/
   {video_id}/
     meta.json
-    captions.ja.srt        # if Japanese captions exist
-    captions.en.srt        # otherwise fall back to English</code></pre>
+    captions.{lang}.srt    # video's original spoken language (e.g. captions.en.srt)</code></pre>
 <p><strong>meta.json fields:</strong></p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"kwSVtQ7dziU"</span><span class="fu">,</span></span>
@@ -285,11 +284,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"upload_date"</span><span class="fu">:</span> <span class="st">"20260320"</span><span class="fu">,</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"webpage_url"</span><span class="fu">:</span> <span class="st">"https://www.youtube.com/watch?v=kwSVtQ7dziU"</span><span class="fu">,</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"Video description with possible manual ToC..."</span><span class="fu">,</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"captions"</span><span class="fu">:</span> <span class="fu">{</span><span class="dt">"ja"</span><span class="fu">:</span> <span class="st">"manual"</span><span class="fu">},</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"captions"</span><span class="fu">:</span> <span class="fu">{</span><span class="dt">"en"</span><span class="fu">:</span> <span class="st">"auto"</span><span class="fu">},</span></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"last_used_at"</span><span class="fu">:</span> <span class="st">"2026-04-06T14:22:31+00:00"</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>description</code> is preserved for use as background context in ToC/summary generation. Many videos include a manual ToC with timestamps in their description.</p>
-<p><strong>Caption selection logic:</strong> try Japanese first (manual <code>ja</code>/<code>ja-*</code> → auto <code>ja</code>/<code>ja-*</code>), then English (manual <code>en</code>/<code>en-*</code> → auto <code>en</code>/<code>en-*</code>). Error if neither exists.</p>
+<p><strong>Caption selection logic:</strong> use the video’s original spoken language (yt-dlp <code>info.language</code>), preferring manual captions over auto-generated ones. The language tag is matched exactly, else its parent family (e.g.&nbsp;<code>en-US</code> → <code>en</code>), else a sibling variant (e.g.&nbsp;<code>en-GB</code>). Error if the original language cannot be determined or has no captions — there is no cross-language fallback.</p>
 <p><strong>CLI:</strong> <code>yttoc-fetch &lt;url&gt;</code> fetches one video, prints video_id to stdout. Batch via shell: <code>cat urls.txt | xargs -I{} yttoc-fetch {}</code></p>
 </section>
 <section id="modularize" class="level2">

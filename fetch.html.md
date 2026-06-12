@@ -11,8 +11,7 @@ spec — re-downloadable data belongs in cache). Overridable via `--root`.
     ~/.cache/yttoc/
       {video_id}/
         meta.json
-        captions.ja.srt        # if Japanese captions exist
-        captions.en.srt        # otherwise fall back to English
+        captions.{lang}.srt    # video's original spoken language (e.g. captions.en.srt)
 
 **meta.json fields:**
 
@@ -25,7 +24,7 @@ spec — re-downloadable data belongs in cache). Overridable via `--root`.
   "upload_date": "20260320",
   "webpage_url": "https://www.youtube.com/watch?v=kwSVtQ7dziU",
   "description": "Video description with possible manual ToC...",
-  "captions": {"ja": "manual"},
+  "captions": {"en": "auto"},
   "last_used_at": "2026-04-06T14:22:31+00:00"
 }
 ```
@@ -34,9 +33,12 @@ spec — re-downloadable data belongs in cache). Overridable via `--root`.
 generation. Many videos include a manual ToC with timestamps in their
 description.
 
-**Caption selection logic:** try Japanese first (manual `ja`/`ja-*` →
-auto `ja`/`ja-*`), then English (manual `en`/`en-*` → auto `en`/`en-*`).
-Error if neither exists.
+**Caption selection logic:** use the video’s original spoken language
+(yt-dlp `info.language`), preferring manual captions over auto-generated
+ones. The language tag is matched exactly, else its parent family
+(e.g. `en-US` → `en`), else a sibling variant (e.g. `en-GB`). Error if
+the original language cannot be determined or has no captions — there is
+no cross-language fallback.
 
 **CLI:** `yttoc-fetch <url>` fetches one video, prints video_id to
 stdout. Batch via shell: `cat urls.txt | xargs -I{} yttoc-fetch {}`
