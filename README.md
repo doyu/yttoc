@@ -114,48 +114,38 @@ xdg-open course-map.html
 pandoc course-map.md -s --toc -o course-map.html
 ```
 
-### Searching with fzf
+### Searching across videos
 
-`yttoc-map` is for **browsing**. For **finding** a specific topic across
-the whole course, pipe `summaries.json` through `jq` into `fzf` —
-fuzzy-search section titles in the left pane, see summary + keywords in
-the preview pane below, hit Enter to open the deep-linked YouTube URL.
+`yttoc-map` is for **browsing**. To **find** a topic across cached
+videos, compose the search yourself over `summaries.json` — yttoc emits
+the data, your shell does the searching.
 
-``` bash
-yttoc-find() {
-    for id in "$@"; do
-        jq -r --arg id "$id" '
-            .video.url as $u
-            | .sections[]
-            | [
-                ($u + "&t=" + (.start|tostring)),
-                ($id + " §" + .path + " " + .title),
-                .summary,
-                (.keywords | join(", "))
-            ] | @tsv
-        ' "$HOME/.cache/yttoc/$id/summaries.json"
-    done \
-    | fzf --delimiter=$'\t' \
-          --with-nth=2 \
-          --preview 'printf "%s\n\nKeywords: %s\n" {3} {4}' \
-          --preview-window=down:60%:wrap \
-          --bind 'enter:execute(xdg-open {1})'
-}
-```
-
-Usage — same shell-expansion style as `yttoc-map`:
+Grep section rows (`video_id  path  title`) for a topic:
 
 ``` bash
-yttoc-find $(cat course-ids.txt)
-yttoc-find $(ls ~/.cache/yttoc)
+jq -r '.video as $v | .sections[] | [$v.id, .path, .title] | @tsv' \
+  ~/.cache/yttoc/*/summaries.json | rg -i rag
 ```
 
-Drop into `~/.bashrc`. Replace `xdg-open` with `open` on macOS.
+Pick interactively with `fzf` — the preview pane shows summary +
+keywords, Enter opens the deep-linked YouTube URL:
 
-The fzf snippet stays out of the Python package on purpose —
-`xdg-open`/`open` is environment-specific, fzf isn’t a Python dep, and
-shell composition is what shells are good at. yttoc generates the data;
-your shell does the searching.
+``` bash
+jq -r '.video as $v | .sections[]
+       | [($v.url+"&t="+(.start|tostring)), ($v.id+" §"+.path+" "+.title), .summary, (.keywords|join(", "))]
+       | @tsv' ~/.cache/yttoc/*/summaries.json \
+  | fzf --delimiter=$'\t' --with-nth=2 \
+        --preview 'printf "%s\n\nKeywords: %s\n" {3} {4}' --preview-window=down:60%:wrap \
+        --bind 'enter:execute(xdg-open {1})'
+```
+
+Replace `xdg-open` with `open` on macOS. The search pipeline stays out
+of the Python package on purpose — `xdg-open`/`open` is
+environment-specific, `fzf` isn’t a Python dep, and shell composition is
+what shells are good at: yttoc generates the data; `jq`/`rg`/`fzf` do
+the searching. Asking Claude or Codex *“which video talked about X?”*
+triggers the `yttoc-search-coach` skill, which builds these pipelines
+with you step by step.
 
 ## Development
 
