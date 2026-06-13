@@ -13,7 +13,7 @@ structured Pydantic result out.
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/llm.py#L20"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/llm.py#L18"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_structured
@@ -23,14 +23,13 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 def generate_structured(
     prompt:str, # Full user prompt
     response_model:type, # Pydantic response model
-    schema_name:str, # JSON schema name for OpenAI response_format
     model:str='gpt-5.4', # OpenAI model name
     client:Any=None, # Optional prebuilt OpenAI-compatible client for tests
 )->TModel: # Parsed response model instance
 
 ```
 
-*Call OpenAI structured output and validate into the caller-provided
+*Call OpenAI structured output in strict mode and return the parsed
 Pydantic model.*
 
 ## Tests
@@ -42,15 +41,16 @@ class _ToyResult(BaseModel):
     answer: str
 
 class _FakeCompletions:
-    def __init__(self, content='{"answer": "ok"}'):
+    "Fake .parse() — strict mode returns an already-parsed model on .message.parsed."
+    def __init__(self, parsed):
         self.kw = None
-        self.content = content
-    def create(self, **kw):
+        self.parsed = parsed
+    def parse(self, **kw):
         self.kw = kw
-        content = self.content
+        parsed = self.parsed
         class _Message:
             pass
-        _Message.content = content
+        _Message.parsed = parsed
         class _Choice:
             message = _Message()
         class _Response:
@@ -58,24 +58,20 @@ class _FakeCompletions:
         return _Response()
 
 class _FakeChat:
-    def __init__(self, content='{"answer": "ok"}'):
-        self.completions = _FakeCompletions(content)
+    def __init__(self, parsed):
+        self.completions = _FakeCompletions(parsed)
 
 class _FakeClient:
-    def __init__(self, content='{"answer": "ok"}'):
-        self.chat = _FakeChat(content)
+    def __init__(self, parsed):
+        self.chat = _FakeChat(parsed)
 
-# Happy path
-client = _FakeClient()
-result = generate_structured('hello', _ToyResult, schema_name='toy', model='gpt-test', client=client)
+client = _FakeClient(_ToyResult(answer='ok'))
+result = generate_structured('hello', _ToyResult, model='gpt-test', client=client)
 assert result == _ToyResult(answer='ok')
 assert client.chat.completions.kw['model'] == 'gpt-test'
 assert client.chat.completions.kw['messages'] == [{'role': 'user', 'content': 'hello'}]
-assert client.chat.completions.kw['response_format']['json_schema']['name'] == 'toy'
-
-# Trailing content after the first JSON object is tolerated.
-client = _FakeClient(content='{"answer": "ok"}\n{"junk": 1}')
-assert generate_structured('p', _ToyResult, schema_name='toy', client=client) == _ToyResult(answer='ok')
+# The Pydantic model class is passed directly as response_format (strict mode).
+assert client.chat.completions.kw['response_format'] is _ToyResult
 print('ok')
 ```
 

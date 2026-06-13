@@ -211,7 +211,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L151"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L150"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_toc
@@ -230,7 +230,7 @@ def yttoc_toc(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L106"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L105"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_toc

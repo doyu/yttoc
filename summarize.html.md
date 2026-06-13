@@ -42,7 +42,7 @@ merges it with `meta` and `toc_sections` into the canonical shape above.
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L101"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L104"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### AssembledSummaries
@@ -59,7 +59,7 @@ def AssembledSummaries(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L95"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L98"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### AssembledSection
@@ -76,7 +76,7 @@ def AssembledSection(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L86"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L89"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### VideoBlock
@@ -93,7 +93,7 @@ def VideoBlock(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L80"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L83"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### SummaryLLMResult
@@ -106,11 +106,30 @@ def SummaryLLMResult(
 
 ```
 
-*Structured output from the summary generation LLM call.*
+*Structured output from the summary generation LLM call (strict-mode
+friendly: list, not open dict).*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L74"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L79"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### PathedSummary
+
+``` python
+
+def PathedSummary(
+    data:Any
+)->None:
+
+```
+
+*Section summary payload tagged with its section path — one item in the
+LLM’s sections list.*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L73"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### SectionSummaryPayload
@@ -127,7 +146,7 @@ def SectionSummaryPayload(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L69"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L68"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### Evidence
@@ -141,6 +160,35 @@ def Evidence(
 ```
 
 *A quoted phrase from the transcript with its timestamp.*
+
+``` python
+# Test: _call_summary_llm adapts the LLM's sections LIST into a {path: payload} dict
+# (payload carries no 'path' key, so it drops straight into AssembledSection(**sec, **payload))
+from yttoc.summarize import SummaryLLMResult, PathedSummary, SectionSummaryPayload
+
+_orig_gen = generate_structured
+def generate_structured(prompt, response_model, **kw):
+    assert response_model is SummaryLLMResult
+    return SummaryLLMResult(
+        full=SectionSummaryPayload(summary='F', keywords=['f'], evidence={'text': 'fe', 'at': 0}),
+        sections=[
+            PathedSummary(path='1', summary='S1', keywords=['a'], evidence={'text': 'e1', 'at': 1}),
+            PathedSummary(path='2', summary='S2', keywords=['b'], evidence={'text': 'e2', 'at': 2}),
+        ],
+    )
+try:
+    out = _call_summary_llm('p')
+finally:
+    generate_structured = _orig_gen
+
+assert set(out['sections']) == {'1', '2'}
+assert out['sections']['1'] == {'summary': 'S1', 'keywords': ['a'], 'evidence': {'text': 'e1', 'at': 1}}
+assert 'path' not in out['sections']['1']  # path becomes the key, not part of the payload
+assert out['full'] == {'summary': 'F', 'keywords': ['f'], 'evidence': {'text': 'fe', 'at': 0}}
+print('ok')
+```
+
+    ok
 
 ## Tests
 
@@ -273,7 +321,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L210"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L216"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_sum
@@ -294,7 +342,7 @@ def yttoc_sum(
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L145"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L151"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_summaries
@@ -556,7 +604,7 @@ print('ok')
 ------------------------------------------------------------------------
 
 <a
-href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L234"
+href="https://github.com/doyu/yttoc/blob/main/yttoc/summarize.py#L240"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_summaries
