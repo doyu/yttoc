@@ -90,10 +90,9 @@ class TocFile(BaseModel):
 
 def _call_llm(prompt: str # Full prompt
              ) -> list[RawTocSection]: # List of RawTocSection
-    "Call OpenAI gpt-5.4 with Pydantic-generated schema, return raw section list."
-    result = generate_structured(prompt, TocLLMResult, schema_name='generate_toc')
+    "Call OpenAI gpt-5.4 in strict mode, return raw section list."
+    result = generate_structured(prompt, TocLLMResult)
     return result.sections
-
 
 # %% ../nbs/03_toc.ipynb #795bea0d
 import sys
