@@ -239,7 +239,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#course-maps-across-multiple-videos" id="toc-course-maps-across-multiple-videos" class="nav-link" data-scroll-target="#course-maps-across-multiple-videos">Course maps across multiple videos</a>
   <ul class="collapse">
-  <li><a href="#searching-with-fzf" id="toc-searching-with-fzf" class="nav-link" data-scroll-target="#searching-with-fzf">Searching with fzf</a></li>
+  <li><a href="#searching-across-videos" id="toc-searching-across-videos" class="nav-link" data-scroll-target="#searching-across-videos">Searching across videos</a></li>
   </ul></li>
   <li><a href="#development" id="toc-development" class="nav-link" data-scroll-target="#development">Development</a></li>
   </ul>
@@ -352,33 +352,20 @@ I'm holding the system back" [17:17]</code></pre>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">xdg-open</span> course-map.html</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>…or as a static linked page:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pandoc</span> course-map.md <span class="at">-s</span> <span class="at">--toc</span> <span class="at">-o</span> course-map.html</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<section id="searching-with-fzf" class="level3">
-<h3 class="anchored" data-anchor-id="searching-with-fzf">Searching with fzf</h3>
-<p><code>yttoc-map</code> is for <strong>browsing</strong>. For <strong>finding</strong> a specific topic across the whole course, pipe <code>summaries.json</code> through <code>jq</code> into <code>fzf</code> — fuzzy-search section titles in the left pane, see summary + keywords in the preview pane below, hit Enter to open the deep-linked YouTube URL.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">yttoc-find()</span> <span class="kw">{</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> id <span class="kw">in</span> <span class="st">"</span><span class="va">$@</span><span class="st">"</span><span class="kw">;</span> <span class="cf">do</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        <span class="ex">jq</span> <span class="at">-r</span> <span class="at">--arg</span> id <span class="st">"</span><span class="va">$id</span><span class="st">"</span> <span class="st">'</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="st">            .video.url as $u</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="st">            | .sections[]</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="st">            | [</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="st">                ($u + "&amp;t=" + (.start|tostring)),</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="st">                ($id + " §" + .path + " " + .title),</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="st">                .summary,</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="st">                (.keywords | join(", "))</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="st">            ] | @tsv</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="st">        '</span> <span class="st">"</span><span class="va">$HOME</span><span class="st">/.cache/yttoc/</span><span class="va">$id</span><span class="st">/summaries.json"</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">done</span> <span class="dt">\</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">|</span> <span class="ex">fzf</span> <span class="at">--delimiter</span><span class="op">=</span><span class="st">$'</span><span class="dt">\t</span><span class="st">'</span> <span class="dt">\</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>          <span class="at">--with-nth</span><span class="op">=</span>2 <span class="dt">\</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>          <span class="at">--preview</span> <span class="st">'printf "%s\n\nKeywords: %s\n" {3} {4}'</span> <span class="dt">\</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>          <span class="at">--preview-window</span><span class="op">=</span>down:60%:wrap <span class="dt">\</span></span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>          <span class="at">--bind</span> <span class="st">'enter:execute(xdg-open {1})'</span></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Usage — same shell-expansion style as <code>yttoc-map</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-find</span> <span class="va">$(</span><span class="fu">cat</span> course-ids.txt<span class="va">)</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">yttoc-find</span> <span class="va">$(</span><span class="fu">ls</span> ~/.cache/yttoc<span class="va">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Drop into <code>~/.bashrc</code>. Replace <code>xdg-open</code> with <code>open</code> on macOS.</p>
-<p>The fzf snippet stays out of the Python package on purpose — <code>xdg-open</code>/<code>open</code> is environment-specific, fzf isn’t a Python dep, and shell composition is what shells are good at. yttoc generates the data; your shell does the searching.</p>
+<section id="searching-across-videos" class="level3">
+<h3 class="anchored" data-anchor-id="searching-across-videos">Searching across videos</h3>
+<p><code>yttoc-map</code> is for <strong>browsing</strong>. To <strong>find</strong> a topic across cached videos, compose the search yourself over <code>summaries.json</code> — yttoc emits the data, your shell does the searching.</p>
+<p>Grep section rows (<code>video_id  path  title</code>) for a topic:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">jq</span> <span class="at">-r</span> <span class="st">'.video as $v | .sections[] | [$v.id, .path, .title] | @tsv'</span> <span class="dt">\</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  ~/.cache/yttoc/<span class="pp">*</span>/summaries.json <span class="kw">|</span> <span class="ex">rg</span> <span class="at">-i</span> rag</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Pick interactively with <code>fzf</code> — the preview pane shows summary + keywords, Enter opens the deep-linked YouTube URL:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">jq</span> <span class="at">-r</span> <span class="st">'.video as $v | .sections[]</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="st">       | [($v.url+"&amp;t="+(.start|tostring)), ($v.id+" §"+.path+" "+.title), .summary, (.keywords|join(", "))]</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="st">       | @tsv'</span> ~/.cache/yttoc/<span class="pp">*</span>/summaries.json <span class="dt">\</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">|</span> <span class="ex">fzf</span> <span class="at">--delimiter</span><span class="op">=</span><span class="st">$'</span><span class="dt">\t</span><span class="st">'</span> <span class="at">--with-nth</span><span class="op">=</span>2 <span class="dt">\</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">--preview</span> <span class="st">'printf "%s\n\nKeywords: %s\n" {3} {4}'</span> <span class="at">--preview-window</span><span class="op">=</span>down:60%:wrap <span class="dt">\</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">--bind</span> <span class="st">'enter:execute(xdg-open {1})'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Replace <code>xdg-open</code> with <code>open</code> on macOS. The search pipeline stays out of the Python package on purpose — <code>xdg-open</code>/<code>open</code> is environment-specific, <code>fzf</code> isn’t a Python dep, and shell composition is what shells are good at: yttoc generates the data; <code>jq</code>/<code>rg</code>/<code>fzf</code> do the searching. Asking Claude or Codex <em>“which video talked about X?”</em> triggers the <code>yttoc-search-coach</code> skill, which builds these pipelines with you step by step.</p>
 </section>
 </section>
 <section id="development" class="level2">
