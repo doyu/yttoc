@@ -86,7 +86,7 @@ def _download_srt(url: str, info: dict | _YtDlpInfo, out_dir: Path
 
     sub_opt = 'writesubtitles' if manual_lang else 'writeautomaticsub'
     opts = {
-        'skip_download': True, 'quiet': True,
+        'skip_download': True, 'quiet': True, 'noprogress': True,
         sub_opt: True,
         'subtitleslangs': [selected_lang],
         'subtitlesformat': 'srt',
@@ -105,7 +105,6 @@ def _download_srt(url: str, info: dict | _YtDlpInfo, out_dir: Path
         matches[0].replace(srt_path)
     caption_type = 'manual' if manual_lang else 'auto'
     return srt_path, selected_lang, caption_type
-
 
 # %% ../nbs/01_fetch.ipynb #tccc8rj4sxs
 def get_video_info(url: str # YouTube video URL
