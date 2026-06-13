@@ -133,9 +133,49 @@ assert _resolve_lang({'subtitles': {'en': []}, 'automatic_captions': {}}) == (No
 print('ok')
 ```
 
+``` python
+# Test: _download_srt keeps stdout clean (no yt-dlp progress leak, no network)
+# Regression: vid=$(yttoc-fetch <url>) must capture only the video_id. yt-dlp's
+# 'quiet' does not silence the download progress bar — 'noprogress' does.
+import io, contextlib
+from tempfile import TemporaryDirectory
+
+class _FakeYDL:
+    "Records the opts it was built with and simulates writing the srt file."
+    last_opts = None
+    def __init__(self, opts):
+        _FakeYDL.last_opts = opts
+        self._opts = opts
+    def __enter__(self): return self
+    def __exit__(self, *a): return False
+    def download(self, urls):
+        Path(self._opts['outtmpl'].replace('%(ext)s', 'srt')).write_text(
+            '1\n00:00:00,000 --> 00:00:01,000\nhi\n')
+
+_orig_ydl = yt_dlp.YoutubeDL
+yt_dlp.YoutubeDL = _FakeYDL
+try:
+    with TemporaryDirectory() as d:
+        info = {'id': 'X', 'title': 't', 'channel': 'c', 'duration': 1,
+                'upload_date': '20260101', 'webpage_url': 'u', 'description': '',
+                'language': 'en', 'subtitles': {'en': []}, 'automatic_captions': {}}
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            srt_path, lang, ctype = _download_srt('http://x', info, Path(d))
+        assert buf.getvalue() == '', f'stdout leaked: {buf.getvalue()!r}'
+        assert _FakeYDL.last_opts.get('noprogress') is True, 'opts must disable progress bar'
+        assert (lang, ctype) == ('en', 'manual')
+        assert srt_path.exists()
+finally:
+    yt_dlp.YoutubeDL = _orig_ydl
+print('ok')
+```
+
+    ok
+
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L111"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L110"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### get_video_info
@@ -161,7 +201,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L118"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L117"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### fetch_video
@@ -204,7 +244,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L143"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L142"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_fetch
@@ -231,7 +271,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L168"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/fetch.py#L167"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_list
