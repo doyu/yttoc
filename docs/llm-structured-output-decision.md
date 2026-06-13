@@ -88,3 +88,7 @@ Why adopted:
 ## Future work
 
 The deferred refactor back to `parse()` (Option A) is tracked as a task in [#36](https://github.com/doyu/yttoc/issues/36), including completion criteria and triggers to revisit. This document captures the *decision*; the issue captures the *task state*.
+
+### Update (2026-06-13): Option A adopted (#36)
+
+The refactor landed. `SummaryLLMResult.sections` changed from `dict[str, SectionSummaryPayload]` to `list[PathedSummary]` (the path moved into each item as a field), which makes the schema strict-mode compatible. `generate_structured` now calls `client.chat.completions.parse(response_format=response_model)` and returns `message.parsed`; the hand-rolled `json_schema` dict, the `schema_name` parameter, and the `JSONDecoder().raw_decode()` workaround are gone. A list→dict adapter inside `_call_summary_llm` keeps `_assemble_summaries` unchanged, so `summaries.json` on disk is byte-for-byte the same shape. The trailing-content test was removed because strict mode makes that failure mode impossible.
