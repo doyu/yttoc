@@ -21,23 +21,6 @@ path/end, sort, dedup, validate 4. Write `toc.json` to cache dir
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L87"
-target="_blank" style="float:right; font-size:smaller">source</a>
-
-### TocFile
-
-``` python
-
-def TocFile(
-    data:Any
-)->None:
-
-```
-
-*On-disk shape of toc.json.*
-
-------------------------------------------------------------------------
-
 <a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L82"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
@@ -139,51 +122,6 @@ print('ok')
 ```
 
 ``` python
-# Test: TocFile validates envelope shape and element types
-from yttoc.toc import TocFile
-from pydantic import ValidationError
-
-# Valid
-toc = TocFile.model_validate_json(
-    '{"sections": [{"path":"1","title":"Intro","start":0,"end":300}]}'
-)
-assert len(toc.sections) == 1
-assert toc.sections[0].title == 'Intro'
-
-# Missing 'sections' key rejected
-try:
-    TocFile.model_validate_json('{"section": []}')  # typo
-except ValidationError:
-    pass
-else:
-    assert False, 'expected ValidationError for missing sections key'
-
-# Bad element shape (missing 'end') rejected
-try:
-    TocFile.model_validate_json(
-        '{"sections": [{"path":"1","title":"x","start":0}]}'
-    )
-except ValidationError:
-    pass
-else:
-    assert False, 'expected ValidationError for missing end field'
-
-# Negative timestamp rejected via NormalizedSection constraint
-try:
-    TocFile.model_validate_json(
-        '{"sections": [{"path":"1","title":"x","start":-1,"end":10}]}'
-    )
-except ValidationError:
-    pass
-else:
-    assert False, 'expected ValidationError for negative start'
-
-print('ok')
-```
-
-    ok
-
-``` python
 from yttoc.core import Segment, Meta
 from datetime import datetime, timezone
 # Test 6: _build_toc_prompt includes transcript and meta context
@@ -211,7 +149,7 @@ print('ok')
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L150"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L145"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_toc
@@ -230,7 +168,7 @@ def yttoc_toc(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L105"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/toc.py#L100"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### generate_toc

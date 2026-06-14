@@ -210,12 +210,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">llm</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./serve.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">serve</span></a>
-  </div>
-</li>
     </ul>
     </div>
 </nav>
@@ -276,7 +270,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="design">Design</h2>
 <p>This module centralizes path construction and generic JSON→Pydantic loading for cached artifacts.</p>
 <p>It deliberately does <strong>not</strong> own refresh or invalidation policy. Those remain in stage modules like <code>toc.py</code> and <code>summarize.py</code>.</p>
-<p>It also does <strong>not</strong> import downstream models such as <a href="https://doyu.github.io/yttoc/toc.html#tocfile"><code>TocFile</code></a> or <a href="https://doyu.github.io/yttoc/summarize.html#assembledsummaries"><code>AssembledSummaries</code></a>. Callers pass their own model class into <code>read_model(...)</code> to avoid circular imports.</p>
+<p>It also does <strong>not</strong> import downstream models such as <a href="https://doyu.github.io/yttoc/core.html#tocfile"><code>TocFile</code></a> or <a href="https://doyu.github.io/yttoc/summarize.html#assembledsummaries"><code>AssembledSummaries</code></a>. Callers pass their own model class into <code>read_model(...)</code> to avoid circular imports.</p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L76" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="load_meta" class="level3">

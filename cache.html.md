@@ -12,7 +12,7 @@ It deliberately does **not** own refresh or invalidation policy. Those
 remain in stage modules like `toc.py` and `summarize.py`.
 
 It also does **not** import downstream models such as
-[`TocFile`](https://doyu.github.io/yttoc/toc.html#tocfile) or
+[`TocFile`](https://doyu.github.io/yttoc/core.html#tocfile) or
 [`AssembledSummaries`](https://doyu.github.io/yttoc/summarize.html#assembledsummaries).
 Callers pass their own model class into `read_model(...)` to avoid
 circular imports.

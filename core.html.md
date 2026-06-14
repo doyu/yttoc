@@ -5,7 +5,7 @@
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L62"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L67"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_toc_line
@@ -23,7 +23,7 @@ def format_toc_line(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L55"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L60"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### slice_segments
@@ -42,7 +42,7 @@ def slice_segments(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L49"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L54"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### format_header
@@ -59,7 +59,7 @@ def format_header(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L42"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L47"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### fmt_duration
@@ -76,7 +76,7 @@ def fmt_duration(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L29"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L34"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### Meta
@@ -93,7 +93,25 @@ def Meta(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L22"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L30"
+target="_blank" style="float:right; font-size:smaller">source</a>
+
+### TocFile
+
+``` python
+
+def TocFile(
+    data:Any
+)->None:
+
+```
+
+*On-disk shape of toc.json (lives in core so both toc and xscript can
+read it without a cycle).*
+
+------------------------------------------------------------------------
+
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L23"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### NormalizedSection
@@ -111,7 +129,7 @@ output).*
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L15"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/core.py#L16"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### Segment
@@ -230,6 +248,35 @@ except ValidationError:
     pass
 else:
     assert False, 'expected ValidationError for missing end'
+
+print('ok')
+```
+
+    ok
+
+``` python
+# Test: TocFile validates the toc.json envelope and its element shapes
+from yttoc.core import TocFile
+from pydantic import ValidationError
+
+toc = TocFile.model_validate_json('{"sections": [{"path":"1","title":"Intro","start":0,"end":300}]}')
+assert len(toc.sections) == 1 and toc.sections[0].title == 'Intro'
+
+# Missing 'sections' key rejected
+try:
+    TocFile.model_validate_json('{"section": []}')  # typo
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for missing sections key'
+
+# Bad element shape (negative start) rejected via NormalizedSection constraint
+try:
+    TocFile.model_validate_json('{"sections": [{"path":"1","title":"x","start":-1,"end":10}]}')
+except ValidationError:
+    pass
+else:
+    assert False, 'expected ValidationError for negative start'
 
 print('ok')
 ```
