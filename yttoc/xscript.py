@@ -106,10 +106,9 @@ def parse_xscript(path: str | Path # Path to SRT file
 # %% ../nbs/02_xscript.ipynb #bcd5731c
 import json
 from fastcore.script import call_parse
-from .core import fmt_duration, format_header, slice_segments, NormalizedSection, Meta
+from .core import fmt_duration, format_header, slice_segments, NormalizedSection, TocFile, Meta
 from .cache import (resolve_root, meta_path, toc_path,
                          first_srt_path, load_meta, read_model, touch_meta)
-from .toc import TocFile
 
 def _load_segments(video_id: str, section: str, root: str | None
                   ) -> tuple[Meta, list[Segment], NormalizedSection | None]:
@@ -190,7 +189,6 @@ def yttoc_txt(video_id: str, # Exact video_id
     meta, segments, sec_info = _load_segments(video_id, section, root)
     print(_render_txt(meta, segments, section, sec_info))
     touch_meta(video_id, root)
-
 
 # %% ../nbs/02_xscript.ipynb #db2334f5
 def _get_xscript_range_strict(video_id: str, # Exact video_id
