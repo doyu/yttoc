@@ -27,11 +27,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### TocLLMResult
 
 ``` python
-
 def TocLLMResult(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *Structured output from the TOC generation LLM call.*
@@ -44,11 +42,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### RawTocSection
 
 ``` python
-
 def RawTocSection(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *One section as returned by the TOC LLM — title + start time only.*
@@ -155,13 +151,11 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### yttoc_toc
 
 ``` python
-
 def yttoc_toc(
     video_id:str, # Exact video_id
     root:str=None, # Root cache directory
     refresh:bool=False, # Regenerate toc (and invalidate summaries)
 ):
-
 ```
 
 *Generate and display Table of Contents for a cached video.*
@@ -174,13 +168,11 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### generate_toc
 
 ``` python
-
 def generate_toc(
     video_id:str, # Exact video_id
     root:Path=None, # Root cache directory
     refresh:bool=False, # Regenerate toc (and invalidate summaries) on success
 )->list: # List of NormalizedSection
-
 ```
 
 *Generate toc.json for a cached video. Returns sections list.*

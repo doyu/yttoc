@@ -11,12 +11,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### format_toc_line
 
 ``` python
-
 def format_toc_line(
     section:NormalizedSection, # NormalizedSection or subclass (AssembledSection, FlattenedSection)
     url:str='', # webpage_url for &t= deep link (omit when empty)
 )->str: # Formatted line
-
 ```
 
 *Single-line TOC row for a section, optionally with deep-link URL.*
@@ -29,13 +27,11 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### slice_segments
 
 ``` python
-
 def slice_segments(
     segments:list, # List of Segment
     start:int, # Section start in seconds
     end:int, # Section end in seconds
 )->list: # Segments within [start, end)
-
 ```
 
 *Return segments with start time inside \[start, end).*
@@ -48,11 +44,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### format_header
 
 ``` python
-
 def format_header(
     meta:Meta, # Meta or duck-typed equivalent (title/channel/duration/upload_date)
 )->str: # Formatted header string
-
 ```
 
 *Shared header for toc/sum/raw CLI commands.*
@@ -65,11 +59,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### fmt_duration
 
 ``` python
-
 def fmt_duration(
     seconds:int, # Duration in seconds
 )->str: # Formatted as H:MM:SS or M:SS
-
 ```
 
 *Format seconds as human-readable duration.*
@@ -82,11 +74,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### Meta
 
 ``` python
-
 def Meta(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *Cached video metadata (one per cached video; persisted as meta.json).*
@@ -99,11 +89,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### TocFile
 
 ``` python
-
 def TocFile(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *On-disk shape of toc.json (lives in core so both toc and xscript can
@@ -117,11 +105,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### NormalizedSection
 
 ``` python
-
 def NormalizedSection(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *One TOC section after normalization (path and end added to raw LLM
@@ -135,11 +121,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### Segment
 
 ``` python
-
 def Segment(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *One parsed xscript segment (in-memory).*

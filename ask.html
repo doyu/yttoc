@@ -245,7 +245,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#yttoc_ask" id="toc-yttoc_ask" class="nav-link" data-scroll-target="#yttoc_ask">yttoc_ask</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/doyu/yttoc/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="ask.html.md"><i class="bi bi-file-code"></i>CommonMark</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/doyu/yttoc/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="ask.html.md"><i class="bi bi-file-code"></i>Markdown</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -283,55 +283,45 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L82" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="dispatch_tool" class="level3">
 <h3 class="anchored" data-anchor-id="dispatch_tool">dispatch_tool</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dispatch_tool(</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    registry:<span class="bu">dict</span>, name:<span class="bu">str</span>, raw_args:<span class="bu">str</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">str</span>:</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dispatch_tool(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    registry:<span class="bu">dict</span>, name:<span class="bu">str</span>, raw_args:<span class="bu">str</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">str</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Validate args via Pydantic, call handler, return JSON result.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L71" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="openai_tools" class="level3">
 <h3 class="anchored" data-anchor-id="openai_tools">openai_tools</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> openai_tools(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    registry:<span class="bu">dict</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>:</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> openai_tools(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    registry:<span class="bu">dict</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Extract OpenAI tool schemas from a registry.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L53" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="make_tool" class="level3">
 <h3 class="anchored" data-anchor-id="make_tool">make_tool</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_tool(</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    name:<span class="bu">str</span>, description:<span class="bu">str</span>, args_model:<span class="bu">type</span>, handler:Callable</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>ToolEntry:</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_tool(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    name:<span class="bu">str</span>, description:<span class="bu">str</span>, args_model:<span class="bu">type</span>, handler:Callable</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>ToolEntry:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Bundle a tool’s schema, arg model, and handler into a ToolEntry.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L47" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="toolentry" class="level3">
 <h3 class="anchored" data-anchor-id="toolentry">ToolEntry</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ToolEntry(</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    schema:<span class="bu">dict</span>, args_model:<span class="bu">type</span>, handler:Callable</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ToolEntry(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    schema:<span class="bu">dict</span>, args_model:<span class="bu">type</span>, handler:Callable</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>One tool in the registry — like a C struct bundling schema + handler.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L39" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="askresponse" class="level3">
 <h3 class="anchored" data-anchor-id="askresponse">AskResponse</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> AskResponse(</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    data:Any</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> AskResponse(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>data:Any</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>!!! abstract “Usage Documentation”</em> <a href="../concepts/models.md">Models</a></p>
 <p>A base class for creating Pydantic models.</p>
 <p>Attributes: <strong>class_vars</strong>: The names of the class variables defined on the model. <strong>private_attributes</strong>: Metadata about the private attributes of the model. <strong>signature</strong>: The synthesized <code>__init__</code> [<code>Signature</code>][inspect.Signature] of the model.</p>
@@ -362,11 +352,9 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 </section>
 <section id="citation" class="level3">
 <h3 class="anchored" data-anchor-id="citation">Citation</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> Citation(</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    data:Any</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> Citation(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>data:Any</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>!!! abstract “Usage Documentation”</em> <a href="../concepts/models.md">Models</a></p>
 <p>A base class for creating Pydantic models.</p>
 <p>Attributes: <strong>class_vars</strong>: The names of the class variables defined on the model. <strong>private_attributes</strong>: Metadata about the private attributes of the model. <strong>signature</strong>: The synthesized <code>__init__</code> [<code>Signature</code>][inspect.Signature] of the model.</p>
@@ -397,11 +385,9 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 </section>
 <section id="getxscriptrangeargs" class="level3">
 <h3 class="anchored" data-anchor-id="getxscriptrangeargs">GetXscriptRangeArgs</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> GetXscriptRangeArgs(</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    data:Any</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> GetXscriptRangeArgs(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>data:Any</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>!!! abstract “Usage Documentation”</em> <a href="../concepts/models.md">Models</a></p>
 <p>A base class for creating Pydantic models.</p>
 <p>Attributes: <strong>class_vars</strong>: The names of the class variables defined on the model. <strong>private_attributes</strong>: Metadata about the private attributes of the model. <strong>signature</strong>: The synthesized <code>__init__</code> [<code>Signature</code>][inspect.Signature] of the model.</p>
@@ -432,11 +418,9 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 </section>
 <section id="getsummariesargs" class="level3">
 <h3 class="anchored" data-anchor-id="getsummariesargs">GetSummariesArgs</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> GetSummariesArgs(</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    data:Any</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> GetSummariesArgs(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>data:Any</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>!!! abstract “Usage Documentation”</em> <a href="../concepts/models.md">Models</a></p>
 <p>A base class for creating Pydantic models.</p>
 <p>Attributes: <strong>class_vars</strong>: The names of the class variables defined on the model. <strong>private_attributes</strong>: Metadata about the private attributes of the model. <strong>signature</strong>: The synthesized <code>__init__</code> [<code>Signature</code>][inspect.Signature] of the model.</p>
@@ -470,23 +454,19 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L134" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="build_registry" class="level3">
 <h3 class="anchored" data-anchor-id="build_registry">build_registry</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_registry(</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    root:Path</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">dict</span>:</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_registry(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    root:Path</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">dict</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Build the tool registry with handlers bound to the given cache root.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L111" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="format_citations-1" class="level3">
 <h3 class="anchored" data-anchor-id="format_citations-1">format_citations</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> format_citations(</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    citations:<span class="bu">list</span>, <span class="co"># List of Citation objects</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    root:Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root for summaries lookup</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>: <span class="co"># Formatted citation lines</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> format_citations(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    citations:<span class="bu">list</span>, <span class="co"># List of Citation objects</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    root:Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root for summaries lookup</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>: <span class="co"># Formatted citation lines</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Resolve Citation objects into display lines with YouTube deep links.</em></p>
 <div id="4ba2cc03" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: format_citations resolves Citation objects to display string</span></span>
@@ -656,16 +636,14 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L155" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="ask" class="level3">
 <h3 class="anchored" data-anchor-id="ask">ask</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ask(</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    question:<span class="bu">str</span>, <span class="co"># Natural-language query</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    video_ids:<span class="bu">list</span>, <span class="co"># Cached video IDs</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    model:<span class="bu">str</span><span class="op">=</span><span class="st">'gpt-4o'</span>, <span class="co"># LLM model</span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    max_iterations:<span class="bu">int</span><span class="op">=</span><span class="dv">20</span>, <span class="co"># Safety cap on tool-use loop</span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    root:Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root directory</span></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    verbose:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># Print tool calls to stderr</span></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>AskResponse:</span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ask(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    question:<span class="bu">str</span>, <span class="co"># Natural-language query</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    video_ids:<span class="bu">list</span>, <span class="co"># Cached video IDs</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    model:<span class="bu">str</span><span class="op">=</span><span class="st">'gpt-4o'</span>, <span class="co"># LLM model</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    max_iterations:<span class="bu">int</span><span class="op">=</span><span class="dv">20</span>, <span class="co"># Safety cap on tool-use loop</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    root:Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root directory</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    verbose:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># Print tool calls to stderr</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>AskResponse:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Run a tool-use loop to answer a question about a video course.</em></p>
 <div id="f15978b5" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Integration test: ask() returns AskResponse with a real cached video</span></span>
@@ -681,43 +659,54 @@ __pydantic_private__: Values of private attributes set on the model instance.</c
 <section id="cli" class="level2">
 <h2 class="anchored" data-anchor-id="cli">CLI</h2>
 <hr>
-<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L226" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L227" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="yttoc_ask" class="level3">
 <h3 class="anchored" data-anchor-id="yttoc_ask">yttoc_ask</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> yttoc_ask(</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    question:<span class="bu">str</span>, <span class="co"># Natural-language query</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    ids:<span class="bu">str</span> <span class="op">&lt;</span>Cached video IDs (<span class="dv">1</span><span class="op">+</span> required)<span class="op">&gt;</span>, <span class="co"># Video IDs</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    model:<span class="bu">str</span><span class="op">=</span><span class="st">'gpt-4o'</span>, <span class="co"># LLM model</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    max_iterations:<span class="bu">int</span><span class="op">=</span><span class="dv">20</span>, <span class="co"># Safety cap on tool-use loop</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory</span></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    verbose:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># Show tool-use trace on stderr</span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>):</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> yttoc_ask(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    question:<span class="bu">str</span>, <span class="co"># Natural-language query</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    ids:Annotated, <span class="co"># Cached video IDs (1+ required)</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    model:<span class="bu">str</span><span class="op">=</span><span class="st">'gpt-4o'</span>, <span class="co"># LLM model</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    max_iterations:<span class="bu">int</span><span class="op">=</span><span class="dv">20</span>, <span class="co"># Safety cap on tool-use loop</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    verbose:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, <span class="co"># Show tool-use trace on stderr</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Answer a question about a video course using LLM tool use.</em></p>
+<div id="38e1e57d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: CLI signature parses question + 1+ positional ids and keeps docment help text</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastcore.script <span class="im">import</span> anno_parser</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> anno_parser(yttoc_ask.__wrapped__)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> p.parse_args([<span class="st">'what is git?'</span>, <span class="st">'A'</span>, <span class="st">'B'</span>])</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> a.question <span class="op">==</span> <span class="st">'what is git?'</span> <span class="kw">and</span> a.ids <span class="op">==</span> [<span class="st">'A'</span>, <span class="st">'B'</span>]</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> a.model <span class="op">==</span> <span class="st">'gpt-4o'</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">'1+ required'</span> <span class="kw">in</span> p.format_help()</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ok</code></pre>
+</div>
+</div>
 <div id="r5render01" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: _render_ask_result returns answer + optional citations block</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.ask <span class="im">import</span> _render_ask_result, AskResponse, Citation, format_citations</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Case 1: no citations</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> AskResponse(answer<span class="op">=</span><span class="st">'The video explains Git basics.'</span>, citations<span class="op">=</span>[])</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> _render_ask_result(result, Path(<span class="st">'/nonexistent'</span>))</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> out <span class="op">==</span> <span class="st">'The video explains Git basics.'</span></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Case 2: with citations (can't resolve summaries, falls back to vid@ts)</span></span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    result2 <span class="op">=</span> AskResponse(</span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>        answer<span class="op">=</span><span class="st">'Git was created by Linus.'</span>,</span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>        citations<span class="op">=</span>[Citation(video_id<span class="op">=</span><span class="st">'VID1'</span>, seconds<span class="op">=</span><span class="dv">120</span>)])</span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    out2 <span class="op">=</span> _render_ask_result(result2, root)</span>
-<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> out2.startswith(<span class="st">'Git was created by Linus.'</span>)</span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'</span><span class="ch">\n</span><span class="st">Citations:'</span> <span class="kw">in</span> out2</span>
-<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'VID1'</span> <span class="kw">in</span> out2</span>
-<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'2:00'</span> <span class="kw">in</span> out2</span>
-<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test: _render_ask_result returns answer + optional citations block</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> yttoc.ask <span class="im">import</span> _render_ask_result, AskResponse, Citation, format_citations</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Case 1: no citations</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> AskResponse(answer<span class="op">=</span><span class="st">'The video explains Git basics.'</span>, citations<span class="op">=</span>[])</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> _render_ask_result(result, Path(<span class="st">'/nonexistent'</span>))</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> out <span class="op">==</span> <span class="st">'The video explains Git basics.'</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Case 2: with citations (can't resolve summaries, falls back to vid@ts)</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    root <span class="op">=</span> Path(d)</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>    result2 <span class="op">=</span> AskResponse(</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>        answer<span class="op">=</span><span class="st">'Git was created by Linus.'</span>,</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>        citations<span class="op">=</span>[Citation(video_id<span class="op">=</span><span class="st">'VID1'</span>, seconds<span class="op">=</span><span class="dv">120</span>)])</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>    out2 <span class="op">=</span> _render_ask_result(result2, root)</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> out2.startswith(<span class="st">'Git was created by Linus.'</span>)</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'</span><span class="ch">\n</span><span class="st">Citations:'</span> <span class="kw">in</span> out2</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'VID1'</span> <span class="kw">in</span> out2</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'2:00'</span> <span class="kw">in</span> out2</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ok'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ok</code></pre>
 </div>

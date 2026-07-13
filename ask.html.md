@@ -22,11 +22,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### dispatch_tool
 
 ``` python
-
 def dispatch_tool(
     registry:dict, name:str, raw_args:str
 )->str:
-
 ```
 
 *Validate args via Pydantic, call handler, return JSON result.*
@@ -39,11 +37,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### openai_tools
 
 ``` python
-
 def openai_tools(
     registry:dict
 )->list:
-
 ```
 
 *Extract OpenAI tool schemas from a registry.*
@@ -56,11 +52,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### make_tool
 
 ``` python
-
 def make_tool(
     name:str, description:str, args_model:type, handler:Callable
 )->ToolEntry:
-
 ```
 
 *Bundle a tool’s schema, arg model, and handler into a ToolEntry.*
@@ -73,11 +67,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### ToolEntry
 
 ``` python
-
 def ToolEntry(
     schema:dict, args_model:type, handler:Callable
 )->None:
-
 ```
 
 *One tool in the registry — like a C struct bundling schema + handler.*
@@ -90,11 +82,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### AskResponse
 
 ``` python
-
 def AskResponse(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *!!! abstract “Usage Documentation”* [Models](../concepts/models.md)
@@ -137,11 +127,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### Citation
 
 ``` python
-
 def Citation(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *!!! abstract “Usage Documentation”* [Models](../concepts/models.md)
@@ -184,11 +172,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### GetXscriptRangeArgs
 
 ``` python
-
 def GetXscriptRangeArgs(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *!!! abstract “Usage Documentation”* [Models](../concepts/models.md)
@@ -231,11 +217,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### GetSummariesArgs
 
 ``` python
-
 def GetSummariesArgs(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *!!! abstract “Usage Documentation”* [Models](../concepts/models.md)
@@ -280,11 +264,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### build_registry
 
 ``` python
-
 def build_registry(
     root:Path
 )->dict:
-
 ```
 
 *Build the tool registry with handlers bound to the given cache root.*
@@ -297,12 +279,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### format_citations
 
 ``` python
-
 def format_citations(
     citations:list, # List of Citation objects
     root:Path=None, # Cache root for summaries lookup
 )->list: # Formatted citation lines
-
 ```
 
 *Resolve Citation objects into display lines with YouTube deep links.*
@@ -478,7 +458,6 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### ask
 
 ``` python
-
 def ask(
     question:str, # Natural-language query
     video_ids:list, # Cached video IDs
@@ -487,7 +466,6 @@ def ask(
     root:Path=None, # Cache root directory
     verbose:bool=False, # Print tool calls to stderr
 )->AskResponse:
-
 ```
 
 *Run a tool-use loop to answer a question about a video course.*
@@ -506,25 +484,36 @@ print(f"Citations: {result.citations}")
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L226"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/ask.py#L227"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_ask
 
 ``` python
-
 def yttoc_ask(
     question:str, # Natural-language query
-    ids:str <Cached video IDs (1+ required)>, # Video IDs
+    ids:Annotated, # Cached video IDs (1+ required)
     model:str='gpt-4o', # LLM model
     max_iterations:int=20, # Safety cap on tool-use loop
     root:str=None, # Root cache directory
     verbose:bool=False, # Show tool-use trace on stderr
 ):
-
 ```
 
 *Answer a question about a video course using LLM tool use.*
+
+``` python
+# Test: CLI signature parses question + 1+ positional ids and keeps docment help text
+from fastcore.script import anno_parser
+p = anno_parser(yttoc_ask.__wrapped__)
+a = p.parse_args(['what is git?', 'A', 'B'])
+assert a.question == 'what is git?' and a.ids == ['A', 'B']
+assert a.model == 'gpt-4o'
+assert '1+ required' in p.format_help()
+print('ok')
+```
+
+    ok
 
 ``` python
 # Test: _render_ask_result returns answer + optional citations block

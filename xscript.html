@@ -233,7 +233,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#get_xscript_range" id="toc-get_xscript_range" class="nav-link" data-scroll-target="#get_xscript_range">get_xscript_range</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/doyu/yttoc/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="xscript.html.md"><i class="bi bi-file-code"></i>CommonMark</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/doyu/yttoc/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="xscript.html.md"><i class="bi bi-file-code"></i>Markdown</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -279,11 +279,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L70" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="parse_xscript" class="level3">
 <h3 class="anchored" data-anchor-id="parse_xscript">parse_xscript</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse_xscript(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    path:<span class="bu">str</span> <span class="op">|</span> pathlib.Path, <span class="co"># Path to SRT file</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>: <span class="co"># List of Segment objects</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse_xscript(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    path:<span class="bu">str</span> <span class="op">|</span> pathlib.Path, <span class="co"># Path to SRT file</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>: <span class="co"># List of Segment objects</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Parse SRT file into normalized xscript segments (dedup rolling-window overlap).</em></p>
 </section>
 </section>
@@ -454,40 +452,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L184" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="yttoc_txt" class="level3">
 <h3 class="anchored" data-anchor-id="yttoc_txt">yttoc_txt</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> yttoc_txt(</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    section:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, <span class="co"># Section path (e.g. "3"); empty for full transcript</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory (default: ~/.cache/yttoc)</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>):</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> yttoc_txt(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    section:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, <span class="co"># Section path (e.g. "3"); empty for full transcript</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory (default: ~/.cache/yttoc)</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Display transcript as plain prose with no timestamps.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L174" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="yttoc_raw" class="level3">
 <h3 class="anchored" data-anchor-id="yttoc_raw">yttoc_raw</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> yttoc_raw(</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    section:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, <span class="co"># Section path (e.g. "3"); empty for full transcript</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory (default: ~/.cache/yttoc)</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>):</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> yttoc_raw(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    section:<span class="bu">str</span><span class="op">=</span><span class="st">''</span>, <span class="co"># Section path (e.g. "3"); empty for full transcript</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory (default: ~/.cache/yttoc)</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Display transcript for a cached video (full or by section).</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/xscript.py#L204" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="get_xscript_range" class="level3">
 <h3 class="anchored" data-anchor-id="get_xscript_range">get_xscript_range</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_xscript_range(</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    start:<span class="bu">int</span> <span class="op">|</span> <span class="bu">float</span>, <span class="co"># Start time in seconds</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    end:<span class="bu">int</span> <span class="op">|</span> <span class="bu">float</span>, <span class="co"># End time in seconds</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>[yttoc.core.Segment] <span class="op">|</span> <span class="bu">dict</span>: <span class="co"># List of Segment or {"error": "..."}</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_xscript_range(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    start:<span class="bu">int</span> <span class="op">|</span> <span class="bu">float</span>, <span class="co"># Start time in seconds</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    end:<span class="bu">int</span> <span class="op">|</span> <span class="bu">float</span>, <span class="co"># End time in seconds</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path<span class="op">=</span><span class="va">None</span>, <span class="co"># Root cache directory</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>[yttoc.core.Segment] <span class="op">|</span> <span class="bu">dict</span>: <span class="co"># List of Segment or {"error": "..."}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>*Compatibility wrapper around _get_xscript_range_strict for tool consumers expecting {‘error’: …}.*</p>
 <div id="fcc9b5a9" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test 9: yttoc_raw — missing video_id raises SystemExit</span></span>

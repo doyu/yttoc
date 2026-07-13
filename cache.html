@@ -236,7 +236,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#tests" id="toc-tests" class="nav-link" data-scroll-target="#tests">Tests</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/doyu/yttoc/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="cache.html.md"><i class="bi bi-file-code"></i>CommonMark</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/doyu/yttoc/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="cache.html.md"><i class="bi bi-file-code"></i>Markdown</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -275,131 +275,109 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L76" target="_blank" style="float:right; font-size:smaller">source</a></p>
 <section id="load_meta" class="level3">
 <h3 class="anchored" data-anchor-id="load_meta">load_meta</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_meta(</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Meta: <span class="co"># Parsed Meta instance</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_meta(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Meta: <span class="co"># Parsed Meta instance</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Load meta.json for one cached video.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L69" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="read_model" class="level3">
 <h3 class="anchored" data-anchor-id="read_model">read_model</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_model(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    path:<span class="bu">str</span> <span class="op">|</span> pathlib.Path, <span class="co"># JSON file path</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    model_cls:<span class="bu">type</span>, <span class="co"># Pydantic model class</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>TModel: <span class="co"># Parsed model instance</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_model(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    path:<span class="bu">str</span> <span class="op">|</span> pathlib.Path, <span class="co"># JSON file path</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    model_cls:<span class="bu">type</span>, <span class="co"># Pydantic model class</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>TModel: <span class="co"># Parsed model instance</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Read a JSON file and validate it with the caller-provided Pydantic model class.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L60" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="first_srt_path" class="level3">
 <h3 class="anchored" data-anchor-id="first_srt_path">first_srt_path</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> first_srt_path(</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Path: <span class="co"># First matching captions.*.srt path</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> first_srt_path(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Path: <span class="co"># First matching captions.*.srt path</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Return the first cached SRT path for one video or raise if none exist.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L54" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="glob_srt" class="level3">
 <h3 class="anchored" data-anchor-id="glob_srt">glob_srt</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> glob_srt(</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    out_dir:<span class="bu">str</span> <span class="op">|</span> pathlib.Path, <span class="co"># Directory to search</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    pattern:<span class="bu">str</span><span class="op">=</span><span class="st">'captions.*.srt'</span>, <span class="co"># Glob pattern</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>: <span class="co"># Sorted matching paths</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> glob_srt(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    out_dir:<span class="bu">str</span> <span class="op">|</span> pathlib.Path, <span class="co"># Directory to search</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    pattern:<span class="bu">str</span><span class="op">=</span><span class="st">'captions.*.srt'</span>, <span class="co"># Glob pattern</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>: <span class="co"># Sorted matching paths</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Find SRT files matching a glob pattern.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L48" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="summaries_path" class="level3">
 <h3 class="anchored" data-anchor-id="summaries_path">summaries_path</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> summaries_path(</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Path: <span class="co"># Path to summaries.json</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> summaries_path(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Path: <span class="co"># Path to summaries.json</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Return the path to summaries.json for one video.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L42" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="toc_path" class="level3">
 <h3 class="anchored" data-anchor-id="toc_path">toc_path</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> toc_path(</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Path: <span class="co"># Path to toc.json</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> toc_path(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Path: <span class="co"># Path to toc.json</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Return the path to toc.json for one video.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L36" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="meta_path" class="level3">
 <h3 class="anchored" data-anchor-id="meta_path">meta_path</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> meta_path(</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Path: <span class="co"># Path to meta.json</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> meta_path(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Path: <span class="co"># Path to meta.json</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Return the path to meta.json for one video.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L30" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="video_dir" class="level3">
 <h3 class="anchored" data-anchor-id="video_dir">video_dir</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> video_dir(</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Path: <span class="co"># Video cache directory</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> video_dir(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Path: <span class="co"># Video cache directory</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Return the cache directory for one video.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L25" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="resolve_root" class="level3">
 <h3 class="anchored" data-anchor-id="resolve_root">resolve_root</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> resolve_root(</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Explicit root override</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Path: <span class="co"># Resolved cache root</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> resolve_root(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Explicit root override</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>Path: <span class="co"># Resolved cache root</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Return the effective cache root as a Path.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L93" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="touch_meta" class="level3">
 <h3 class="anchored" data-anchor-id="touch_meta">touch_meta</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> touch_meta(</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> touch_meta(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    video_id:<span class="bu">str</span>, <span class="co"># Exact video_id</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    root:<span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span><span class="op">=</span><span class="va">None</span>, <span class="co"># Cache root override</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Bump last_used_at on meta.json for one cached video.</em></p>
 <hr>
 <p><a href="https://github.com/doyu/yttoc/blob/main/yttoc/cache.py#L84" target="_blank" style="float:right; font-size:smaller">source</a></p>
 </section>
 <section id="write_model" class="level3">
 <h3 class="anchored" data-anchor-id="write_model">write_model</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> write_model(</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    path:<span class="bu">str</span> <span class="op">|</span> pathlib.Path, <span class="co"># Destination JSON file path</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    model:BaseModel, <span class="co"># Pydantic model instance to persist</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> write_model(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    path:<span class="bu">str</span> <span class="op">|</span> pathlib.Path, <span class="co"># Destination JSON file path</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    model:BaseModel, <span class="co"># Pydantic model instance to persist</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><em>Atomically write a model as indented JSON (temp file + os.replace).</em></p>
 </section>
 </section>

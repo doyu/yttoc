@@ -25,12 +25,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### load_meta
 
 ``` python
-
 def load_meta(
     video_id:str, # Exact video_id
     root:str | pathlib.Path | None=None, # Cache root override
 )->Meta: # Parsed Meta instance
-
 ```
 
 *Load meta.json for one cached video.*
@@ -43,12 +41,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### read_model
 
 ``` python
-
 def read_model(
     path:str | pathlib.Path, # JSON file path
     model_cls:type, # Pydantic model class
 )->TModel: # Parsed model instance
-
 ```
 
 *Read a JSON file and validate it with the caller-provided Pydantic
@@ -62,12 +58,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### first_srt_path
 
 ``` python
-
 def first_srt_path(
     video_id:str, # Exact video_id
     root:str | pathlib.Path | None=None, # Cache root override
 )->Path: # First matching captions.*.srt path
-
 ```
 
 *Return the first cached SRT path for one video or raise if none exist.*
@@ -80,12 +74,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### glob_srt
 
 ``` python
-
 def glob_srt(
     out_dir:str | pathlib.Path, # Directory to search
     pattern:str='captions.*.srt', # Glob pattern
 )->list: # Sorted matching paths
-
 ```
 
 *Find SRT files matching a glob pattern.*
@@ -98,12 +90,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### summaries_path
 
 ``` python
-
 def summaries_path(
     video_id:str, # Exact video_id
     root:str | pathlib.Path | None=None, # Cache root override
 )->Path: # Path to summaries.json
-
 ```
 
 *Return the path to summaries.json for one video.*
@@ -116,12 +106,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### toc_path
 
 ``` python
-
 def toc_path(
     video_id:str, # Exact video_id
     root:str | pathlib.Path | None=None, # Cache root override
 )->Path: # Path to toc.json
-
 ```
 
 *Return the path to toc.json for one video.*
@@ -134,12 +122,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### meta_path
 
 ``` python
-
 def meta_path(
     video_id:str, # Exact video_id
     root:str | pathlib.Path | None=None, # Cache root override
 )->Path: # Path to meta.json
-
 ```
 
 *Return the path to meta.json for one video.*
@@ -152,12 +138,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### video_dir
 
 ``` python
-
 def video_dir(
     video_id:str, # Exact video_id
     root:str | pathlib.Path | None=None, # Cache root override
 )->Path: # Video cache directory
-
 ```
 
 *Return the cache directory for one video.*
@@ -170,11 +154,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### resolve_root
 
 ``` python
-
 def resolve_root(
     root:str | pathlib.Path | None=None, # Explicit root override
 )->Path: # Resolved cache root
-
 ```
 
 *Return the effective cache root as a Path.*
@@ -187,12 +169,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### touch_meta
 
 ``` python
-
 def touch_meta(
     video_id:str, # Exact video_id
     root:str | pathlib.Path | None=None, # Cache root override
 )->None:
-
 ```
 
 *Bump last_used_at on meta.json for one cached video.*
@@ -205,12 +185,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### write_model
 
 ``` python
-
 def write_model(
     path:str | pathlib.Path, # Destination JSON file path
     model:BaseModel, # Pydantic model instance to persist
 )->None:
-
 ```
 
 *Atomically write a model as indented JSON (temp file + os.replace).*

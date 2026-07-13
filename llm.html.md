@@ -19,14 +19,12 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### generate_structured
 
 ``` python
-
 def generate_structured(
     prompt:str, # Full user prompt
     response_model:type, # Pydantic response model
     model:str='gpt-5.4', # OpenAI model name
     client:Any=None, # Optional prebuilt OpenAI-compatible client for tests
 )->TModel: # Parsed response model instance
-
 ```
 
 *Call OpenAI structured output in strict mode and return the parsed

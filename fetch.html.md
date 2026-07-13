@@ -181,11 +181,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### get_video_info
 
 ``` python
-
 def get_video_info(
     url:str, # YouTube video URL
 )->dict: # yt-dlp info dict
-
 ```
 
 *Extract video metadata and caption info without downloading.*
@@ -207,13 +205,11 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### fetch_video
 
 ``` python
-
 def fetch_video(
     url:str, # YouTube video URL
     info:dict | __main__._YtDlpInfo, # Result of get_video_info or validated subset
     root:str | pathlib.Path=None, # Root download directory (default: ~/.cache/yttoc)
 )->Path: # Path to video directory
-
 ```
 
 *Save metadata and srt captions for one video in its original spoken
@@ -250,12 +246,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### yttoc_fetch
 
 ``` python
-
 def yttoc_fetch(
     url:str, # YouTube video URL
     root:str=None, # Root download directory (default: ~/.cache/yttoc)
 ):
-
 ```
 
 *Fetch metadata and captions for a single YouTube video in its original
@@ -277,11 +271,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### yttoc_list
 
 ``` python
-
 def yttoc_list(
     root:str=None, # Root directory (default: ~/.cache/yttoc)
 ):
-
 ```
 
 *List cached videos sorted by last used.*

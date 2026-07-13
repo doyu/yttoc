@@ -31,11 +31,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### flatten_sections
 
 ``` python
-
 def flatten_sections(
     docs:list, # Lesson-tagged summaries
 )->list: # One FlattenedSection per section with video context
-
 ```
 
 *Flatten all docs into one section-level list with lesson/video metadata
@@ -49,12 +47,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### load_summaries
 
 ``` python
-
 def load_summaries(
     video_ids:list, # Ordered video ids (lesson 1, 2, ...)
     root:Path, # Cache root dir
 )->list: # Lesson-tagged summaries
-
 ```
 
 *Load each video’s summaries.json and pair with lesson number from list
@@ -68,11 +64,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### FlattenedSection
 
 ``` python
-
 def FlattenedSection(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *One row of the cross-video keyword/topic grid. Inherits
@@ -86,13 +80,11 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### render_map
 
 ``` python
-
 def render_map(
     docs:list, # Lesson-tagged summaries
     title:str='Course Learning Map', # Top-level heading
     min_topic_lessons:int=2, # Threshold for By Topic inclusion
 )->str: # Full Markdown document
-
 ```
 
 *Render the full course map Markdown (frontmatter + 3 views).*
@@ -105,11 +97,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### render_by_keyword
 
 ``` python
-
 def render_by_keyword(
     rows:list, # Flattened section rows
 )->str: # Markdown fragment
-
 ```
 
 *Render the By Keyword view: every normalized keyword with its
@@ -123,12 +113,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### render_by_topic
 
 ``` python
-
 def render_by_topic(
     rows:list, # Flattened section rows
     min_lessons:int=2, # Minimum distinct lessons for inclusion
 )->str: # Markdown fragment
-
 ```
 
 *Render the By Topic view: keywords occurring in ≥ min_lessons distinct
@@ -142,11 +130,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### render_by_lecture
 
 ``` python
-
 def render_by_lecture(
     docs:list, # Lesson-tagged summaries
 )->str: # Markdown fragment
-
 ```
 
 *Render the By Lecture view (Lesson → sections in playback order).*
@@ -155,23 +141,35 @@ def render_by_lecture(
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L162"
+<a href="https://github.com/doyu/yttoc/blob/main/yttoc/map.py#L163"
 target="_blank" style="float:right; font-size:smaller">source</a>
 
 ### yttoc_map
 
 ``` python
-
 def yttoc_map(
-    ids:str <Cached video IDs in lesson order (1+ required)>, title:str='Course Learning Map', # Top-level heading
+    ids:Annotated, # Cached video IDs in lesson order (1+ required)
+    title:str='Course Learning Map', # Top-level heading
     root:str=None, # Root cache directory
     min_topic_lessons:int=2, # By Topic threshold (distinct lessons)
 ):
-
 ```
 
 *Generate a markmap-ready Markdown course map from cached summaries.json
 files.*
+
+``` python
+# Test: CLI signature parses 1+ positional ids and keeps docment help text
+from fastcore.script import anno_parser
+p = anno_parser(yttoc_map.__wrapped__)
+a = p.parse_args(['A', 'B', '--title', 'T'])
+assert a.ids == ['A', 'B'] and a.title == 'T'
+assert p.parse_args(['A']).ids == ['A']
+assert 'lesson order' in p.format_help()
+print('ok')
+```
+
+    ok
 
 ## Tests
 

@@ -36,11 +36,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### parse_xscript
 
 ``` python
-
 def parse_xscript(
     path:str | pathlib.Path, # Path to SRT file
 )->list: # List of Segment objects
-
 ```
 
 *Parse SRT file into normalized xscript segments (dedup rolling-window
@@ -226,13 +224,11 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### yttoc_txt
 
 ``` python
-
 def yttoc_txt(
     video_id:str, # Exact video_id
     section:str='', # Section path (e.g. "3"); empty for full transcript
     root:str=None, # Root cache directory (default: ~/.cache/yttoc)
 ):
-
 ```
 
 *Display transcript as plain prose with no timestamps.*
@@ -245,13 +241,11 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### yttoc_raw
 
 ``` python
-
 def yttoc_raw(
     video_id:str, # Exact video_id
     section:str='', # Section path (e.g. "3"); empty for full transcript
     root:str=None, # Root cache directory (default: ~/.cache/yttoc)
 ):
-
 ```
 
 *Display transcript for a cached video (full or by section).*
@@ -264,14 +258,12 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### get_xscript_range
 
 ``` python
-
 def get_xscript_range(
     video_id:str, # Exact video_id
     start:int | float, # Start time in seconds
     end:int | float, # End time in seconds
     root:str | pathlib.Path=None, # Root cache directory
 )->list[yttoc.core.Segment] | dict: # List of Segment or {"error": "..."}
-
 ```
 
 \*Compatibility wrapper around \_get_xscript_range_strict for tool

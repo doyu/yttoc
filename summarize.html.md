@@ -48,11 +48,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### AssembledSummaries
 
 ``` python
-
 def AssembledSummaries(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *On-disk shape of summaries.json.*
@@ -65,11 +63,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### AssembledSection
 
 ``` python
-
 def AssembledSection(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *TOC section with LLM-generated summary payload.*
@@ -82,11 +78,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### VideoBlock
 
 ``` python
-
 def VideoBlock(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *Video header subset persisted inside summaries.json.*
@@ -99,11 +93,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### SummaryLLMResult
 
 ``` python
-
 def SummaryLLMResult(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *Structured output from the summary generation LLM call (strict-mode
@@ -117,11 +109,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### PathedSummary
 
 ``` python
-
 def PathedSummary(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *Section summary payload tagged with its section path — one item in the
@@ -135,11 +125,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### SectionSummaryPayload
 
 ``` python
-
 def SectionSummaryPayload(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *Summary payload for one section or the full video.*
@@ -152,11 +140,9 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### Evidence
 
 ``` python
-
 def Evidence(
-    data:Any
+    **data:Any
 )->None:
-
 ```
 
 *A quoted phrase from the transcript with its timestamp.*
@@ -327,14 +313,12 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### yttoc_sum
 
 ``` python
-
 def yttoc_sum(
     video_id:str, # Exact video_id
     section:str='', # Section path (e.g. "3"); empty for all
     root:str=None, # Root cache directory
     refresh:bool=False, # Regenerate summaries
 ):
-
 ```
 
 *Display summaries for a cached video.*
@@ -348,13 +332,11 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### generate_summaries
 
 ``` python
-
 def generate_summaries(
     video_id:str, # Exact video_id
     root:Path=None, # Root cache directory
     refresh:bool=False, # Regenerate summaries on success
 )->AssembledSummaries: # Parsed AssembledSummaries instance
-
 ```
 
 *Generate summaries.json for a cached video. Returns parsed
@@ -610,12 +592,10 @@ target="_blank" style="float:right; font-size:smaller">source</a>
 ### get_summaries
 
 ``` python
-
 def get_summaries(
     video_id:str, # Exact video_id
     root:Path=None, # Root cache directory (default: ~/.cache/yttoc)
 )->yttoc.summarize.AssembledSummaries | dict: # Parsed AssembledSummaries or {"error": "..."}
-
 ```
 
 \*Compatibility wrapper around \_get_summaries_strict for tool/CLI
