@@ -220,11 +220,12 @@ def _render_ask_result(result: AskResponse, # LLM response with answer + citatio
         parts.extend(lines)
     return '\n'.join(parts)
 
-from fastcore.script import call_parse, Param
+from typing import Annotated
+from fastcore.script import call_parse
 
 @call_parse
 def yttoc_ask(question: str, # Natural-language query
-              ids: Param('Cached video IDs (1+ required)', str, nargs='+'), # Video IDs
+              ids: Annotated[str, {'nargs': '+'}], # Cached video IDs (1+ required)
               model: str = 'gpt-4o', # LLM model
               max_iterations: int = 20, # Safety cap on tool-use loop
               root: str = None, # Root cache directory
