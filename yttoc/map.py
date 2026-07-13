@@ -156,10 +156,11 @@ def render_map(docs: list[tuple[int, AssembledSummaries]], # Lesson-tagged summa
 
 
 # %% ../nbs/05_map.ipynb #e1000009
-from fastcore.script import call_parse, Param
+from typing import Annotated
+from fastcore.script import call_parse
 
 @call_parse
-def yttoc_map(ids: Param('Cached video IDs in lesson order (1+ required)', str, nargs='+'),
+def yttoc_map(ids: Annotated[str, {'nargs': '+'}], # Cached video IDs in lesson order (1+ required)
               title: str = 'Course Learning Map', # Top-level heading
               root: str = None, # Root cache directory
               min_topic_lessons: int = 2, # By Topic threshold (distinct lessons)
